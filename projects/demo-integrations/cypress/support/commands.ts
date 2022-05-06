@@ -25,8 +25,8 @@ declare global {
 }
 
 Cypress.Commands.add('getByAutomationId', id => cy.get(`[automation-id=${id}]`));
-Cypress.Commands.add('findByAutomationId', {prevSubject: true}, (subject: any, id) =>
-    subject.find(`[automation-id=${id}]`),
+Cypress.Commands.add('findByAutomationId', {prevSubject: ['element']}, (subject, id) =>
+    cy.wrap(subject).find(`[automation-id=${id}]`),
 );
 Cypress.Commands.add('tuiVisit', tuiVisit);
 Cypress.Commands.add('tuiHideHeader', tuiHideHeader);
