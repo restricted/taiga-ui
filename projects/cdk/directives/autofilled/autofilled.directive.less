@@ -1,0 +1,47 @@
+/* stylelint-disable */
+// @note: fake animation names,
+// so we can control the autofill animation
+@keyframes tuiAutofillStart {
+}
+
+@keyframes tuiAutofillCancel {
+}
+/* stylelint-enable */
+
+.tui-autofill {
+    &,
+    input {
+        // @note: need for listen (transitionstart) event
+        // don't use more than one listener property
+        transition: box-shadow 0.01s;
+
+        &:-webkit-autofill,
+        &:-webkit-autofill:hover,
+        &:-webkit-autofill:focus {
+            animation-duration: 0.01s;
+            animation-name: tuiAutofillStart;
+            border-radius: inherit;
+
+            // @note: fix problem with border colors in safari, firefox
+            border-color: var(--tui-autofill);
+            -webkit-text-fill-color: inherit !important;
+            color: inherit !important;
+            background-color: var(--tui-autofill) !important;
+
+            // @note: to overlay native background and trigger (transitionstart) event
+            -webkit-box-shadow: 0 0 0 62.5rem var(--tui-autofill) inset !important;
+        }
+
+        &:not(:-webkit-autofill) {
+            animation-duration: 0.01s;
+            animation-name: tuiAutofillCancel;
+        }
+
+        //noinspection CssInvalidPseudoSelector
+        &::-webkit-credit-card-auto-fill-button {
+            pointer-events: none;
+            background-color: transparent !important;
+            -webkit-mask-image: none !important;
+        }
+    }
+}
