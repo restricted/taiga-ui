@@ -62,7 +62,10 @@ describe('InputCardGrouped', () => {
                 .should('be.visible')
                 .as('example');
 
-            cy.get('@example').scrollIntoView().should('be.visible');
+            cy.get('@example')
+                .scrollIntoView()
+                .should('be.visible')
+                .wait(DEFAULT_TIMEOUT_BEFORE_ACTION);
 
             cy.get('@example')
                 .findByAutomationId('tui-input-card-grouped__card')
