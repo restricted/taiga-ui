@@ -1,13 +1,13 @@
 import {
-    DEFAULT_TIMEOUT_BEFORE_ACTION,
+    DEFAULT_TIMEOUT_AFTER_PAGE_REDIRECTION,
     EDITOR_PAGE_URL,
 } from '../../support/shared.entities';
 import {WAIT_BEFORE_SCREENSHOT} from './utils';
 
 describe('Editing links in Editor', () => {
-    beforeEach(() => cy.tuiVisit(EDITOR_PAGE_URL));
-
     beforeEach(() => {
+        cy.tuiVisit(EDITOR_PAGE_URL);
+        cy.wait(DEFAULT_TIMEOUT_AFTER_PAGE_REDIRECTION);
         cy.get('#basic').findByAutomationId('tui-doc-example').as('wrapper');
         cy.get('@wrapper').scrollIntoView().should('be.visible');
 
@@ -27,60 +27,91 @@ describe('Editing links in Editor', () => {
 
     it('switch links between', () => {
         selectTag(getContentEditable().find('strong'));
+        getScreenshotArea().matchImageSnapshot('6-1-select-before-insert-anchor');
+
         insertLink();
         getEditLinkInput().type('wysiwyg.com');
-        getEditLinkInput().type('{enter}');
-        getScreenshotArea().matchImageSnapshot('2-1-added-new-link');
-        openAnchorDropdown({containHref: 'http://wysiwyg.com'});
-        getScreenshotArea().matchImageSnapshot('2-2-focused-new-link');
+        getScreenshotArea().matchImageSnapshot('6-2-opened-link-area');
 
-        selectTag(getContentEditable().find('sup'));
-        insertLink();
-        getEditLinkInput().type('example.com');
         getEditLinkInput().type('{enter}');
-        getScreenshotArea().matchImageSnapshot('2-3-added-new-link-2');
-        openAnchorDropdown({containHref: 'http://example.com'});
-        getScreenshotArea().matchImageSnapshot('2-4-focused-new-link-2');
+        getScreenshotArea().matchImageSnapshot('6-3-new-link');
 
         openAnchorDropdown({containHref: 'http://wysiwyg.com'});
-        getScreenshotArea().matchImageSnapshot('2-5-correct-refresh-content-in-dropdown');
+        getScreenshotArea().matchImageSnapshot('6-4-wysiwyg-edit-link');
+
+        openAnchorDropdown({containHref: 'http://taiga-ui.dev'});
+        getScreenshotArea().matchImageSnapshot('6-5-taiga-ui-edit-link');
     });
 
-    it('deleting links', () => {
-        selectTag(getContentEditable().find('strong'));
-        insertLink();
-        getEditLinkInput().type('wysiwyg.com');
-        getEditLinkInput().type('{enter}');
-
-        openAnchorDropdown({containHref: 'http://wysiwyg.com'});
-        getScreenshotArea().matchImageSnapshot('3-1-before-remove-link');
-
+    it('deleting a link', () => {
+        openAnchorDropdown({containHref: 'http://taiga-ui.dev'});
         trashValueByEditLink();
-        getScreenshotArea().matchImageSnapshot('3-2-after-remove-link');
+        getScreenshotArea().matchImageSnapshot('4-remove-link');
+    });
+
+    it('dropdown should open correctly', () => {
+        openAnchorDropdown({containHref: 'http://taiga-ui.dev'});
+        getScreenshotArea().matchImageSnapshot('2-opened-dropdown');
+
+        focusToStartInEditor();
+        getScreenshotArea().matchImageSnapshot('3-loose-focus');
+    });
+
+    it('edit a link', () => {
+        openAnchorDropdown({containHref: 'http://taiga-ui.dev'});
+        getScreenshotArea().matchImageSnapshot('5-0-edit-link');
+
+        startEditValueInEditLink();
+        getScreenshotArea().matchImageSnapshot('5-1-edit-link');
+
+        clearValueInEditLink();
+        getScreenshotArea().matchImageSnapshot('5-2-edit-link');
+
+        getEditLinkInput().type('example.com');
+        getScreenshotArea().matchImageSnapshot('5-3-edit-link');
+
+        saveValueInEditLink();
+        focusToStartInEditor();
+        getScreenshotArea().matchImageSnapshot('5-4-edit-link');
+
+        openAnchorDropdown({containHref: 'http://example.com'});
+        getScreenshotArea().matchImageSnapshot('5-5-edit-link');
     });
 
     function openAnchorDropdown({containHref}: {containHref: string}): void {
+        getContentEditable().find(`a[href="${containHref}"]`).as('link');
+
+        cy.get('@link').click();
         /**
          * Clicking anywhere on a contenteditable box
          * always places the caret at the end of the word.
          * bug: https://github.com/cypress-io/cypress/issues/5721
          */
-        getContentEditable()
-            .find(`a[href="${containHref}"]`)
-            .click()
-            .wait(DEFAULT_TIMEOUT_BEFORE_ACTION);
-    }
-
-    function trashValueByEditLink(): void {
-        cy.get('button[icon=tuiIconTrashLarge]').click({force: true});
+        cy.get('@link').type('{leftArrow}');
     }
 
     function focusToStartInEditor(): void {
-        getContentEditable().type('{moveToStart}').click({force: true});
+        getContentEditable().type('{moveToStart}').click();
+    }
+
+    function startEditValueInEditLink(): void {
+        cy.get('button[icon=tuiIconEditLarge]').click().wait(200);
+    }
+
+    function trashValueByEditLink(): void {
+        cy.get('button[icon=tuiIconTrashLarge]').click().wait(200);
+    }
+
+    function clearValueInEditLink(): void {
+        cy.get('.t-cleaner').click();
+    }
+
+    function saveValueInEditLink(): void {
+        cy.get('button[icon=tuiIconCheckCircleLarge]').click();
     }
 
     function insertLink(): void {
-        cy.get('@wrapper').find('button[icon=tuiIconLinkLarge]').click({force: true});
+        cy.get('@wrapper').find('button[icon=tuiIconLinkLarge]').click();
     }
 
     function getEditLinkInput(): Cypress.Chainable<JQuery> {
