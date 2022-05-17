@@ -8,6 +8,13 @@ export default async (
     on: Cypress.PluginEvents,
     config: Cypress.PluginConfigOptions,
 ): Promise<void> => {
+    on('task', {
+        log(message: string) {
+            console.info(message);
+
+            return null;
+        },
+    });
     await tuiAddSnapshotPlugin(on, config, {
         newSnapshotMarkFn: oldFileName => `==new==${oldFileName}`,
         newSnapshotMarkEnabled: config.baseUrl === 'https://taiga-ui.dev/next/',

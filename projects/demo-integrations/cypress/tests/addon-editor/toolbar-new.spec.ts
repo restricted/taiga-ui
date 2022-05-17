@@ -189,6 +189,7 @@ describe("Editor's toolbar", () => {
         });
 
         it('skips disabled tools and selects next tool after disabled', () => {
+            // TODO AssertionError: Timed out retrying after 10000ms: expected '<button.t-tool.t-tool_margin._focus-visible>' to be 'focused'
             cy.get('#basic').findByAutomationId('tui-doc-example').as('wrapper');
             cy.get('@wrapper')
                 .find('button[icon="tuiIconUndoLarge"]')
@@ -203,17 +204,45 @@ describe("Editor's toolbar", () => {
             // | (active) | disabled | active |
             // ==>
             // | active | disabled | (active) |
+            cy.task('log', '===1before===');
             cy.get('@leftActiveTool').focus().should('be.focused');
+            cy.task('log', '===1after===');
             cy.get('body').type('{rightarrow}');
             cy.get('@betweenDisabledTool').should('not.be.focused');
+            cy.document().then(doc => {
+                return cy.task(
+                    'log',
+                    `===2before===${
+                        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+                        doc.activeElement
+                    }==${
+                        // @ts-ignore eslint-disable-next-line
+                        doc.activeElement?.attributes?.icon?.value
+                    }`,
+                );
+            });
             cy.get('@rightActiveTool').should('be.focused');
+            cy.task('log', '===2after===');
 
             // | active | disabled | (active) |
             // <==
             // | (active) | disabled | active |
             cy.get('body').type('{leftarrow}');
             cy.get('@betweenDisabledTool').should('not.be.focused');
+            cy.document().then(doc => {
+                return cy.task(
+                    'log',
+                    `===3before===${
+                        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+                        doc.activeElement
+                    }==${
+                        // @ts-ignore eslint-disable-next-line
+                        doc.activeElement?.attributes?.icon?.value
+                    }`,
+                );
+            });
             cy.get('@leftActiveTool').should('be.focused');
+            cy.task('log', '===3after===');
         });
 
         it('works with custom tools', () => {
