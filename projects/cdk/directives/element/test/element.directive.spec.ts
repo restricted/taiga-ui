@@ -1,14 +1,13 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TuiElementModule} from '@taiga-ui/cdk';
 import {
     TuiDropdownHostComponent,
     TuiDropdownHostModule,
 } from '@taiga-ui/cdk/components/dropdown-host';
 import {configureTestSuite} from '@taiga-ui/testing';
 
-import {TuiElementModule} from '../element.module';
-
-describe('TuiElement directive', () => {
+describe(`TuiElement directive`, () => {
     @Component({
         template: `
             <tui-dropdown-host
@@ -21,10 +20,13 @@ describe('TuiElement directive', () => {
         changeDetection: ChangeDetectionStrategy.OnPush,
     })
     class TestComponent {
-        component: any;
-        element: any;
+        component?: TuiDropdownHostComponent;
+        element?: ElementRef<HTMLElement>;
 
-        storeRefs(component: any, element: any): void {
+        storeRefs(
+            component: TuiDropdownHostComponent,
+            element: ElementRef<HTMLElement>,
+        ): void {
             this.component = component;
             this.element = element;
         }
@@ -46,11 +48,11 @@ describe('TuiElement directive', () => {
         fixture.detectChanges();
     });
 
-    it('gets native element behind component', () => {
+    it(`gets native element behind component`, () => {
         expect(testComponent.component instanceof TuiDropdownHostComponent).toBe(true);
-        expect(testComponent.element.nativeElement instanceof HTMLElement).toBe(true);
-        expect(testComponent.element.nativeElement.tagName.toLowerCase()).toBe(
-            'tui-dropdown-host',
+        expect(testComponent.element?.nativeElement instanceof HTMLElement).toBe(true);
+        expect(testComponent.element?.nativeElement.tagName.toLowerCase()).toBe(
+            `tui-dropdown-host`,
         );
     });
 });

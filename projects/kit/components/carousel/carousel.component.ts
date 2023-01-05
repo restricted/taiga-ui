@@ -15,16 +15,15 @@ import {
 } from '@angular/core';
 import {INTERSECTION_ROOT} from '@ng-web-apis/intersection-observer';
 import {
-    clamp,
     EMPTY_QUERY,
     TUI_IS_MOBILE,
+    tuiClamp,
     tuiDefaultProp,
     TuiItemDirective,
     tuiPure,
     TuiSwipeDirection,
 } from '@taiga-ui/cdk';
 
-// @dynamic
 @Component({
     selector: 'tui-carousel',
     templateUrl: 'carousel.template.html',
@@ -57,7 +56,7 @@ export class TuiCarouselComponent {
     readonly indexChange = new EventEmitter<number>();
 
     @ContentChildren(TuiItemDirective, {read: TemplateRef})
-    readonly items: QueryList<TemplateRef<any>> = EMPTY_QUERY;
+    readonly items: QueryList<TemplateRef<Record<string, unknown>>> = EMPTY_QUERY;
 
     @HostBinding('class._transitioned')
     transitioned = true;
@@ -129,13 +128,11 @@ export class TuiCarouselComponent {
         const {clientWidth} = this.elementRef.nativeElement;
         const min = 1 - this.items.length / this.itemsCount;
 
-        this.translate = clamp(x / clientWidth + this.translate, min, 0);
+        this.translate = tuiClamp(x / clientWidth + this.translate, min, 0);
     }
 
     onSwipe(direction: TuiSwipeDirection): void {
-        if (Math.round(this.translate) !== -this.index || !this.computedDraggable) {
-            return;
-        } else if (direction === 'left') {
+        if (direction === 'left') {
             this.next();
         } else if (direction === 'right') {
             this.prev();
@@ -155,7 +152,7 @@ export class TuiCarouselComponent {
     }
 
     private updateIndex(index: number): void {
-        this.index = clamp(index, 0, this.items.length - 1);
+        this.index = tuiClamp(index, 0, this.items.length - 1);
         this.indexChange.emit(this.index);
         this.changeDetectorRef.markForCheck();
     }

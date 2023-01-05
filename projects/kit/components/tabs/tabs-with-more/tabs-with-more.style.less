@@ -36,10 +36,11 @@
 
 .t-more_wrapper {
     height: 100%;
-}
+    pointer-events: none;
 
-.t-more {
-    margin: 0;
+    button {
+        pointer-events: auto;
+    }
 }
 
 .t-icon {
@@ -77,4 +78,8 @@
         }
     }
     /* stylelint-enable */
+}
+
+.t-no-margin {
+    margin-left: 0;
 }

@@ -14,30 +14,32 @@ import {
     AbstractTuiControl,
     ALWAYS_FALSE_HANDLER,
     changeDateSeparator,
-    clamp,
     DATE_FILLER_LENGTH,
-    nullableSame,
     TUI_DATE_FORMAT,
     TUI_DATE_SEPARATOR,
-    TUI_FIRST_DAY,
-    TUI_LAST_DAY,
     TuiActiveZoneDirective,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
     TuiBooleanHandler,
+    tuiClamp,
     TuiContextWithImplicit,
     TuiControlValueTransformer,
+    tuiDateClamp,
     TuiDateMode,
     TuiDay,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
     TuiMonth,
+    tuiNullableSame,
     tuiPure,
     TuiTime,
     TuiTimeMode,
 } from '@taiga-ui/cdk';
 import {
-    sizeBigger,
     TUI_TEXTFIELD_SIZE,
     TuiPrimitiveTextfieldComponent,
+    TuiSizeL,
+    TuiSizeS,
     TuiTextfieldSizeDirective,
     TuiTextMaskOptions,
     TuiWithOptionalMinMax,
@@ -46,26 +48,29 @@ import {DATE_TIME_SEPARATOR} from '@taiga-ui/kit/constants';
 import {
     TUI_DATE_TEXTS,
     TUI_DATE_TIME_VALUE_TRANSFORMER,
+    TUI_INPUT_DATE_OPTIONS,
     TUI_TIME_TEXTS,
+    tuiDateStreamWithTransformer,
+    TuiInputDateOptions,
 } from '@taiga-ui/kit/tokens';
 import {
     tuiCreateAutoCorrectedDateTimePipe,
     tuiCreateDateMask,
     tuiCreateTimeMask,
 } from '@taiga-ui/kit/utils/mask';
-import {TextMaskConfig} from 'angular2-text-mask';
 import {combineLatest, Observable} from 'rxjs';
 import {map, pluck} from 'rxjs/operators';
 
-import {TUI_INPUT_DATE_TIME_PROVIDERS} from './input-date-time.providers';
-
-// @dynamic
 @Component({
     selector: 'tui-input-date-time',
     templateUrl: './input-date-time.template.html',
     styleUrls: ['./input-date-time.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: TUI_INPUT_DATE_TIME_PROVIDERS,
+    providers: [
+        tuiAsFocusableItemAccessor(TuiInputDateTimeComponent),
+        tuiAsControl(TuiInputDateTimeComponent),
+        tuiDateStreamWithTransformer(TUI_DATE_TIME_VALUE_TRANSFORMER),
+    ],
 })
 export class TuiInputDateTimeComponent
     extends AbstractTuiControl<[TuiDay | null, TuiTime | null]>
@@ -80,11 +85,11 @@ export class TuiInputDateTimeComponent
 
     @Input()
     @tuiDefaultProp()
-    min: TuiDay | [TuiDay, TuiTime] = TUI_FIRST_DAY;
+    min: TuiDay | [TuiDay, TuiTime] = this.options.min;
 
     @Input()
     @tuiDefaultProp()
-    max: TuiDay | [TuiDay, TuiTime] = TUI_LAST_DAY;
+    max: TuiDay | [TuiDay, TuiTime] = this.options.max;
 
     @Input()
     @tuiDefaultProp()
@@ -127,9 +132,11 @@ export class TuiInputDateTimeComponent
         readonly dateTexts$: Observable<Record<TuiDateMode, string>>,
         @Optional()
         @Inject(TUI_DATE_TIME_VALUE_TRANSFORMER)
-        readonly valueTransformer: TuiControlValueTransformer<
+        override readonly valueTransformer: TuiControlValueTransformer<
             [TuiDay | null, TuiTime | null]
         > | null,
+        @Inject(TUI_INPUT_DATE_OPTIONS)
+        private readonly options: TuiInputDateOptions,
     ) {
         super(control, changeDetectorRef, valueTransformer);
     }
@@ -138,7 +145,7 @@ export class TuiInputDateTimeComponent
         return DATE_FILLER_LENGTH + DATE_TIME_SEPARATOR.length + this.timeMode.length;
     }
 
-    get textMaskOptions(): TextMaskConfig {
+    get textMaskOptions(): TuiTextMaskOptions {
         return this.calculateMask(
             this.value[0],
             this.calendarMinDay,
@@ -146,7 +153,7 @@ export class TuiInputDateTimeComponent
             this.timeMode,
             this.dateFormat,
             this.dateSeparator,
-        ) as TuiTextMaskOptions as unknown as TextMaskConfig;
+        );
     }
 
     get nativeFocusableElement(): HTMLInputElement | null {
@@ -157,10 +164,8 @@ export class TuiInputDateTimeComponent
         return !!this.textfield && this.textfield.focused;
     }
 
-    get calendarIcon(): string {
-        return sizeBigger(this.textfieldSize.size)
-            ? 'tuiIconCalendarLarge'
-            : 'tuiIconCalendar';
+    get calendarIcon(): TuiInputDateOptions['icon'] {
+        return this.options.icon;
     }
 
     get computedValue(): string {
@@ -188,7 +193,15 @@ export class TuiInputDateTimeComponent
     }
 
     get computedActiveYearMonth(): TuiMonth {
-        return this.month || this.value[0] || this.defaultActiveYearMonth;
+        return (
+            this.month ||
+            this.value[0] ||
+            tuiDateClamp(
+                this.defaultActiveYearMonth,
+                Array.isArray(this.min) ? this.min[0] : this.min,
+                Array.isArray(this.max) ? this.max[0] : this.max,
+            )
+        );
     }
 
     get nativeValue(): string {
@@ -201,6 +214,10 @@ export class TuiInputDateTimeComponent
         }
 
         this.nativeFocusableElement.value = value;
+    }
+
+    get size(): TuiSizeL | TuiSizeS {
+        return this.textfieldSize.size;
     }
 
     @HostListener('click')
@@ -237,10 +254,6 @@ export class TuiInputDateTimeComponent
         this.updateValue([day, modifiedTime]);
         this.updateNativeValue(day);
         this.open = false;
-    }
-
-    onHovered(hovered: boolean): void {
-        this.updateHovered(hovered);
     }
 
     onMonthChange(month: TuiMonth): void {
@@ -281,12 +294,12 @@ export class TuiInputDateTimeComponent
         });
     }
 
-    setDisabledState(): void {
+    override setDisabledState(): void {
         super.setDisabledState();
         this.open = false;
     }
 
-    writeValue(value: [TuiDay | null, TuiTime | null] | null): void {
+    override writeValue(value: [TuiDay | null, TuiTime | null] | null): void {
         super.writeValue(value);
 
         this.nativeValue = value && (value[0] || value[1]) ? this.computedValue : '';
@@ -296,13 +309,13 @@ export class TuiInputDateTimeComponent
         return [null, null];
     }
 
-    protected valueIdenticalComparator(
+    protected override valueIdenticalComparator(
         oldValue: [TuiDay | null, TuiTime | null],
         newValue: [TuiDay | null, TuiTime | null],
     ): boolean {
         return (
-            nullableSame(oldValue[0], newValue[0], (a, b) => a.daySame(b)) &&
-            nullableSame(oldValue[1], newValue[1], (a, b) => String(a) === String(b))
+            tuiNullableSame(oldValue[0], newValue[0], (a, b) => a.daySame(b)) &&
+            tuiNullableSame(oldValue[1], newValue[1], (a, b) => String(a) === String(b))
         );
     }
 
@@ -366,6 +379,6 @@ export class TuiInputDateTimeComponent
                 ? this.max[1].toAbsoluteMilliseconds()
                 : Infinity;
 
-        return TuiTime.fromAbsoluteMilliseconds(clamp(ms, min, max));
+        return TuiTime.fromAbsoluteMilliseconds(tuiClamp(ms, min, max));
     }
 }

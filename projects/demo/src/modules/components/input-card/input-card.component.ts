@@ -21,12 +21,12 @@ import {ABSTRACT_PROPS_ACCESSOR} from '../abstract/inherited-documentation/abstr
     ],
 })
 export class ExampleTuiInputCardComponent extends AbstractExampleTuiControl {
-    readonly exampleModule = import('!!raw-loader!./examples/import/import-module.txt');
-    readonly exampleHtml = import('!!raw-loader!./examples/import/insert-template.txt');
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
 
     readonly example1: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/1/index.ts'),
-        HTML: import('!!raw-loader!./examples/1/index.html'),
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
     };
 
     card = '';
@@ -35,17 +35,17 @@ export class ExampleTuiInputCardComponent extends AbstractExampleTuiControl {
 
     length = this.lengthVariants[0];
 
-    cleaner = false;
+    override cleaner = false;
 
-    exampleText = '0000 0000 0000 0000';
+    override exampleText = '0000 0000 0000 0000';
 
     hintContentCVC = null;
 
     hintDirectionCVC: TuiHintOptions['direction'] = 'bottom-left';
 
-    hintModeCVC = null;
+    hintAppearanceCVC = '';
 
-    readonly cards = {
+    readonly cards: Record<string, string> = {
         common: 'https://ng-web-apis.github.io/dist/assets/images/common.svg',
         universal: 'https://ng-web-apis.github.io/dist/assets/images/universal.svg',
         intersection:
@@ -81,9 +81,7 @@ export class ExampleTuiInputCardComponent extends AbstractExampleTuiControl {
     }
 
     get cardSrc(): string | null {
-        return this.cardSrcSelected === null
-            ? null
-            : (this.cards as any)[this.cardSrcSelected];
+        return this.cardSrcSelected === null ? null : this.cards[this.cardSrcSelected];
     }
 
     get disabledCard(): boolean {

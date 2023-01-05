@@ -28,19 +28,20 @@
             <tui-input-copy
                 [formControl]="control"
                 [focusable]="focusable"
-                [tuiTextfieldAutocomplete]="autocomplete"
-                [tuiTextfieldExampleText]="exampleText"
                 [tuiTextfieldLabelOutside]="labelOutside"
                 [tuiTextfieldSize]="size"
-                [tuiTextfieldMaxLength]="maxLength"
                 [tuiTextfieldCleaner]="cleaner"
+                [tuiTextfieldFiller]="filler"
+                [tuiTextfieldIconLeft]="iconLeft"
+                [tuiTextfieldCustomContent]="customContent"
                 [successMessage]="notificationTemplate"
                 [messageDirection]="hintDirection"
-                [messageMode]="hintMode"
+                [messageAppearance]="hintAppearance"
                 [readOnly]="readOnly"
                 [pseudoInvalid]="pseudoInvalid"
-                [pseudoFocused]="pseudoFocused"
-                [pseudoHovered]="pseudoHovered"
+                [pseudoFocus]="pseudoFocused"
+                [pseudoHover]="pseudoHovered"
+                [style.text-align]="textAlign"
             >
                 Type a text
             </tui-input-copy>
@@ -81,13 +82,25 @@
                 documentationPropertyName="messageMode"
                 documentationPropertyMode="input"
                 documentationPropertyType="TuiHintModeT | null"
-                [documentationPropertyValues]="hintModeVariants"
+                [documentationPropertyValues]="hintAppearanceVariants"
                 [(documentationPropertyValue)]="messageMode"
             >
                 Message tooltip mode
             </ng-template>
         </tui-doc-documentation>
         <inherited-documentation></inherited-documentation>
+        <tui-doc-documentation heading="CSS customization">
+            <ng-template
+                i18n
+                documentationPropertyMode="input"
+                documentationPropertyType="string"
+                documentationPropertyName="style.text-align"
+                [documentationPropertyValues]="textAlignVariants"
+                [(documentationPropertyValue)]="textAlign"
+            >
+                Custom align content by text-align
+            </ng-template>
+        </tui-doc-documentation>
     </ng-template>
     <ng-template #customTemplate>
         <i>Some custom content</i>

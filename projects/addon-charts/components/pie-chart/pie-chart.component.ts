@@ -1,4 +1,4 @@
-import {Location} from '@angular/common';
+import {Location as NgLocation} from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -6,19 +6,25 @@ import {
     HostBinding,
     Inject,
     Input,
+    Optional,
     Output,
 } from '@angular/core';
-import {DomSanitizer, SafeValue} from '@angular/platform-browser';
-import {TUI_DEFAULT_COLOR_HANDLER} from '@taiga-ui/addon-charts/constants';
-import {TuiColorHandler} from '@taiga-ui/addon-charts/types';
+import {SafeValue} from '@angular/platform-browser';
+import {LOCATION} from '@ng-web-apis/common';
+import {tuiPrepareExternalUrl} from '@taiga-ui/addon-charts/utils';
 import {
-    sum,
     TuiContextWithImplicit,
     tuiDefaultProp,
     TuiIdService,
     tuiPure,
+    tuiSum,
 } from '@taiga-ui/cdk';
-import {colorFallback, TuiSizeXL, TuiSizeXS} from '@taiga-ui/core';
+import {
+    TuiHintOptionsDirective,
+    tuiHintOptionsProvider,
+    TuiSizeXL,
+    TuiSizeXS,
+} from '@taiga-ui/core';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
 const RADII = {
@@ -36,12 +42,14 @@ const TRANSFORM = {
     xl: 1.08,
 };
 
-// TODO: 3.0 Remove sanitizer when Angular version is bumped
 @Component({
     selector: 'tui-pie-chart',
     templateUrl: './pie-chart.template.html',
     styleUrls: ['./pie-chart.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [
+        tuiHintOptionsProvider({direction: 'top-right', appearance: 'onDark'}),
+    ],
 })
 export class TuiPieChartComponent {
     private readonly autoIdString: string;
@@ -53,15 +61,7 @@ export class TuiPieChartComponent {
     @Input()
     @HostBinding('attr.data-size')
     @tuiDefaultProp()
-    size: TuiSizeXS | TuiSizeXL = 'm';
-
-    @Input()
-    @tuiDefaultProp()
-    colorHandler: TuiColorHandler = TUI_DEFAULT_COLOR_HANDLER;
-
-    @Input()
-    @tuiDefaultProp()
-    hintContent: PolymorpheusContent<TuiContextWithImplicit<number>> = '';
+    size: TuiSizeXL | TuiSizeXS = 'm';
 
     @Input()
     @tuiDefaultProp()
@@ -76,15 +76,27 @@ export class TuiPieChartComponent {
 
     constructor(
         @Inject(TuiIdService) idService: TuiIdService,
-        @Inject(Location) private readonly locationRef: Location,
-        @Inject(DomSanitizer) private readonly sanitizer: DomSanitizer,
+        @Inject(NgLocation) private readonly ngLocation: NgLocation,
+        @Inject(LOCATION) private readonly locationRef: Location,
+        @Optional()
+        @Inject(TuiHintOptionsDirective)
+        private readonly hintOptions: TuiHintOptionsDirective | null,
     ) {
         this.autoIdString = idService.generate();
+
+        if (this.hintOptions) {
+            this.hintOptions.showDelay = 0;
+            this.hintOptions.hideDelay = 0;
+        }
     }
 
     @HostBinding('class._empty')
     get empty(): boolean {
         return !this.getSum(this.value);
+    }
+
+    get hintContent(): PolymorpheusContent<TuiContextWithImplicit<number>> {
+        return this.hintOptions?.content || '';
     }
 
     get maskId(): string {
@@ -93,9 +105,7 @@ export class TuiPieChartComponent {
 
     get mask(): string | null {
         return this.masked
-            ? `url(${this.locationRef.prepareExternalUrl(this.locationRef.path())}#${
-                  this.maskId
-              })`
+            ? tuiPrepareExternalUrl(this.ngLocation, this.locationRef, this.maskId)
             : null;
     }
 
@@ -110,13 +120,9 @@ export class TuiPieChartComponent {
     getTransform(index: number): string | null {
         const transform = this.masked
             ? `scale(${TRANSFORM[this.size]})`
-            : `scale(${TRANSFORM['xs']})`;
+            : `scale(${TRANSFORM.xs})`;
 
         return index === this.activeItemIndex ? transform : null;
-    }
-
-    getHint(hint: PolymorpheusContent): PolymorpheusContent {
-        return this.hintContent ? hint : '';
     }
 
     onHovered(hovered: boolean, index: number): void {
@@ -124,14 +130,12 @@ export class TuiPieChartComponent {
     }
 
     getColor(index: number): SafeValue {
-        return this.sanitizer.bypassSecurityTrustStyle(
-            `var(--tui-chart-${index}, ${colorFallback(this.colorHandler(index))})`,
-        );
+        return `var(--tui-chart-${index})`;
     }
 
     @tuiPure
     private getSum(value: readonly number[]): number {
-        return sum(...value);
+        return tuiSum(...value);
     }
 
     @tuiPure

@@ -4,14 +4,11 @@
     color: var(--tui-base-01);
 }
 
-.notification {
+.t-notification {
     position: absolute;
     border-radius: 100%;
     box-shadow: 0 0 0 2px currentColor;
-
-    &:not([data-tui-background]) {
-        background-color: currentColor;
-    }
+    background-color: currentColor;
 
     &_top {
         :host[data-size='xs']:not(._rounded) &,
@@ -124,44 +121,13 @@
     }
 }
 
-.icon,
-.notification {
-    &[data-tui-color='normal'] {
-        color: var(--tui-base-06);
-    }
-
-    &[data-tui-color='onDark'] {
-        color: var(--tui-secondary);
-    }
-
-    &[data-tui-color='gray'] {
-        color: var(--tui-base-03);
-    }
-
-    &[data-tui-color='warning'] {
-        color: var(--tui-primary);
-    }
-
-    &[data-tui-color='secondary'] {
-        color: var(--tui-info-fill);
-    }
-
-    &[data-tui-color='highlight'],
-    &[data-tui-color='white'] {
-        color: var(--tui-base-01);
-    }
-
-    &[data-tui-color='transparent-dark'] {
-        color: var(--tui-clear);
-    }
-
-    &[data-tui-color='transparent-light'] {
-        color: var(--tui-clear-inverse);
-    }
-}
-
-.icon {
+.t-icon {
     color: var(--tui-success-fill);
+
+    :host[data-size='xs'] & {
+        transform: scale(2/3);
+        margin: -0.25rem;
+    }
 
     :host[data-size='s'] &,
     :host[data-size='m'] & {
@@ -180,7 +146,7 @@
     }
 }
 
-.content {
+.t-content {
     position: absolute;
     display: flex;
     align-items: center;

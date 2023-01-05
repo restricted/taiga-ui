@@ -3,7 +3,6 @@ import {
     ChangeDetectorRef,
     Component,
     EventEmitter,
-    forwardRef,
     HostListener,
     Inject,
     Input,
@@ -15,8 +14,9 @@ import {
 import {NgControl} from '@angular/forms';
 import {
     AbstractTuiControl,
-    setNativeFocused,
-    TUI_FOCUSABLE_ITEM_ACCESSOR,
+    CHAR_PLUS,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
     TuiContextWithImplicit,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
@@ -41,23 +41,24 @@ import {TUI_COUNTRIES} from '@taiga-ui/kit/tokens';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
 
-import {MASK_AFTER_CODE_REGEXP} from './const/countries';
+import {MASK_AFTER_CODE_REGEXP} from './const/mask-after-code-regexp';
+import {
+    TUI_INPUT_PHONE_INTERNATIONAL_OPTIONS,
+    TuiInputPhoneInternationalOptions,
+} from './input-phone-international.options';
 import {TUI_COUNTRIES_MASKS} from './tokens/countries-masks';
-import {extractValueFromEvent} from './utils/extract-value-from-event';
+import {tuiExtractValueFromEvent} from './utils/extract-value-from-event';
 
-// @dynamic
 @Component({
     selector: 'tui-input-phone-international',
     templateUrl: './input-phone-international.template.html',
     styleUrls: ['./input-phone-international.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
-        {
-            provide: TUI_FOCUSABLE_ITEM_ACCESSOR,
-            useExisting: forwardRef(() => TuiInputPhoneInternationalComponent),
-        },
-        FIXED_DROPDOWN_CONTROLLER_PROVIDER,
+        tuiAsFocusableItemAccessor(TuiInputPhoneInternationalComponent),
+        tuiAsControl(TuiInputPhoneInternationalComponent),
     ],
+    viewProviders: [FIXED_DROPDOWN_CONTROLLER_PROVIDER],
 })
 export class TuiInputPhoneInternationalComponent
     extends AbstractTuiControl<string>
@@ -79,17 +80,17 @@ export class TuiInputPhoneInternationalComponent
     }
 
     @Input()
-    countries: readonly TuiCountryIsoCode[] = [];
+    countries = this.options.countries;
 
     @Output()
     readonly countryIsoCodeChange = new EventEmitter<TuiCountryIsoCode>();
 
-    countryIsoCode: TuiCountryIsoCode = TuiCountryIsoCode.RU;
+    countryIsoCode = this.options.countryIsoCode;
 
     open = false;
 
     readonly arrow: PolymorpheusContent<
-        TuiContextWithImplicit<TuiSizeS | TuiSizeM | TuiSizeL>
+        TuiContextWithImplicit<TuiSizeL | TuiSizeM | TuiSizeS>
     > = TUI_ARROW;
 
     constructor(
@@ -104,6 +105,8 @@ export class TuiInputPhoneInternationalComponent
         readonly countriesNames$: Observable<Record<TuiCountryIsoCode, string>>,
         @Inject(TUI_COUNTRIES_MASKS)
         readonly countriesMasks: Record<TuiCountryIsoCode, string>,
+        @Inject(TUI_INPUT_PHONE_INTERNATIONAL_OPTIONS)
+        private readonly options: TuiInputPhoneInternationalOptions,
     ) {
         super(control, changeDetectorRef);
 
@@ -143,7 +146,7 @@ export class TuiInputPhoneInternationalComponent
     @HostListener('paste.capture.prevent.stop', ['$event'])
     @HostListener('drop.capture.prevent.stop', ['$event'])
     onPaste(event: ClipboardEvent | DragEvent): void {
-        let value = extractValueFromEvent(event).replace(TUI_NON_DIGITS_REGEXP, '');
+        let value = tuiExtractValueFromEvent(event).replace(TUI_NON_DIGITS_REGEXP, '');
         const countryIsoCode = this.extractCountryCode(value);
 
         if (!countryIsoCode) {
@@ -161,14 +164,29 @@ export class TuiInputPhoneInternationalComponent
         }
 
         this.updateCountryIsoCode(countryIsoCode);
-        this.updateValue(`+${value}`);
+        this.updateValue(`${CHAR_PLUS}${value}`);
     }
 
     readonly isoToCountryCodeMapper: TuiMapper<TuiCountryIsoCode, string> = item =>
         this.isoToCountryCode(item);
 
     getFlagPath(code: TuiCountryIsoCode): string {
-        return `${this.staticPath}${code}.png`;
+        switch (code) {
+            case TuiCountryIsoCode.BL:
+            case TuiCountryIsoCode.BQ:
+            case TuiCountryIsoCode.CW:
+            case TuiCountryIsoCode.GF:
+            case TuiCountryIsoCode.GP:
+            case TuiCountryIsoCode.MF:
+            case TuiCountryIsoCode.MQ:
+            case TuiCountryIsoCode.RE:
+            case TuiCountryIsoCode.YT:
+                return `${this.staticPath}${TuiCountryIsoCode.FR}.png`;
+            case TuiCountryIsoCode.SX:
+                return `${this.staticPath}${TuiCountryIsoCode.NL}.png`;
+            default:
+                return `${this.staticPath}${code}.png`;
+        }
     }
 
     onItemClick(isoCode: TuiCountryIsoCode): void {
@@ -184,11 +202,11 @@ export class TuiInputPhoneInternationalComponent
         }
 
         if (this.nativeFocusableElement) {
-            setNativeFocused(this.nativeFocusableElement);
+            this.nativeFocusableElement.focus();
         }
     }
 
-    setDisabledState(): void {
+    override setDisabledState(): void {
         super.setDisabledState();
         this.close();
     }
@@ -238,7 +256,7 @@ export class TuiInputPhoneInternationalComponent
             return (
                 ruCodeTest ||
                 (value.startsWith(
-                    this.isoToCountryCode(countryIsoCode).replace('+', ''),
+                    this.isoToCountryCode(countryIsoCode).replace(CHAR_PLUS, ''),
                 ) &&
                     value.length + 1 === this.getMaxAllowedLength(countryIsoCode))
             );

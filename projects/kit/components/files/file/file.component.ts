@@ -8,24 +8,23 @@ import {
     Output,
 } from '@angular/core';
 import {DomSanitizer, SafeValue} from '@angular/platform-browser';
-import {TUI_IS_MOBILE, tuiDefaultProp, tuiPure} from '@taiga-ui/cdk';
+import {TUI_IS_MOBILE, tuiDefaultProp, tuiIsObserved, tuiPure} from '@taiga-ui/cdk';
 import {TuiSizeL} from '@taiga-ui/core';
-import {TuiFileState, TuiFileStateT} from '@taiga-ui/kit/enums';
 import {TuiFileLike} from '@taiga-ui/kit/interfaces';
 import {TUI_DIGITAL_INFORMATION_UNITS, TUI_FILE_TEXTS} from '@taiga-ui/kit/tokens';
-import {formatSize} from '@taiga-ui/kit/utils/files';
+import {TuiFileState} from '@taiga-ui/kit/types';
+import {tuiFormatSize} from '@taiga-ui/kit/utils/files';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 type FileTexts = 'loadingError' | 'preview' | 'remove';
 
-// @dynamic
 @Component({
     selector: 'tui-file',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './file.template.html',
     styleUrls: ['./file.style.less'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TuiFileComponent {
     @Input()
@@ -34,11 +33,15 @@ export class TuiFileComponent {
 
     @Input()
     @tuiDefaultProp()
-    state: TuiFileStateT = 'normal';
+    state: TuiFileState = 'normal';
 
     @Input()
     @tuiDefaultProp()
     size: TuiSizeL = 'm';
+
+    @Input()
+    @tuiDefaultProp()
+    showDelete = true;
 
     @Input()
     @tuiDefaultProp()
@@ -72,30 +75,30 @@ export class TuiFileComponent {
     }
 
     get isLoading(): boolean {
-        return this.state === TuiFileState.Loading;
+        return this.state === 'loading';
     }
 
     get isError(): boolean {
-        return this.state === TuiFileState.Error;
+        return this.state === 'error';
     }
 
     get isDeleted(): boolean {
-        return this.state === TuiFileState.Deleted;
+        return this.state === 'deleted';
     }
 
     get allowDelete(): boolean {
-        return !!this.removed.observers.length;
+        return this.showDelete && tuiIsObserved(this.removed);
     }
 
     get icon(): string {
-        if (this.state === TuiFileState.Normal && this.isBig) {
+        if (this.state === 'normal' && this.isBig) {
             return 'tuiIconDefaultDocLarge';
         }
 
         switch (this.state) {
-            case TuiFileState.Deleted:
+            case 'deleted':
                 return 'tuiIconTrashLarge';
-            case TuiFileState.Error:
+            case 'error':
                 return 'tuiIconAlertCircleLarge';
             default:
                 return 'tuiIconCheckCircleLarge';
@@ -133,11 +136,11 @@ export class TuiFileComponent {
 
     @tuiPure
     private calculateContent$(
-        state: TuiFileStateT,
+        state: TuiFileState,
         file: TuiFileLike,
         fileTexts$: Observable<Record<'loadingError' | 'preview' | 'remove', string>>,
     ): Observable<PolymorpheusContent> {
-        return state === TuiFileState.Error && !file.content
+        return state === 'error' && !file.content
             ? fileTexts$.pipe(map(texts => texts.loadingError))
             : of(this.file.content || '');
     }
@@ -147,7 +150,7 @@ export class TuiFileComponent {
         file: TuiFileLike,
         units$: Observable<[string, string, string]>,
     ): Observable<string | null> {
-        return units$.pipe(map(units => formatSize(units, file.size)));
+        return units$.pipe(map(units => tuiFormatSize(units, file.size)));
     }
 
     @tuiPure

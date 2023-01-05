@@ -1,6 +1,7 @@
 /**
  * Various sizes for components
  *
+ * 'xxs' - extra extra small
  * 'xs' - extra small
  * 's' - small
  * 'm' - medium (typically default)
@@ -11,11 +12,13 @@
 
 export type TuiSizeM = 'm';
 
-export type TuiSizeS = 's' | TuiSizeM;
+export type TuiSizeS = TuiSizeM | 's';
 
 export type TuiSizeL = TuiSizeM | 'l';
 
-export type TuiSizeXS = 'xs' | TuiSizeS;
+export type TuiSizeXS = TuiSizeS | 'xs';
+
+export type TuiSizeXXS = TuiSizeXS | 'xxs';
 
 export type TuiSizeXL = TuiSizeL | 'xl';
 

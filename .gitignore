@@ -32,3 +32,5 @@ dist
 **/cypress/snapshots
 .ssl
 RELEASE_BODY.md
+*tsbuildinfo
+.angular

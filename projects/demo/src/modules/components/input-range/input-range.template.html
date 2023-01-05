@@ -11,37 +11,11 @@
             <a
                 tuiLink
                 routerLink="/utils/tokens"
+                fragment="number-format"
             >
                 TUI_NUMBER_FORMAT
             </a>
         </p>
-
-        <tui-notification status="warning">
-            <p
-                i18n
-                class="tui-space_top-0"
-            >
-                This component is being refactored.
-                Soon&nbsp;(next&nbsp;major&nbsp;release) you will see the fresh
-                version of it!
-            </p>
-            <p i18n>
-                Of course, we keep backward compatibility in mind (for 2.x.x).
-                You can still use old version of
-                <code>InputRange</code>
-                .
-            </p>
-
-            <p i18n>
-                However, if you are going to use this component, we recommend to
-                use new version. To enable the "new version"-mode, add
-                <code>new</code>
-                directive. Example:&nbsp;
-                <code>
-                    &lt;tui&#8209;input&#8209;range&nbsp;new&nbsp;...&gt;
-                </code>
-            </p>
-        </tui-notification>
 
         <tui-doc-example
             id="base"
@@ -52,8 +26,7 @@
         >
             <ng-template #stepQuantumDescription>
                 <p>
-                    Look into this example to understand difference between
-                    input-props
+                    Look into this example to understand difference between input-props
                     <code>[steps]</code>
                     and
                     <code>[quantum]</code>
@@ -67,8 +40,7 @@
                 .
             </p>
             <p>
-                But text inputs allow to type decimal number which is multiple
-                of
+                But text inputs allow to type decimal number which is multiple of
                 <code>0.00001</code>
                 .
             </p>
@@ -77,7 +49,7 @@
         </tui-doc-example>
 
         <tui-doc-example
-            id="numberFormat"
+            id="number-format"
             i18n-heading
             heading="Override number format"
             [content]="example2"
@@ -100,7 +72,7 @@
         </tui-doc-example>
 
         <tui-doc-example
-            id="valueContent"
+            id="value-content"
             i18n-heading
             heading="Custom value content"
             [content]="example3"
@@ -126,7 +98,7 @@
         </tui-doc-example>
 
         <tui-doc-example
-            id="keySteps"
+            id="key-steps"
             i18n-heading
             heading="KeySteps"
             [content]="example5"
@@ -136,10 +108,7 @@
                 class="tui-space_bottom-8 tui-space_top-0"
             >
                 <dt><strong>Key steps</strong></dt>
-                <dd>
-                    anchor points of non-uniform format between value and
-                    position
-                </dd>
+                <dd>anchor points of non-uniform format between value and position</dd>
             </dl>
             <tui-input-range-example-5></tui-input-range-example-5>
         </tui-doc-example>
@@ -149,7 +118,6 @@
         <tui-doc-demo [control]="control">
             <ng-template>
                 <tui-input-range
-                    new
                     [formControl]="control"
                     [min]="min"
                     [max]="max"
@@ -163,14 +131,9 @@
                     [tuiTextfieldLabelOutside]="labelOutside"
                     [tuiTextfieldSize]="size"
                     [readOnly]="readOnly"
-                    [size]="size"
-                    [minLabel]="minLabel"
-                    [maxLabel]="maxLabel"
-                    [segmentsPluralize]="segmentsPluralize"
                 >
-                    Just a very long label. Don't afraid it does not overflow
-                    the wrapper, the label is just cut off with ellipsis when it
-                    does not fit the wrapper.
+                    Just a very long label. Don't afraid it does not overflow the wrapper, the label is just cut off
+                    with ellipsis when it does not fit the wrapper.
                 </tui-input-range>
             </ng-template>
         </tui-doc-demo>
@@ -267,19 +230,22 @@
                 i18n
                 documentationPropertyName="pluralize"
                 documentationPropertyMode="input"
-                documentationPropertyType="TuiPluralize | Record<string, string>"
+                documentationPropertyType="Record<string, string>"
                 [documentationPropertyValues]="pluralizeVariants"
                 [(documentationPropertyValue)]="pluralize"
             >
-                Plural forms for labels. TuiPluralize array is deprecated. Use
-                object that mimics the
-                <a
-                    tuiLink
-                    href="https://unicode-org.github.io/icu/userguide/format_parse/messages/"
-                >
-                    ICU format
-                </a>
-                for i18nPlural
+                Plural forms for labels.
+
+                <p>
+                    Use object that mimics the
+                    <a
+                        tuiLink
+                        href="https://unicode-org.github.io/icu/userguide/format_parse/messages/"
+                    >
+                        ICU format
+                    </a>
+                    for i18nPlural
+                </p>
             </ng-template>
             <ng-template
                 i18n
@@ -289,76 +255,6 @@
                 [(documentationPropertyValue)]="readOnly"
             >
                 Component is read only
-            </ng-template>
-            <ng-template
-                i18n
-                documentationPropertyName="size"
-                documentationPropertyMode="input"
-                documentationPropertyType="TuiSizeL"
-                [documentationPropertyDeprecated]="true"
-                [documentationPropertyValues]="sizeVariants"
-                [(documentationPropertyValue)]="size"
-            >
-                Size
-
-                <p>
-                    Use
-                    <code>tuiTextfieldSize</code>
-                    instead.
-                </p>
-            </ng-template>
-            <ng-template
-                i18n
-                documentationPropertyName="minLabel"
-                documentationPropertyMode="input"
-                documentationPropertyType="string"
-                [documentationPropertyDeprecated]="true"
-                [documentationPropertyValues]="minLabelVariants"
-                [(documentationPropertyValue)]="minLabel"
-            >
-                Label for min value
-
-                <p>
-                    Use
-                    <code>leftValueContent</code>
-                    instead.
-                </p>
-            </ng-template>
-            <ng-template
-                i18n
-                documentationPropertyName="maxLabel"
-                documentationPropertyMode="input"
-                documentationPropertyType="string"
-                [documentationPropertyDeprecated]="true"
-                [documentationPropertyValues]="maxLabelVariants"
-                [(documentationPropertyValue)]="maxLabel"
-            >
-                Label for max value
-
-                <p>
-                    Use
-                    <code>rightValueContent</code>
-                    instead.
-                </p>
-            </ng-template>
-            <ng-template
-                i18n
-                documentationPropertyName="segmentsPluralize"
-                documentationPropertyMode="input"
-                documentationPropertyType="TuiPluralize"
-                [documentationPropertyDeprecated]="true"
-                [documentationPropertyValues]="pluralizeVariants"
-                [(documentationPropertyValue)]="segmentsPluralize"
-            >
-                Plural forms for
-                <code>segments</code>
-
-                <p>
-                    <strong>
-                        See examples how to create ticks without this property
-                        (outside of the component).
-                    </strong>
-                </p>
             </ng-template>
         </tui-doc-documentation>
 

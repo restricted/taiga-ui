@@ -3,29 +3,23 @@ import {TuiAppearance} from '@taiga-ui/core/enums';
 import {TuiSizeXL, TuiSizeXS} from '@taiga-ui/core/types';
 
 export interface TuiButtonOptions {
-    readonly size: TuiSizeXS | TuiSizeXL;
+    readonly size: TuiSizeXL | TuiSizeXS;
     readonly appearance:
-        | keyof Record<TuiAppearance, string>
         | TuiAppearance
         | string
-        | null; // TODO: 3.0 need remove `null`
-    readonly shape: 'square' | 'rounded' | null; // TODO: 3.0 need remove `null`
+        | keyof Record<TuiAppearance, string>
+        | null;
+    readonly shape: 'rounded' | 'square' | null;
 }
 
-/**
- * @deprecated: use TuiButtonOptions instead
- * todo: remove in 3.0
- */
-export type ButtonOptions = TuiButtonOptions;
-
 export const TUI_BUTTON_DEFAULT_OPTIONS: TuiButtonOptions = {
-    size: 'l',
+    size: `l`,
     shape: null,
     appearance: TuiAppearance.Primary,
 };
 
 export const TUI_BUTTON_OPTIONS = new InjectionToken<TuiButtonOptions>(
-    'Default parameters for button component',
+    `[TUI_BUTTON_OPTIONS]: Default parameters for button component`,
     {
         factory: () => TUI_BUTTON_DEFAULT_OPTIONS,
     },

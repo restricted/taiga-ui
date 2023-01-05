@@ -2626,7 +2626,7 @@
     <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>TuiDropdownController<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>:
 </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/modules/components/abstract/dropdown-controller-documentation/dropdown-controller-documentation.template.html</context>
+          <context context-type="sourcefile">src/modules/components/abstract/dropdown-documentation/dropdown-documentation.template.html</context>
           <context context-type="linenumber">1</context>
         </context-group>
       </trans-unit>
@@ -2636,7 +2636,7 @@
         <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>limitWidth === &apos;fixed&apos;<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/>)
     </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/modules/components/abstract/dropdown-controller-documentation/dropdown-controller-documentation.template.html</context>
+          <context context-type="sourcefile">src/modules/components/abstract/dropdown-documentation/dropdown-documentation.template.html</context>
           <context context-type="linenumber">16</context>
         </context-group>
       </trans-unit>
@@ -2645,7 +2645,7 @@
         Set a vertical direction of dropdown
     </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/modules/components/abstract/dropdown-controller-documentation/dropdown-controller-documentation.template.html</context>
+          <context context-type="sourcefile">src/modules/components/abstract/dropdown-documentation/dropdown-documentation.template.html</context>
           <context context-type="linenumber">27</context>
         </context-group>
       </trans-unit>
@@ -2654,7 +2654,7 @@
         Limit width of dropdown
     </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/modules/components/abstract/dropdown-controller-documentation/dropdown-controller-documentation.template.html</context>
+          <context context-type="sourcefile">src/modules/components/abstract/dropdown-documentation/dropdown-documentation.template.html</context>
           <context context-type="linenumber">37</context>
         </context-group>
       </trans-unit>
@@ -2664,7 +2664,7 @@
         <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>tuiDropdownDirection<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/>
     </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/modules/components/abstract/dropdown-controller-documentation/dropdown-controller-documentation.template.html</context>
+          <context context-type="sourcefile">src/modules/components/abstract/dropdown-documentation/dropdown-documentation.template.html</context>
           <context context-type="linenumber">46</context>
         </context-group>
       </trans-unit>
@@ -2673,7 +2673,7 @@
         Maximum height of dropdown
     </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/modules/components/abstract/dropdown-controller-documentation/dropdown-controller-documentation.template.html</context>
+          <context context-type="sourcefile">src/modules/components/abstract/dropdown-documentation/dropdown-documentation.template.html</context>
           <context context-type="linenumber">56</context>
         </context-group>
       </trans-unit>
@@ -2784,7 +2784,7 @@
       </trans-unit>
       <trans-unit id="97f80ccaa9f470dd13c16975caed35c8684eaf28" datatype="html">
         <source>
-        Maximum number of symbols to type. Does not with with mask together
+        Maximum number of symbols to type. Does not work with mask together
     </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/modules/components/abstract/textfield-controller-documentation/textfield-controller-documentation.template.html</context>
@@ -5988,7 +5988,7 @@
       </trans-unit>
       <trans-unit id="52c593e32d72b29535d657c77c5994fa3b5cce3f" datatype="html">
         <source>
-            You can use <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>TUI_CALENDAR_DATA_STREAM<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> token to set value
+            You can use <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>TUI_CALENDAR_DATE_STREAM<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> token to set value
             from outside (see samples)
         </source>
         <context-group purpose="location">
@@ -6658,7 +6658,7 @@
       </trans-unit>
       <trans-unit id="e3e2ec25f54bc42fd9bdb3e2d83292c29f6f9bac" datatype="html">
         <source>
-            Native scrollbar is hidden to keep native platform scroll expirience
+            Native scrollbar is hidden to keep native platform scroll experience
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/modules/components/scrollbar/scrollbar.template.html</context>
@@ -11227,7 +11227,7 @@
       <trans-unit id="d8525b10a7f3049ad61263351c0d85f95d9b7889" datatype="html">
         <source>
                     Import an Angular module for forms and
-                    <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>TuiDropdownControllerModule<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> in the same module
+                    <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/>TuiDropdownModule<x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/> in the same module
                     where you want to use our directive:
                 </source>
         <context-group purpose="location">

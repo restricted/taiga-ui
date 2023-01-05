@@ -2,8 +2,13 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {RouterModule} from '@angular/router';
-import {generateRoutes, TuiAddonDocModule, TuiDocCopyModule} from '@taiga-ui/addon-doc';
+import {
+    TuiAddonDocModule,
+    TuiDocCopyModule,
+    tuiGenerateRoutes,
+} from '@taiga-ui/addon-doc';
 
+import {StylesInfoModule} from '../../app/styles-info/styles-info.module';
 import {TuiSpacingExample1} from './examples/1';
 import {TuiSpacingExample2} from './examples/2';
 import {SpacesComponent} from './spaces.component';
@@ -12,9 +17,10 @@ import {SpacesComponent} from './spaces.component';
     imports: [
         CommonModule,
         ClipboardModule,
+        StylesInfoModule,
         TuiDocCopyModule,
         TuiAddonDocModule,
-        RouterModule.forChild(generateRoutes(SpacesComponent)),
+        RouterModule.forChild(tuiGenerateRoutes(SpacesComponent)),
     ],
     declarations: [SpacesComponent, TuiSpacingExample1, TuiSpacingExample2],
     exports: [SpacesComponent],

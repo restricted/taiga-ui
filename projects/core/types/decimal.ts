@@ -1,1 +1,1 @@
-export type TuiDecimalT = 'not-zero' | 'always' | 'never';
+export type TuiDecimal = 'always' | 'never' | 'not-zero';

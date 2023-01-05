@@ -1,18 +1,17 @@
 import {fakeAsync, tick} from '@angular/core/testing';
+import {tuiIsAlive} from '@taiga-ui/cdk';
 import {Subject} from 'rxjs';
 
-import {tuiIsAlive} from '../is-alive';
-
-describe('Observable.prototype.tuiIsAlive', () => {
-    let $: Subject<any>;
+describe(`Observable.prototype.tuiIsAlive`, () => {
+    let $: Subject<unknown>;
     let result: boolean[];
 
     beforeEach(() => {
-        $ = new Subject<any>();
+        $ = new Subject<unknown>();
         result = [];
     });
 
-    it('initially emits nothing, after event emits "true" and after a tick emits "false"', fakeAsync(() => {
+    it(`initially emits nothing, after event emits "true" and after a tick emits "false"`, fakeAsync(() => {
         $.pipe(tuiIsAlive()).subscribe(alive => {
             result.push(alive);
         });
@@ -28,7 +27,7 @@ describe('Observable.prototype.tuiIsAlive', () => {
         expect<boolean | null>(result).toEqual([true, false]);
     }));
 
-    it('if during a lifespan another event comes, "true" is not emitted again', fakeAsync(() => {
+    it(`if during a lifespan another event comes, "true" is not emitted again`, fakeAsync(() => {
         $.pipe(tuiIsAlive(300)).subscribe(alive => {
             result.push(alive);
         });

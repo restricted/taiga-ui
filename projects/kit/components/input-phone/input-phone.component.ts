@@ -15,39 +15,49 @@ import {
 import {NgControl} from '@angular/forms';
 import {
     AbstractTuiControl,
-    getClipboardDataText,
-    isNativeFocused,
-    setNativeFocused,
     TuiActiveZoneDirective,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
     TuiContextWithImplicit,
     tuiDefaultProp,
+    TuiDestroyService,
     TuiFocusableElementAccessor,
-    TuiInputModeT,
+    tuiGetClipboardDataText,
+    TuiInputMode,
+    tuiIsNativeFocused,
     tuiRequiredSetter,
 } from '@taiga-ui/cdk';
 import {
-    formatPhone,
     TUI_MASK_SYMBOLS_REGEXP,
+    TUI_SELECTION_STREAM,
     TUI_TEXTFIELD_CLEANER,
+    tuiAsDataListHost,
     TuiDataListDirective,
     TuiDataListHost,
+    tuiFormatPhone,
     TuiHostedDropdownComponent,
     TuiPrimitiveTextfieldComponent,
     TuiTextfieldCleanerDirective,
     TuiTextMaskOptions,
 } from '@taiga-ui/core';
-import {TextMaskConfig} from 'angular2-text-mask';
+import {FIXED_DROPDOWN_CONTROLLER_PROVIDER} from '@taiga-ui/kit/providers';
 import {Observable} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
-import {INPUT_PHONE_PROVIDERS, SELECTION_STREAM} from './input-phone.providers';
+import {TUI_INPUT_PHONE_OPTIONS, TuiInputPhoneOptions} from './input-phone.options';
 
-// @dynamic
 @Component({
     selector: 'tui-input-phone',
     templateUrl: './input-phone.template.html',
     styleUrls: ['./input-phone.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: INPUT_PHONE_PROVIDERS,
+    providers: [
+        TuiDestroyService,
+        tuiAsFocusableItemAccessor(TuiInputPhoneComponent),
+        tuiAsControl(TuiInputPhoneComponent),
+        tuiAsDataListHost(TuiInputPhoneComponent),
+    ],
+    viewProviders: [FIXED_DROPDOWN_CONTROLLER_PROVIDER],
 })
 export class TuiInputPhoneComponent
     extends AbstractTuiControl<string>
@@ -68,11 +78,11 @@ export class TuiInputPhoneComponent
 
     @Input()
     @tuiDefaultProp()
-    phoneMaskAfterCountryCode = '(###) ###-##-##';
+    phoneMaskAfterCountryCode = this.options.phoneMaskAfterCountryCode;
 
     @Input()
     @tuiDefaultProp()
-    allowText = false;
+    allowText = this.options.allowText;
 
     @Input()
     @tuiDefaultProp()
@@ -84,7 +94,7 @@ export class TuiInputPhoneComponent
     @ContentChild(TuiDataListDirective, {read: TemplateRef})
     readonly datalist?: TemplateRef<TuiContextWithImplicit<TuiActiveZoneDirective>>;
 
-    readonly textMaskOptions: TextMaskConfig = {
+    readonly textMaskOptions: TuiTextMaskOptions = {
         mask: value =>
             this.allowText && !this.value && isText(value) && value !== '+'
                 ? false
@@ -106,26 +116,24 @@ export class TuiInputPhoneComponent
                 : value.replace(/-$/, '');
         },
         guide: false,
-    } as TuiTextMaskOptions as unknown as TextMaskConfig;
+    };
 
-    countryCode = '+7';
+    countryCode = this.options.countryCode;
 
     open = false;
 
     constructor(
-        @Optional()
-        @Self()
-        @Inject(NgControl)
-        control: NgControl | null,
+        @Optional() @Self() @Inject(NgControl) control: NgControl | null,
+        @Self() @Inject(TuiDestroyService) destroy$: Observable<unknown>,
         @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
-        @Inject(SELECTION_STREAM)
-        selection$: Observable<unknown>,
+        @Inject(TUI_SELECTION_STREAM) selection$: Observable<unknown>,
         @Inject(TUI_TEXTFIELD_CLEANER)
         private readonly textfieldCleaner: TuiTextfieldCleanerDirective,
+        @Inject(TUI_INPUT_PHONE_OPTIONS) private readonly options: TuiInputPhoneOptions,
     ) {
         super(control, changeDetectorRef);
 
-        selection$.subscribe(() => {
+        selection$.pipe(takeUntil(destroy$)).subscribe(() => {
             this.setCaretPosition();
         });
     }
@@ -138,18 +146,18 @@ export class TuiInputPhoneComponent
 
     get focused(): boolean {
         return (
-            isNativeFocused(this.nativeFocusableElement) ||
+            tuiIsNativeFocused(this.nativeFocusableElement) ||
             (!!this.dropdown && this.dropdown.focused)
         );
     }
 
     get computedValue(): string {
         return this.value
-            ? formatPhone(this.value, this.countryCode, this.phoneMaskAfterCountryCode)
+            ? tuiFormatPhone(this.value, this.countryCode, this.phoneMaskAfterCountryCode)
             : this.search || '';
     }
 
-    get inputMode(): TuiInputModeT {
+    get inputMode(): TuiInputMode {
         return this.allowText ? 'text' : 'numeric';
     }
 
@@ -159,10 +167,6 @@ export class TuiInputPhoneComponent
 
     get canClean(): boolean {
         return this.computedValue !== this.countryCode && this.textfieldCleaner.cleaner;
-    }
-
-    onHovered(hovered: boolean): void {
-        this.updateHovered(hovered);
     }
 
     onDrop(event: DragEvent): void {
@@ -175,7 +179,7 @@ export class TuiInputPhoneComponent
     }
 
     onPaste(event: Event): void {
-        this.setValueWithoutPrefix(getClipboardDataText(event as ClipboardEvent));
+        this.setValueWithoutPrefix(tuiGetClipboardDataText(event as ClipboardEvent));
     }
 
     onActiveZone(active: boolean): void {
@@ -190,7 +194,9 @@ export class TuiInputPhoneComponent
         if (
             this.computedValue === this.countryCode ||
             (this.search !== null &&
-                isNaN(parseInt(this.search.replace(TUI_MASK_SYMBOLS_REGEXP, ''), 10)))
+                Number.isNaN(
+                    parseInt(this.search.replace(TUI_MASK_SYMBOLS_REGEXP, ''), 10),
+                ))
         ) {
             this.updateSearch('');
         }
@@ -210,7 +216,9 @@ export class TuiInputPhoneComponent
     onValueChange(value: string): void {
         value = value === '' ? this.countryCode : value;
 
-        const parsed = isText(value) ? value : value.replace(TUI_MASK_SYMBOLS_REGEXP, '');
+        const parsed = isText(value)
+            ? value
+            : value.replace(TUI_MASK_SYMBOLS_REGEXP, '').slice(0, this.maxPhoneLength);
 
         this.updateSearch(parsed);
         this.updateValue(parsed === this.countryCode || isText(parsed) ? '' : parsed);
@@ -224,12 +232,12 @@ export class TuiInputPhoneComponent
         this.open = false;
     }
 
-    setDisabledState(): void {
+    override setDisabledState(): void {
         super.setDisabledState();
         this.open = false;
     }
 
-    writeValue(value: string | null): void {
+    override writeValue(value: string | null): void {
         super.writeValue(value);
         this.updateSearch('');
     }
@@ -248,7 +256,7 @@ export class TuiInputPhoneComponent
         const {selectionStart, selectionEnd} = nativeFocusableElement;
 
         return (
-            isNativeFocused(nativeFocusableElement) &&
+            tuiIsNativeFocused(nativeFocusableElement) &&
             selectionStart !== null &&
             selectionStart < this.nonRemovableLength &&
             selectionStart === selectionEnd
@@ -319,7 +327,7 @@ export class TuiInputPhoneComponent
 
     private focusInput(): void {
         if (this.nativeFocusableElement) {
-            setNativeFocused(this.nativeFocusableElement, true, true);
+            this.nativeFocusableElement.focus({preventScroll: true});
         }
     }
 
@@ -340,5 +348,5 @@ export class TuiInputPhoneComponent
 }
 
 function isText(value: string): boolean {
-    return isNaN(parseInt(value.replace(TUI_MASK_SYMBOLS_REGEXP, ''), 10));
+    return Number.isNaN(parseInt(value.replace(TUI_MASK_SYMBOLS_REGEXP, ''), 10));
 }

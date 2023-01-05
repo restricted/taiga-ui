@@ -2,9 +2,7 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    Directive,
     ElementRef,
-    forwardRef,
     Inject,
     Input,
     Optional,
@@ -13,78 +11,50 @@ import {
 } from '@angular/core';
 import {NgControl} from '@angular/forms';
 import {
-    clamp,
-    isNativeFocused,
-    round,
-    setNativeFocused,
-    TUI_FOCUSABLE_ITEM_ACCESSOR,
-    tuiAssert,
+    AbstractTuiControl,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
+    tuiClamp,
     TuiContextWithImplicit,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
+    tuiIsNativeFocused,
     TuiNativeFocusableElement,
+    tuiPure,
+    tuiRound,
 } from '@taiga-ui/cdk';
 import {
-    getFractionPartPadded,
-    HINT_CONTROLLER_PROVIDER,
     TEXTFIELD_CONTROLLER_PROVIDER,
     TUI_TEXTFIELD_WATCHED_CONTROLLER,
-    TuiDecimalT,
-    TuiSizeL,
+    TuiDecimal,
+    tuiGetFractionPartPadded,
     TuiTextfieldController,
+    TuiWithOptionalMinMax,
 } from '@taiga-ui/core';
-import {AbstractTuiInputSlider} from '@taiga-ui/kit/abstract';
 import {TuiInputNumberComponent} from '@taiga-ui/kit/components/input-number';
 import {
     TuiSliderComponent,
     tuiSliderOptionsProvider,
 } from '@taiga-ui/kit/components/slider';
 import {TUI_FLOATING_PRECISION} from '@taiga-ui/kit/constants';
-import {TUI_FROM_TO_TEXTS} from '@taiga-ui/kit/tokens';
 import {TuiKeySteps} from '@taiga-ui/kit/types';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
-import {Observable} from 'rxjs';
 
-/**
- * Turn on new `InputSlider`'s version.
- * The new version will behave almost the same as `InputSlider` from the next major release.
- * @deprecated TODO remove me in v3.0 and make `InputSlider` always "new".
- */
-@Directive({
-    selector: 'tui-input-slider[new]',
-})
-export class TuiNewInputSliderDirective {}
-
-// @dynamic
 @Component({
     selector: 'tui-input-slider',
     templateUrl: './input-slider.template.html',
     styleUrls: ['./input-slider.style.less'],
-    host: {
-        /**
-         * TODO delete it in v3.0
-         * Dont forget to clear html-tags
-         */
-        '[class._show-ticks-labels]': '!isNew',
-    },
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
-        {
-            provide: TUI_FOCUSABLE_ITEM_ACCESSOR,
-            useExisting: forwardRef(() => TuiInputSliderComponent),
-        },
+        tuiAsFocusableItemAccessor(TuiInputSliderComponent),
+        tuiAsControl(TuiInputSliderComponent),
         tuiSliderOptionsProvider({trackColor: 'transparent'}),
-        HINT_CONTROLLER_PROVIDER,
         TEXTFIELD_CONTROLLER_PROVIDER,
     ],
 })
-/**
- * TODO replace `extends AbstractTuiInputSlider<number>` by `extends AbstractTuiControl<number> implements TuiWithOptionalMinMax<number>`
- * in v3.0
- */
 export class TuiInputSliderComponent
-    extends AbstractTuiInputSlider<number>
-    implements TuiFocusableElementAccessor
+    extends AbstractTuiControl<number>
+    implements TuiWithOptionalMinMax<number>, TuiFocusableElementAccessor
 {
     @ViewChild(TuiInputNumberComponent)
     private readonly inputNumberRef?: TuiInputNumberComponent;
@@ -98,19 +68,25 @@ export class TuiInputSliderComponent
 
     @Input()
     @tuiDefaultProp()
-    max = Infinity;
+    max = 100;
 
     @Input()
-    @tuiDefaultProp(quantumAssertion, 'Quantum must be positive')
+    @tuiDefaultProp(q => q > 0, 'Quantum must be positive')
     quantum = 1;
 
     @Input()
-    @tuiDefaultProp()
+    @tuiDefaultProp(
+        s => s >= 0 && Number.isInteger(s),
+        'Steps must be non-negative integer',
+    )
     steps = 0;
 
     @Input()
-    @tuiDefaultProp()
-    segments = 0;
+    @tuiDefaultProp(
+        s => s > 0 && Number.isInteger(s),
+        'Segments must be positive integer',
+    )
+    segments = 1;
 
     @Input()
     @tuiDefaultProp()
@@ -120,21 +96,15 @@ export class TuiInputSliderComponent
     @tuiDefaultProp()
     valueContent: PolymorpheusContent<TuiContextWithImplicit<number>> = '';
 
-    @Input()
+    /** @deprecated use `tuiTextfieldPrefix` from {@link TuiTextfieldControllerModule} instead */
+    @Input('prefix')
     @tuiDefaultProp()
-    prefix = '';
+    textfieldPrefix = '';
 
-    @Input()
+    /** @deprecated use `tuiTextfieldPostfix` from {@link TuiTextfieldControllerModule} instead */
+    @Input('postfix')
     @tuiDefaultProp()
-    postfix = '';
-
-    /**
-     * @deprecated use `tuiTextfieldCustomContent` instead
-     * TODO delete in v3.0
-     */
-    @Input()
-    @tuiDefaultProp()
-    secondary = '';
+    textfieldPostfix = '';
 
     constructor(
         @Optional()
@@ -144,12 +114,16 @@ export class TuiInputSliderComponent
         @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
         @Inject(TUI_TEXTFIELD_WATCHED_CONTROLLER)
         readonly controller: TuiTextfieldController,
-        @Inject(TUI_FROM_TO_TEXTS) readonly fromToTexts$: Observable<[string, string]>,
-        @Optional()
-        @Inject(TuiNewInputSliderDirective)
-        readonly isNew: TuiNewInputSliderDirective | null,
     ) {
         super(control, changeDetectorRef);
+    }
+
+    get prefix(): string {
+        return this.textfieldPrefix || this.controller.prefix;
+    }
+
+    get postfix(): string {
+        return this.textfieldPostfix || this.controller.postfix;
     }
 
     get nativeFocusableElement(): TuiNativeFocusableElement | null {
@@ -160,8 +134,8 @@ export class TuiInputSliderComponent
 
     get focused(): boolean {
         return (
-            isNativeFocused(this.nativeFocusableElement) ||
-            isNativeFocused(this.sliderRef?.nativeElement || null)
+            tuiIsNativeFocused(this.nativeFocusableElement) ||
+            tuiIsNativeFocused(this.sliderRef?.nativeElement || null)
         );
     }
 
@@ -170,44 +144,36 @@ export class TuiInputSliderComponent
     }
 
     get precision(): number {
-        return getFractionPartPadded(this.quantum).length;
+        return tuiGetFractionPartPadded(this.quantum).length;
     }
 
-    get decimal(): TuiDecimalT {
+    get decimal(): TuiDecimal {
         return this.precision ? 'not-zero' : 'never';
     }
 
-    /**
-     * TODO remove old property `size` in v3.0
-     */
-    get computedSize(): TuiSizeL {
-        if (this.isNew) {
-            tuiAssert.assert(
-                this.controller.size !== 's',
-                "Size 's' is not supported by this input.",
-            );
-
-            return this.controller.size === 'l' ? 'l' : 'm';
-        }
-
-        return this.size;
+    get showValueContent(): boolean {
+        return Boolean(this.valueContent && !this.focused);
     }
 
-    /**
-     * @deprecated for backward compatibility
-     * TODO replace by just `this.valueContent` in v3.0
-     */
-    get computedValueContent(): PolymorpheusContent<TuiContextWithImplicit<number>> {
-        return this.minLabel || this.maxLabel
-            ? legacyMinMaxLabel(this)
-            : this.valueContent;
+    get step(): number {
+        return (this.max - this.min) / this.computedSteps;
+    }
+
+    @tuiPure
+    computeKeySteps(keySteps: TuiKeySteps | null, min: number, max: number): TuiKeySteps {
+        return (
+            keySteps || [
+                [0, min],
+                [100, max],
+            ]
+        );
     }
 
     focusTextInput(): void {
         const focusableElement = this.inputNumberRef?.nativeFocusableElement;
 
         if (focusableElement) {
-            setNativeFocused(focusableElement);
+            focusableElement.focus();
         }
     }
 
@@ -229,20 +195,19 @@ export class TuiInputSliderComponent
         this.updateTextInputValue(this.valueGuard(value));
     }
 
+    onSliderChange(newValue: number): void {
+        this.safelyUpdateValue(newValue);
+        this.updateTextInputValue(this.value);
+    }
+
     onFocused(focused: boolean): void {
-        if (!focused && !this.textInputValue) {
-            this.updateTextInputValue(this.safeCurrentValue);
+        const {value, textInputValue, safeCurrentValue, inputNumberRef} = this;
+
+        if (!focused && textInputValue !== inputNumberRef?.getFormattedValue(value)) {
+            this.updateTextInputValue(value ?? safeCurrentValue);
         }
 
         this.updateFocused(focused);
-    }
-
-    onPressed(pressed: boolean): void {
-        this.updatePressed(pressed);
-    }
-
-    onHovered(hovered: boolean): void {
-        this.updateHovered(hovered);
     }
 
     private get textInputValue(): string {
@@ -253,13 +218,13 @@ export class TuiInputSliderComponent
         return 0;
     }
 
-    protected valueGuard(value: number): number {
-        const roundedValue = round(
+    private valueGuard(value: number): number {
+        const roundedValue = tuiRound(
             Math.round(value / this.quantum) * this.quantum,
             TUI_FLOATING_PRECISION,
         );
 
-        return clamp(roundedValue, this.min, this.max);
+        return tuiClamp(roundedValue, this.min, this.max);
     }
 
     private updateTextInputValue(value: number): void {
@@ -268,32 +233,4 @@ export class TuiInputSliderComponent
                 this.inputNumberRef.getFormattedValue(value);
         }
     }
-}
-
-function quantumAssertion(quantum: number): boolean {
-    return quantum > 0;
-}
-
-/**
- * @deprecated helper for backward compatibility.
- * TODO remove in v3.0
- */
-function legacyMinMaxLabel({
-    min,
-    max,
-    minLabel,
-    maxLabel,
-}: TuiInputSliderComponent): (
-    context: TuiContextWithImplicit<number>,
-) => string | number {
-    return ({$implicit: value}: TuiContextWithImplicit<number>) => {
-        switch (value) {
-            case min:
-                return minLabel || value;
-            case max:
-                return maxLabel || value;
-            default:
-                return value;
-        }
-    };
 }

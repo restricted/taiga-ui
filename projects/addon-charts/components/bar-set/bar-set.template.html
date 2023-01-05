@@ -1,9 +1,9 @@
 <ng-container *ngIf="size; else flexible">
-    <ng-container *ngFor="let item of computedValue; let index = index">
-        <ng-container
-            *ngTemplateOutlet="bar; context: {$implicit: item, index: index, flexible: false}"
-        ></ng-container>
-    </ng-container>
+    <ng-container
+        *ngFor="let item of computedValue; let index = index"
+        [ngTemplateOutlet]="bar"
+        [ngTemplateOutletContext]="{$implicit: item, index: index, flexible: false}"
+    ></ng-container>
 </ng-container>
 <ng-template #flexible>
     <div
@@ -11,7 +11,8 @@
         class="t-wrapper"
     >
         <ng-container
-            *ngTemplateOutlet="bar; context: {$implicit: item, index: index, flexible: true}"
+            [ngTemplateOutlet]="bar"
+            [ngTemplateOutletContext]="{$implicit: item, index: index, flexible: true}"
         ></ng-container>
     </div>
 </ng-template>
@@ -30,6 +31,6 @@
         [style.background]="getColor(index)"
         [value]="computedSegments"
         [size]="computedSize"
-        [colorHandler]="colorHandler"
     ></tui-bar>
 </ng-template>
+<span class="t-label"><ng-content></ng-content></span>

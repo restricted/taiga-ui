@@ -4,50 +4,50 @@ import {
     ContentChild,
     ElementRef,
     EventEmitter,
-    forwardRef,
     HostBinding,
     HostListener,
     Inject,
     Input,
+    Optional,
     Output,
     ViewChild,
 } from '@angular/core';
 import {
-    getClosestFocusable,
-    isElementEditable,
-    isNativeFocusedIn,
-    isNativeKeyboardFocusable,
-    setNativeFocused,
-    TUI_FOCUSABLE_ITEM_ACCESSOR,
     TuiActiveZoneDirective,
+    tuiAsFocusableItemAccessor,
     TuiContextWithImplicit,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
+    tuiGetClosestFocusable,
+    tuiIsElement,
+    tuiIsElementEditable,
+    tuiIsHTMLElement,
+    tuiIsNativeFocusedIn,
+    tuiIsNativeKeyboardFocusable,
     TuiNativeFocusableElement,
 } from '@taiga-ui/cdk';
-import {TuiDropdownDirective} from '@taiga-ui/core/directives/dropdown';
 import {
-    DROPDOWN_CONTROLLER_PROVIDER,
-    TUI_DROPDOWN_WATCHED_CONTROLLER,
-    TuiDropdownControllerDirective,
-} from '@taiga-ui/core/directives/dropdown-controller';
-import {isEditingKey} from '@taiga-ui/core/utils/miscellaneous';
+    TuiDropdownDirective,
+    TuiDropdownHoverDirective,
+} from '@taiga-ui/core/directives/dropdown';
+import {tuiIsEditingKey} from '@taiga-ui/core/utils/miscellaneous';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
+import {BehaviorSubject, combineLatest, EMPTY, Observable} from 'rxjs';
+import {map, startWith} from 'rxjs/operators';
 
 import {TuiHostedDropdownConnectorDirective} from './hosted-dropdown-connector.directive';
+
+export interface TuiHostedDropdownContext
+    extends TuiContextWithImplicit<TuiActiveZoneDirective> {
+    close(): void;
+}
 
 @Component({
     selector: 'tui-hosted-dropdown',
     templateUrl: './hosted-dropdown.template.html',
     styleUrls: ['./hosted-dropdown.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [
-        {
-            provide: TUI_FOCUSABLE_ITEM_ACCESSOR,
-            useExisting: forwardRef(() => TuiHostedDropdownComponent),
-        },
-        DROPDOWN_CONTROLLER_PROVIDER,
-    ],
+    providers: [tuiAsFocusableItemAccessor(TuiHostedDropdownComponent)],
 })
 export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
     @ContentChild(TuiHostedDropdownConnectorDirective, {read: ElementRef})
@@ -59,17 +59,22 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
     @ViewChild(TuiDropdownDirective)
     private readonly dropdownDirective?: TuiDropdownDirective;
 
+    private readonly manual$ = new BehaviorSubject(false);
+
+    @ViewChild(TuiActiveZoneDirective)
+    readonly activeZone!: TuiActiveZoneDirective;
+
     @Input()
     @tuiDefaultProp()
-    content: PolymorpheusContent<TuiContextWithImplicit<TuiActiveZoneDirective>> = '';
+    content: PolymorpheusContent<TuiHostedDropdownContext> = '';
+
+    @Input()
+    @tuiDefaultProp()
+    sided = false;
 
     @Input()
     @tuiDefaultProp()
     canOpen = true;
-
-    @Input()
-    @tuiDefaultProp()
-    open = false;
 
     @Output()
     readonly openChange = new EventEmitter<boolean>();
@@ -77,55 +82,75 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
     @Output()
     readonly focusedChange = new EventEmitter<boolean>();
 
+    readonly context!: TuiContextWithImplicit<TuiActiveZoneDirective>;
+
+    readonly open$ = combineLatest([
+        this.manual$,
+        (this.hover$ || EMPTY).pipe(startWith(false)),
+    ]).pipe(map(([manual, hover]) => manual || hover));
+
     constructor(
+        @Optional()
+        @Inject(TuiDropdownHoverDirective)
+        private readonly hover$: Observable<boolean> | null,
         @Inject(ElementRef) private readonly elementRef: ElementRef,
-        @Inject(TUI_DROPDOWN_WATCHED_CONTROLLER)
-        readonly controller: TuiDropdownControllerDirective,
     ) {}
 
-    get host(): HTMLElement {
-        return this.dropdownHost
-            ? this.dropdownHost.nativeElement
-            : this.elementRef.nativeElement;
+    @Input()
+    @tuiDefaultProp()
+    set open(open: boolean) {
+        this.manual$.next(open);
     }
 
-    get dropdown(): HTMLElement | null {
-        return !this.dropdownDirective || this.dropdownDirective.dropdownBoxRef === null
-            ? null
-            : this.dropdownDirective.dropdownBoxRef.location.nativeElement;
+    get open(): boolean {
+        return this.manual$.value;
+    }
+
+    get host(): HTMLElement {
+        return this.dropdownHost?.nativeElement || this.elementRef.nativeElement;
+    }
+
+    get computedHost(): HTMLElement {
+        return (
+            this.dropdownHost?.nativeElement ||
+            this.nativeFocusableElement ||
+            this.elementRef.nativeElement
+        );
+    }
+
+    get dropdown(): HTMLElement | undefined {
+        return this.dropdownDirective?.dropdownBoxRef?.location.nativeElement;
     }
 
     get nativeFocusableElement(): TuiNativeFocusableElement | null {
-        return isNativeKeyboardFocusable(this.host)
+        return tuiIsNativeKeyboardFocusable(this.host)
             ? this.host
-            : getClosestFocusable(this.host, false, this.elementRef.nativeElement);
+            : tuiGetClosestFocusable({
+                  initial: this.host,
+                  root: this.elementRef.nativeElement,
+              });
     }
 
     @HostBinding('class._hosted_dropdown_focused')
     get focused(): boolean {
         return (
-            isNativeFocusedIn(this.host) ||
-            (this.open && !!this.wrapper && isNativeFocusedIn(this.wrapper.nativeElement))
+            tuiIsNativeFocusedIn(this.host) ||
+            (this.open &&
+                !!this.wrapper &&
+                tuiIsNativeFocusedIn(this.wrapper.nativeElement))
         );
     }
 
     @HostListener('focusin', ['$event.target'])
     onFocusIn(target: HTMLElement): void {
-        const host = this.dropdownHost
-            ? this.dropdownHost.nativeElement
-            : this.nativeFocusableElement || this.elementRef.nativeElement;
-
-        if (!host.contains(target)) {
+        if (!this.computedHost.contains(target)) {
             this.updateOpen(false);
         }
     }
 
     @HostListener('click', ['$event.target'])
     onClick(target: HTMLElement): void {
-        const host = this.nativeFocusableElement || this.host;
-        const dropdownHost = this.dropdownHost ? this.dropdownHost.nativeElement : host;
-
-        if (!this.hostEditable && dropdownHost.contains(target)) {
+        if (!this.hostEditable && this.computedHost.contains(target)) {
             this.updateOpen(!this.open);
         }
     }
@@ -149,11 +174,10 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
     onKeydown({key, target, defaultPrevented}: KeyboardEvent): void {
         if (
             !defaultPrevented &&
-            isEditingKey(key) &&
+            tuiIsEditingKey(key) &&
             this.hostEditable &&
-            // TODO: iframe warning
-            target instanceof HTMLElement &&
-            !isElementEditable(target)
+            tuiIsHTMLElement(target) &&
+            !tuiIsElementEditable(target)
         ) {
             this.focusHost();
         }
@@ -182,21 +206,19 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
         this.openChange.emit(open);
     }
 
-    private get hostEditable(): boolean {
-        const host = this.nativeFocusableElement || this.host;
+    readonly close = (): void => this.updateOpen(false);
 
-        // TODO: iframe warning
-        return host instanceof HTMLElement && isElementEditable(host);
+    private get hostEditable(): boolean {
+        return tuiIsElementEditable(this.computedHost);
     }
 
     private focusDropdown(event: KeyboardEvent, first: boolean): void {
         const host = this.nativeFocusableElement;
 
-        // TODO: iframe warning
         if (
             !host ||
-            !(host instanceof HTMLElement) ||
-            !(event.target instanceof Node) ||
+            !tuiIsHTMLElement(host) ||
+            !tuiIsElement(event.target) ||
             !host.contains(event.target)
         ) {
             return;
@@ -205,13 +227,12 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
         if (
             !this.wrapper ||
             !this.open ||
-            this.dropdown === null ||
-            // TODO: iframe warning
-            !(this.wrapper.nativeElement.nextElementSibling instanceof HTMLElement)
+            !this.dropdown ||
+            !tuiIsHTMLElement(this.wrapper.nativeElement.nextElementSibling)
         ) {
             this.updateOpen(true);
 
-            if (!isElementEditable(host)) {
+            if (!tuiIsElementEditable(host)) {
                 event.preventDefault();
             }
 
@@ -221,17 +242,17 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
         const initial = first
             ? this.wrapper.nativeElement
             : this.wrapper.nativeElement.nextElementSibling;
-        const focusable = getClosestFocusable(
+        const focusable = tuiGetClosestFocusable({
             initial,
-            !first,
-            this.wrapper.nativeElement,
-        );
+            root: this.wrapper.nativeElement,
+            previous: !first,
+        });
 
-        if (focusable === null) {
+        if (!focusable) {
             return;
         }
 
-        setNativeFocused(focusable);
+        focusable.focus();
         event.preventDefault();
     }
 
@@ -246,8 +267,8 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
     private focusHost(): void {
         const host = this.nativeFocusableElement;
 
-        if (host !== null) {
-            setNativeFocused(host, true, true);
+        if (host) {
+            host.focus({preventScroll: true});
         }
     }
 

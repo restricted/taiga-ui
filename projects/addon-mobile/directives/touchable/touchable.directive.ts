@@ -1,11 +1,19 @@
-import {Directive, ElementRef, Inject, Input, Optional, Renderer2} from '@angular/core';
-import {TuiTouchModeT} from '@taiga-ui/addon-mobile/types';
-import {findTouchIndex} from '@taiga-ui/addon-mobile/utils';
+import {
+    Directive,
+    ElementRef,
+    Inject,
+    Input,
+    Optional,
+    Renderer2,
+    Self,
+} from '@angular/core';
+import {TuiTouchMode} from '@taiga-ui/addon-mobile/types';
+import {tuiFindTouchIndex} from '@taiga-ui/addon-mobile/utils';
 import {
     TUI_IS_IOS,
     tuiDefaultProp,
     TuiDestroyService,
-    typedFromEvent,
+    tuiTypedFromEvent,
 } from '@taiga-ui/cdk';
 import {TUI_ELEMENT_REF} from '@taiga-ui/core';
 import {race} from 'rxjs';
@@ -24,14 +32,14 @@ const STYLE = {
 export class TuiTouchableDirective {
     @Input()
     @tuiDefaultProp()
-    tuiTouchable: TuiTouchModeT | '' = '';
+    tuiTouchable: TuiTouchMode | '' = '';
 
     constructor(
         @Optional() @Inject(TUI_ELEMENT_REF) elementRef: ElementRef<HTMLElement> | null,
         @Inject(TUI_IS_IOS) isIos: boolean,
         @Inject(ElementRef) {nativeElement}: ElementRef<HTMLElement>,
         @Inject(Renderer2) renderer: Renderer2,
-        @Inject(TuiDestroyService) destroy$: TuiDestroyService,
+        @Self() @Inject(TuiDestroyService) destroy$: TuiDestroyService,
     ) {
         if (!isIos) {
             return;
@@ -39,7 +47,7 @@ export class TuiTouchableDirective {
 
         const element = elementRef ? elementRef.nativeElement : nativeElement;
 
-        typedFromEvent(element, 'touchstart', {passive: true})
+        tuiTypedFromEvent(element, 'touchstart', {passive: true})
             .pipe(
                 tap(() => {
                     this.onTouchStart(renderer, element);
@@ -47,12 +55,12 @@ export class TuiTouchableDirective {
                 map(({touches}) => touches[touches.length - 1].identifier),
                 switchMap(identifier =>
                     race(
-                        typedFromEvent(element, 'touchmove', {passive: true}).pipe(
+                        tuiTypedFromEvent(element, 'touchmove', {passive: true}).pipe(
                             filter(({touches}) =>
                                 this.hasTouchLeft(element, touches, identifier),
                             ),
                         ),
-                        typedFromEvent(element, 'touchend'),
+                        tuiTypedFromEvent(element, 'touchend'),
                     ).pipe(take(1)),
                 ),
                 takeUntil(destroy$),
@@ -64,7 +72,7 @@ export class TuiTouchableDirective {
             });
     }
 
-    get style(): TuiTouchModeT {
+    get style(): TuiTouchMode {
         return this.tuiTouchable || 'transform';
     }
 
@@ -74,7 +82,7 @@ export class TuiTouchableDirective {
         identifier: number,
     ): boolean {
         const {ownerDocument} = element;
-        const id = findTouchIndex(touches, identifier);
+        const id = tuiFindTouchIndex(touches, identifier);
 
         if (!ownerDocument || id === -1) {
             return true;

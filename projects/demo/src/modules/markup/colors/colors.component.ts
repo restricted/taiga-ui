@@ -1,8 +1,6 @@
 import {Component, ViewEncapsulation} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
 
-import {default as basicImportsLess} from '!!raw-loader!./examples/import/basic-imports-less.txt';
-
 import {
     BASE,
     BASE_NIGHT,
@@ -13,7 +11,6 @@ import {
     TEXT_NIGHT,
 } from './colors.constants';
 
-// @dynamic
 @Component({
     selector: 'colors',
     templateUrl: 'colors.template.html',
@@ -22,7 +19,7 @@ import {
     changeDetection,
 })
 export class ColorsComponent {
-    readonly basicImportsLess = basicImportsLess;
+    readonly basicImportsLess = import('./examples/import/basic-imports-less.md?raw');
 
     readonly base = BASE;
     readonly baseNight = BASE_NIGHT;

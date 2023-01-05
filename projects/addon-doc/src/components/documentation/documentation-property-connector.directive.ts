@@ -12,11 +12,11 @@ import {
 import {ActivatedRoute, Params, UrlSerializer} from '@angular/router';
 import {BehaviorSubject, Subject} from 'rxjs';
 
-import {coerceValue} from '../../utils/coerce-value';
+import {tuiCoerceValue} from '../../utils/coerce-value';
 
 const SERIALIZED_SUFFIX = '$';
 
-export type DocumentationPropertyType = 'input' | 'output' | 'input-output' | null;
+export type DocumentationPropertyType = 'input-output' | 'input' | 'output' | null;
 
 // @bad TODO: refactor output and value sync
 @Directive({
@@ -102,7 +102,7 @@ export class TuiDocDocumentationPropertyConnectorDirective<T>
 
     private parseParams(params: Params): void {
         const propertyValue: string | undefined = params[this.documentationPropertyName];
-        const propertyValueWithSuffix: string | number | undefined =
+        const propertyValueWithSuffix: number | string | undefined =
             params[`${this.documentationPropertyName}${SERIALIZED_SUFFIX}`];
 
         if (!propertyValue && !propertyValueWithSuffix) {
@@ -112,12 +112,12 @@ export class TuiDocDocumentationPropertyConnectorDirective<T>
         const value =
             !!propertyValueWithSuffix && this.documentationPropertyValues
                 ? this.documentationPropertyValues[propertyValueWithSuffix as number]
-                : coerceValue(propertyValue);
+                : tuiCoerceValue(propertyValue);
 
         this.onValueChange(value as T);
     }
 
-    private setQueryParam(value: T | string | number | boolean | null): void {
+    private setQueryParam(value: T | boolean | number | string | null): void {
         const tree = this.urlSerializer.parse(this.locationRef.path());
 
         const isValueAvailableByKey = value instanceof Object;

@@ -4,10 +4,7 @@
     type="components"
 >
     <ng-template pageTab>
-        <p i18n>
-            Use Avatar to view person or company. It can be photo, icon or first
-            letters of name.
-        </p>
+        <p i18n>Use Avatar to view person or company. It can be photo, icon or first letters of name.</p>
 
         <tui-doc-example
             id="base"
@@ -35,16 +32,54 @@
         >
             <tui-avatar-example-3></tui-avatar-example-3>
         </tui-doc-example>
+
+        <tui-doc-example
+            id="stacking"
+            i18n-heading
+            heading="Stacking avatars"
+            [content]="example4"
+        >
+            <tui-notification class="tui-space_bottom-4">
+                Use special
+                <code>tui-avatar-stack</code>
+                class to enable stacking
+            </tui-notification>
+            <tui-avatar-example-4></tui-avatar-example-4>
+        </tui-doc-example>
+
+        <tui-doc-example
+            id="icons"
+            i18n-heading
+            heading="Icons"
+            [content]="example5"
+        >
+            <tui-notification class="tui-space_bottom-4">
+                Sizes were updated and synced with
+                <a
+                    tuiLink
+                    routerLink="/components/marker-icon"
+                >
+                    <code>MarkerIcon</code>
+                </a>
+                . To prevent breaking changes
+                <code>new</code>
+                attribute has to be added to enable new sizes.
+            </tui-notification>
+            <tui-avatar-example-5></tui-avatar-example-5>
+        </tui-doc-example>
     </ng-template>
 
     <ng-template pageTab>
         <tui-doc-demo>
             <tui-avatar
+                new
                 [avatarUrl]="avatarUrl"
                 [text]="text"
                 [rounded]="rounded"
                 [size]="size"
                 [autoColor]="autoColor"
+                [style.--tui-avatar-color]="color"
+                [style.--tui-avatar-background]="background"
             ></tui-avatar>
         </tui-doc-demo>
         <tui-doc-documentation>
@@ -60,12 +95,12 @@
             <ng-template
                 i18n
                 documentationPropertyName="avatarUrl"
-                documentationPropertyType="string | null"
+                documentationPropertyType="string | SafeResourceUrl | null"
                 documentationPropertyMode="input"
                 [documentationPropertyValues]="avatarUrlVariants"
                 [(documentationPropertyValue)]="avatarUrl"
             >
-                Avatar URL
+                Avatar URL or Taiga UI icon name
             </ng-template>
             <ng-template
                 i18n
@@ -79,7 +114,7 @@
             <ng-template
                 i18n
                 documentationPropertyName="size"
-                documentationPropertyType="TuiSizeXS | TuiSizeXXL"
+                documentationPropertyType="TuiSizeXXS | TuiSizeXXL"
                 documentationPropertyMode="input"
                 [documentationPropertyValues]="sizeVariants"
                 [(documentationPropertyValue)]="size"
@@ -96,10 +131,29 @@
                 Name (Avatar shows first letters of name if there is no image)
             </ng-template>
         </tui-doc-documentation>
-        <i i18n>
-            Better do not use big images with Avatar. Some browsers like IE or
-            Firefox work with resized image not so good.
-        </i>
+        <tui-doc-documentation heading="CSS variables">
+            <ng-template
+                documentationPropertyName="--tui-avatar-border"
+                documentationPropertyType="string"
+                [(documentationPropertyValue)]="border"
+            >
+                Color of the border for stacking avatars
+            </ng-template>
+            <ng-template
+                documentationPropertyName="--tui-avatar-color"
+                documentationPropertyType="string"
+                [(documentationPropertyValue)]="color"
+            >
+                Color of the text
+            </ng-template>
+            <ng-template
+                documentationPropertyName="--tui-avatar-background"
+                documentationPropertyType="string"
+                [(documentationPropertyValue)]="background"
+            >
+                Background
+            </ng-template>
+        </tui-doc-documentation>
     </ng-template>
 
     <ng-template pageTab>
@@ -130,8 +184,7 @@
                 <p i18n>
                     Optionally use the
                     <code>TUI_AVATAR_OPTIONS</code>
-                    injection token to override the default options for the
-                    component.
+                    injection token to override the default options for the component.
                 </p>
 
                 <tui-doc-code

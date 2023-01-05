@@ -7,13 +7,16 @@ import {
     TuiStringMatcher,
 } from '@taiga-ui/cdk';
 
-import {ArrayElement, TuiFilterByInputBase} from './filter-by-input.base';
+import {AbstractTuiFilterByInput, ArrayElement} from './filter-by-input.base';
 
 @Pipe({
-    name: 'tuiFilterByInput',
+    name: `tuiFilterByInput`,
     pure: false,
 })
-export class TuiFilterByInputPipe extends TuiFilterByInputBase implements PipeTransform {
+export class TuiFilterByInputPipe
+    extends AbstractTuiFilterByInput
+    implements PipeTransform
+{
     constructor(
         @Inject(TUI_FOCUSABLE_ITEM_ACCESSOR)
         protected readonly accessor: TuiFocusableElementAccessor,
@@ -23,9 +26,9 @@ export class TuiFilterByInputPipe extends TuiFilterByInputBase implements PipeTr
 
     transform<T>(items: T, matcher?: TuiStringMatcher<ArrayElement<T>>): T;
     transform<T>(
-        items: readonly T[] | ReadonlyArray<readonly T[]> | null,
+        items: ReadonlyArray<readonly T[]> | readonly T[] | null,
         matcher: TuiStringMatcher<T> = TUI_DEFAULT_MATCHER,
-    ): readonly T[] | ReadonlyArray<readonly T[]> | null {
+    ): ReadonlyArray<readonly T[]> | readonly T[] | null {
         return this.filter(items, matcher, TUI_DEFAULT_STRINGIFY, this.query);
     }
 }

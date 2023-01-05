@@ -1,29 +1,30 @@
 import {DebugElement} from '@angular/core';
 import {ComponentFixture} from '@angular/core/testing';
 
-import {createKeyboardEvent} from './keyboard-event';
-import {PageObject} from './page-object';
+import {tuiCreateKeyboardEvent} from './keyboard-event';
+import {TuiPageObject} from './page-object';
+import {tuiReplaceNbsp} from './replace-nbsp';
 
-export class NativeInputPO {
-    private readonly pageObject: PageObject<any>;
+export class TuiNativeInputPO {
+    private readonly pageObject: TuiPageObject<unknown>;
 
     constructor(
-        private readonly fixture: ComponentFixture<any>,
+        private readonly fixture: ComponentFixture<unknown>,
         private readonly automationId: string,
         private readonly hostDebugElement?: DebugElement,
     ) {
-        this.pageObject = new PageObject(fixture);
+        this.pageObject = new TuiPageObject(fixture);
     }
 
-    get nativeElement(): any {
-        return this.pageObject.getByAutomationId(
-            this.automationId,
-            this.hostDebugElement,
-        )!.nativeElement;
+    get nativeElement(): HTMLInputElement | HTMLTextAreaElement | null {
+        return (
+            this.pageObject.getByAutomationId(this.automationId, this.hostDebugElement)
+                ?.nativeElement ?? null
+        );
     }
 
     get value(): string {
-        return this.nativeElement.value;
+        return tuiReplaceNbsp(this.nativeElement?.value ?? ``);
     }
 
     get focused(): boolean {
@@ -31,10 +32,14 @@ export class NativeInputPO {
     }
 
     sendText(value: string): void {
+        this.focus(); // need focus before initial value for emulate user interaction
+
         const nativeElement = this.nativeElement;
 
-        nativeElement.value = value;
-        nativeElement.dispatchEvent(new Event('input', {bubbles: true}));
+        if (nativeElement) {
+            nativeElement.value = value;
+            nativeElement.dispatchEvent(new Event(`input`, {bubbles: true}));
+        }
 
         this.fixture.detectChanges();
     }
@@ -47,22 +52,22 @@ export class NativeInputPO {
     }
 
     sendKeydown(key: string): void {
-        this.nativeElement.dispatchEvent(createKeyboardEvent(key, 'keydown'));
+        this.nativeElement?.dispatchEvent(tuiCreateKeyboardEvent(key, `keydown`));
         this.fixture.detectChanges();
     }
 
     focus(): void {
-        this.nativeElement.focus();
+        this.nativeElement?.focus();
         this.fixture.detectChanges();
     }
 
     blur(): void {
-        this.nativeElement.blur();
+        this.nativeElement?.blur();
         this.fixture.detectChanges();
     }
 
     click(): void {
-        this.nativeElement.click();
+        this.nativeElement?.click();
         this.fixture.detectChanges();
     }
 }

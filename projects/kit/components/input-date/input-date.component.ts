@@ -17,29 +17,31 @@ import {
     ALWAYS_FALSE_HANDLER,
     changeDateSeparator,
     DATE_FILLER_LENGTH,
-    nullableSame,
     TUI_DATE_FORMAT,
     TUI_DATE_SEPARATOR,
-    TUI_FIRST_DAY,
     TUI_IS_MOBILE,
-    TUI_LAST_DAY,
     TuiActiveZoneDirective,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
     TuiBooleanHandler,
     TuiContextWithImplicit,
     TuiControlValueTransformer,
+    tuiDateClamp,
     TuiDateMode,
     TuiDay,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
     TuiMonth,
+    tuiNullableSame,
 } from '@taiga-ui/cdk';
 import {
-    sizeBigger,
     TUI_DEFAULT_MARKER_HANDLER,
     TUI_TEXTFIELD_SIZE,
     TuiDialogService,
     TuiMarkerHandler,
     TuiPrimitiveTextfieldComponent,
+    TuiSizeL,
+    TuiSizeS,
     TuiTextfieldSizeDirective,
     TuiTextMaskOptions,
     TuiWithOptionalMinMax,
@@ -49,26 +51,29 @@ import {EMPTY_MASK} from '@taiga-ui/kit/constants';
 import {
     TUI_DATE_TEXTS,
     TUI_DATE_VALUE_TRANSFORMER,
+    TUI_INPUT_DATE_OPTIONS,
     TUI_MOBILE_CALENDAR,
+    tuiDateStreamWithTransformer,
+    TuiInputDateOptions,
 } from '@taiga-ui/kit/tokens';
 import {
     tuiCreateAutoCorrectedDatePipe,
     tuiCreateDateMask,
 } from '@taiga-ui/kit/utils/mask';
 import {PolymorpheusComponent} from '@tinkoff/ng-polymorpheus';
-import {TextMaskConfig} from 'angular2-text-mask';
 import {Observable} from 'rxjs';
 import {map, takeUntil} from 'rxjs/operators';
 
-import {TUI_INPUT_DATE_PROVIDERS} from './input-date.providers';
-
-// @dynamic
 @Component({
     selector: 'tui-input-date',
     templateUrl: './input-date.template.html',
     styleUrls: ['./input-date.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: TUI_INPUT_DATE_PROVIDERS,
+    providers: [
+        tuiAsFocusableItemAccessor(TuiInputDateComponent),
+        tuiAsControl(TuiInputDateComponent),
+        tuiDateStreamWithTransformer(TUI_DATE_VALUE_TRANSFORMER),
+    ],
 })
 export class TuiInputDateComponent
     extends AbstractTuiNullableControl<TuiDay>
@@ -87,11 +92,11 @@ export class TuiInputDateComponent
 
     @Input()
     @tuiDefaultProp()
-    min = TUI_FIRST_DAY;
+    min = this.options.min;
 
     @Input()
     @tuiDefaultProp()
-    max = TUI_LAST_DAY;
+    max = this.options.max;
 
     @Input()
     @tuiDefaultProp()
@@ -130,7 +135,7 @@ export class TuiInputDateComponent
         @Inject(TuiDialogService) private readonly dialogService: TuiDialogService,
         @Optional()
         @Inject(TUI_MOBILE_CALENDAR)
-        private readonly mobileCalendar: Type<any> | null,
+        private readonly mobileCalendar: Type<Record<string, any>> | null,
         @Inject(TUI_TEXTFIELD_SIZE)
         private readonly textfieldSize: TuiTextfieldSizeDirective,
         @Inject(TUI_DATE_FORMAT) readonly dateFormat: TuiDateMode,
@@ -139,7 +144,9 @@ export class TuiInputDateComponent
         readonly dateTexts$: Observable<Record<TuiDateMode, string>>,
         @Optional()
         @Inject(TUI_DATE_VALUE_TRANSFORMER)
-        readonly valueTransformer: TuiControlValueTransformer<TuiDay | null> | null,
+        override readonly valueTransformer: TuiControlValueTransformer<TuiDay | null> | null,
+        @Inject(TUI_INPUT_DATE_OPTIONS)
+        private readonly options: TuiInputDateOptions,
     ) {
         super(control, changeDetectorRef, valueTransformer);
     }
@@ -156,10 +163,8 @@ export class TuiInputDateComponent
         return this.isMobile && !!this.mobileCalendar;
     }
 
-    get calendarIcon(): string {
-        return sizeBigger(this.textfieldSize.size)
-            ? 'tuiIconCalendarLarge'
-            : 'tuiIconCalendar';
+    get calendarIcon(): TuiInputDateOptions['icon'] {
+        return this.options.icon;
     }
 
     get computedValue(): string {
@@ -177,7 +182,11 @@ export class TuiInputDateComponent
             return this.items[0].displayDay;
         }
 
-        return this.month || this.value || this.defaultActiveYearMonth;
+        return (
+            this.month ||
+            this.value ||
+            tuiDateClamp(this.defaultActiveYearMonth, this.min, this.max)
+        );
     }
 
     get nativeValue(): string {
@@ -196,16 +205,18 @@ export class TuiInputDateComponent
         return this.interactive && !this.computedMobile;
     }
 
-    get computedMask(): TextMaskConfig {
-        return (this.activeItem
-            ? EMPTY_MASK
-            : this.textMaskOptions) as TuiTextMaskOptions as unknown as TextMaskConfig;
+    get computedMask(): TuiTextMaskOptions {
+        return this.activeItem ? EMPTY_MASK : this.textMaskOptions;
     }
 
     get activeItem(): TuiNamedDay | null {
         const {value} = this;
 
         return (value && this.items.find(item => item.day.daySame(value))) || null;
+    }
+
+    get size(): TuiSizeL | TuiSizeS {
+        return this.textfieldSize.size;
     }
 
     @HostListener('click')
@@ -219,10 +230,8 @@ export class TuiInputDateComponent
         return this.activeItem ? '' : filler;
     }
 
-    onMobileClick(): void {
-        if (!this.mobileCalendar) {
-            this.open = !this.open;
-
+    onIconClick(): void {
+        if (!this.computedMobile || !this.mobileCalendar) {
             return;
         }
 
@@ -264,10 +273,6 @@ export class TuiInputDateComponent
         this.open = false;
     }
 
-    onHovered(hovered: boolean): void {
-        this.updateHovered(hovered);
-    }
-
     onMonthChange(month: TuiMonth): void {
         this.month = month;
     }
@@ -280,20 +285,20 @@ export class TuiInputDateComponent
         this.updateFocused(focused);
     }
 
-    setDisabledState(): void {
+    override setDisabledState(): void {
         super.setDisabledState();
         this.open = false;
     }
 
-    writeValue(value: TuiDay | null): void {
+    override writeValue(value: TuiDay | null): void {
         super.writeValue(value);
         this.nativeValue = value ? this.computedValue : '';
     }
 
-    protected valueIdenticalComparator(
+    protected override valueIdenticalComparator(
         oldValue: TuiDay | null,
         newValue: TuiDay | null,
     ): boolean {
-        return nullableSame(oldValue, newValue, (a, b) => a.daySame(b));
+        return tuiNullableSame(oldValue, newValue, (a, b) => a.daySame(b));
     }
 }

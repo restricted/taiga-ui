@@ -4,9 +4,9 @@
 [![All packages CI](https://github.com/tinkoff/taiga-ui/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/tinkoff/taiga-ui/actions/workflows/build.yml)
 [![Discord](https://img.shields.io/discord/748677963142135818?color=7289DA&label=%23taiga-ui&logo=discord&logoColor=white)](https://discord.gg/Us8d8JVaTg)
 [![angular-open-source-starter](https://img.shields.io/badge/made%20with-angular--open--source--starter-d81676?logo=angular)](https://github.com/tinkoff/angular-open-source-starter)
+[![Codeflow](https://img.shields.io/badge/codeflow-pr.new-blue)](https://pr.new/github.com/tinkoff/taiga-ui)
 
-[Website](https://taiga-ui.dev) • [Documentation](https://taiga-ui.dev/getting-started) •
-[CDK Wiki](https://github.com/tinkoff/taiga-ui/wiki) • [Core team](#core-team) •
+[Website](https://taiga-ui.dev) • [Documentation](https://taiga-ui.dev/getting-started) • [Core team](#core-team) •
 [Figma](https://www.figma.com/community/file/966347242613098831)
 
 **Taiga UI** is fully-treeshakable Angular UI Kit consisting of multiple base libraries and several add-ons.
@@ -39,10 +39,7 @@ Read more about Taiga UI main features in [this article](https://indepth.dev/pos
 
 See our [Getting started](https://taiga-ui.dev/getting-started) page to start working with Taiga UI
 
-> If you want to use cdk tools only, see [CDK Wiki](https://github.com/tinkoff/taiga-ui/wiki)
-
-You can also use our [StackBlitz starter](https://stackblitz.com/edit/taiga-starter?file=src%2Fapp%2Fapp.component.html)
-to create a quick sample with Taiga UI
+You can also use our [StackBlitz starter](https://taiga-ui.dev/stackblitz) to create a quick sample with Taiga UI
 
 🎨 Check out [Taiga UI Figma library](https://www.figma.com/community/file/966347242613098831/Taiga-UI) which you can
 use to design your app with Taiga UI components.
@@ -57,7 +54,15 @@ use to design your app with Taiga UI components.
 
 ## Contributing
 
-See our [CONTRIBUTING.md](/CONTRIBUTING.md) guide
+See our [CONTRIBUTING.md](/CONTRIBUTING.md) guide. Try to
+[make pull request](https://pr.new/github.com/tinkoff/taiga-ui) online from Web IDE.
+
+## Status
+
+| Version | Status                                                                                       | Latest tag (npm)                                                                            |
+| ------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| v3.x    | ![v3](https://github.com/tinkoff/taiga-ui/actions/workflows/build.yml/badge.svg?branch=main) | ![npm version](https://img.shields.io/npm/v/@taiga-ui/cdk?label=%40taiga-ui%2Fcdk%20~%20v3) |
+| v2.x    | ![v2](https://github.com/tinkoff/taiga-ui/actions/workflows/build.yml/badge.svg?branch=v2.x) | ![v2](https://img.shields.io/npm/v/@taiga-ui/cdk/v2-lts?label=%40taiga-ui%2Fcdk%20~%20v2)   |
 
 ## Core team
 

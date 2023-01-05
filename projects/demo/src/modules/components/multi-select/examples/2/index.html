@@ -1,8 +1,7 @@
 <tui-multi-select
     *tuiLet="items$ | async as items"
-    #component
-    tuiTextfieldExampleText="Find by ..."
-    class="control"
+    placeholder="Find by ..."
+    class="b-form"
     [formControl]="testValue"
     [tuiTextfieldLabelOutside]="true"
     [expandable]="false"
@@ -11,7 +10,7 @@
     Rock Star Frontend Developers
     <tui-data-list-wrapper
         *tuiDataList
-        [items]="items | tuiHideSelected : component"
+        [items]="items | tuiHideSelected"
         [itemContent]="itemContent"
     ></tui-data-list-wrapper>
 </tui-multi-select>
@@ -27,6 +26,6 @@
             [avatarUrl]="data.avatarUrl"
             [text]="data.toString()"
         ></tui-avatar>
-        {{data}}
+        {{ data }}
     </div>
 </ng-template>

@@ -6,7 +6,7 @@ import {PolymorpheusComponent, PolymorpheusContent} from '@tinkoff/ng-polymorphe
 import {BehaviorSubject, Observable} from 'rxjs';
 
 @Injectable()
-export abstract class AbstractTuiDialogService<T> extends Observable<
+export abstract class AbstractTuiDialogService<T, K = void> extends Observable<
     ReadonlyArray<TuiDialog<T, any>>
 > {
     protected abstract readonly component: PolymorpheusComponent<any, TuiDialog<T, any>>;
@@ -17,18 +17,16 @@ export abstract class AbstractTuiDialogService<T> extends Observable<
         [],
     );
 
-    protected constructor(
-        @Inject(TuiIdService) private readonly idService: TuiIdService,
-    ) {
+    constructor(@Inject(TuiIdService) private readonly idService: TuiIdService) {
         super(observer => this.dialogs$.subscribe(observer));
     }
 
     open<G = void>(
-        content: PolymorpheusContent<TuiBaseDialogContext<G> & T>,
+        content: PolymorpheusContent<T & TuiBaseDialogContext<K extends void ? G : K>>,
         options: Partial<T> = {},
-    ): Observable<G> {
+    ): Observable<K extends void ? G : K> {
         return new Observable(observer => {
-            const completeWith = (result: G): void => {
+            const completeWith = (result: K extends void ? G : K): void => {
                 observer.next(result);
                 observer.complete();
             };

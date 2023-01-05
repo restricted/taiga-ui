@@ -9,24 +9,24 @@ import {
 import {NgControl} from '@angular/forms';
 import {
     EMPTY_QUERY,
-    getOriginalArrayFromQueryList,
-    isPresent,
-    itemsQueryListObservable,
     TUI_DEFAULT_IDENTITY_MATCHER,
+    tuiControlValue,
     tuiDefaultProp,
+    tuiGetOriginalArrayFromQueryList,
     TuiIdentityMatcher,
+    TuiInjectionTokenType,
+    tuiIsPresent,
+    tuiItemsQueryListObservable,
     tuiPure,
-    tuiReplayedValueChangesFrom,
 } from '@taiga-ui/cdk';
 import {
-    sizeBigger,
     TUI_DATA_LIST_HOST,
-    TUI_OPTION_CONTENT,
     TuiDataListHost,
     TuiOptionComponent,
     TuiSizeL,
     TuiSizeXS,
 } from '@taiga-ui/core';
+import {TUI_MULTI_SELECT_TEXTS} from '@taiga-ui/kit/tokens';
 import {combineLatest, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
@@ -35,12 +35,6 @@ import {map} from 'rxjs/operators';
     templateUrl: './multi-select-group.template.html',
     styleUrls: ['./multi-select-group.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    viewProviders: [
-        {
-            provide: TUI_OPTION_CONTENT,
-            useValue: null,
-        },
-    ],
 })
 export class TuiMultiSelectGroupComponent<T> {
     @ContentChildren(TuiOptionComponent)
@@ -51,33 +45,31 @@ export class TuiMultiSelectGroupComponent<T> {
     label = '';
 
     constructor(
+        @Inject(TUI_MULTI_SELECT_TEXTS)
+        readonly multiSelectTexts$: TuiInjectionTokenType<typeof TUI_MULTI_SELECT_TEXTS>,
         @Inject(TUI_DATA_LIST_HOST) private readonly host: TuiDataListHost<T>,
         @Inject(NgControl) private readonly control: NgControl,
     ) {}
 
-    get size(): TuiSizeXS | TuiSizeL {
-        return (this.options.first && this.options.first.size) || 'm';
-    }
-
-    get checkboxSize(): TuiSizeL {
-        return this.options.first && sizeBigger(this.options.first.size) ? 'l' : 'm';
+    get size(): TuiSizeL | TuiSizeXS {
+        return this.options.first?.size || 'm';
     }
 
     @tuiPure
     get empty$(): Observable<boolean> {
-        return itemsQueryListObservable(this.options).pipe(map(({length}) => !length));
+        return tuiItemsQueryListObservable(this.options).pipe(map(({length}) => !length));
     }
 
     @tuiPure
     get disabled$(): Observable<boolean> {
-        return itemsQueryListObservable(this.options).pipe(
+        return tuiItemsQueryListObservable(this.options).pipe(
             map(items => items.every(({disabled}) => disabled)),
         );
     }
 
     @tuiPure
     get value$(): Observable<boolean | null> {
-        return combineLatest(this.items$, this.valueChanges$).pipe(
+        return combineLatest([this.items$, this.valueChanges$]).pipe(
             map(([items, current]) => {
                 let result = false;
 
@@ -113,7 +105,7 @@ export class TuiMultiSelectGroupComponent<T> {
     }
 
     private get values(): readonly T[] {
-        return this.filter(getOriginalArrayFromQueryList(this.options));
+        return this.filter(tuiGetOriginalArrayFromQueryList(this.options));
     }
 
     private get matcher(): TuiIdentityMatcher<T> {
@@ -122,20 +114,20 @@ export class TuiMultiSelectGroupComponent<T> {
 
     @tuiPure
     private get items$(): Observable<readonly T[]> {
-        return itemsQueryListObservable(this.options).pipe(
-            map(options => options.map(({value}) => value).filter(isPresent)),
+        return tuiItemsQueryListObservable(this.options).pipe(
+            map(options => options.map(({value}) => value).filter(tuiIsPresent)),
         );
     }
 
     @tuiPure
     private get valueChanges$(): Observable<readonly T[]> {
-        return tuiReplayedValueChangesFrom<readonly T[]>(this.control).pipe(
+        return tuiControlValue<readonly T[]>(this.control).pipe(
             map(value => value || []),
         );
     }
 
     @tuiPure
     private filter(items: ReadonlyArray<TuiOptionComponent<T>>): readonly T[] {
-        return items.map(({value}) => value).filter(isPresent);
+        return items.map(({value}) => value).filter(tuiIsPresent);
     }
 }

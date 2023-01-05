@@ -2,12 +2,12 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
-import {TuiActiveZoneModule} from '@taiga-ui/cdk';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
+import {TuiActiveZoneModule, TuiPreventDefaultModule} from '@taiga-ui/cdk';
 import {
     TuiButtonModule,
     TuiDataListModule,
-    TuiDropdownControllerModule,
+    TuiDropdownModule,
     TuiGroupModule,
     TuiHostedDropdownModule,
     TuiLinkModule,
@@ -16,14 +16,15 @@ import {
 } from '@taiga-ui/core';
 import {
     TuiDataListWrapperModule,
-    TuiDropdownHoverModule,
     TuiInputModule,
+    TuiMultiSelectModule,
     TuiSelectModule,
     TuiTabsModule,
+    TuiToggleModule,
 } from '@taiga-ui/kit';
 import {PolymorpheusModule} from '@tinkoff/ng-polymorpheus';
 
-import {DropdownControllerDocumentationModule} from '../abstract/dropdown-controller-documentation/dropdown-controller-documentation.module';
+import {DropdownDocumentationModule} from '../abstract/dropdown-documentation/dropdown-documentation.module';
 import {TuiHostedDropdownExample1} from './examples/1';
 import {TuiHostedDropdownExample2} from './examples/2';
 import {TuiHostedDropdownExample3} from './examples/3';
@@ -37,7 +38,6 @@ import {ExampleTuiHostedDropdownComponent} from './hosted-dropdown.component';
         PolymorpheusModule,
         FormsModule,
         TuiHostedDropdownModule,
-        TuiDropdownHoverModule,
         TuiNotificationModule,
         TuiTabsModule,
         TuiInputModule,
@@ -47,12 +47,15 @@ import {ExampleTuiHostedDropdownComponent} from './hosted-dropdown.component';
         TuiLinkModule,
         TuiSelectModule,
         TuiActiveZoneModule,
-        TuiDropdownControllerModule,
+        TuiDropdownModule,
         TuiDataListModule,
         TuiDataListWrapperModule,
-        DropdownControllerDocumentationModule,
+        DropdownDocumentationModule,
         TuiAddonDocModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiHostedDropdownComponent)),
+        TuiToggleModule,
+        TuiMultiSelectModule,
+        TuiPreventDefaultModule,
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTuiHostedDropdownComponent)),
     ],
     declarations: [
         TuiHostedDropdownExample1,

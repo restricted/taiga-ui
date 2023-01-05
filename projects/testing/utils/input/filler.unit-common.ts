@@ -2,14 +2,14 @@ import {DebugElement} from '@angular/core';
 import {ComponentFixture} from '@angular/core/testing';
 import {FormControl} from '@angular/forms';
 
-import {NativeInputPO} from '../native-input.page-object';
-import {PageObject} from '../page-object';
+import {TuiNativeInputPO} from '../native-input.page-object';
+import {TuiPageObject} from '../page-object';
 
 interface TestParams {
-    pageObject: PageObject<any>;
-    fixture: ComponentFixture<any>;
+    pageObject: TuiPageObject<unknown>;
+    fixture: ComponentFixture<unknown>;
     testComponent: TestComponent;
-    inputPO: NativeInputPO;
+    inputPO: TuiNativeInputPO;
     prefix: string;
 }
 
@@ -17,17 +17,17 @@ interface TestComponent {
     control: FormControl;
 }
 
-export function testFiller(
+export function tuiTestFiller(
     context: TestParams,
-    setValue: any = 'value',
-    clearValue: any = null,
+    setValue: unknown = `value`,
+    clearValue: unknown = null,
 ): void {
-    let pageObject: PageObject<any>;
-    let fixture: ComponentFixture<any>;
+    let pageObject: TuiPageObject<unknown>;
+    let fixture: ComponentFixture<unknown>;
     let testComponent: TestComponent;
-    let inputPO: NativeInputPO;
+    let inputPO: TuiNativeInputPO;
 
-    describe('Filler (mask)', () => {
+    describe(`Filler (mask)`, () => {
         beforeEach(() => {
             pageObject = context.pageObject;
             fixture = context.fixture;
@@ -37,17 +37,17 @@ export function testFiller(
             fixture.detectChanges();
         });
 
-        describe('if there is no value in the field', () => {
+        describe(`if there is no value in the field`, () => {
             beforeEach(() => {
                 testComponent.control.setValue(clearValue);
                 fixture.detectChanges();
             });
 
-            it('not visible', () => {
+            it(`not visible`, () => {
                 expect(getFiller()).toBeNull();
             });
 
-            it('when focusing appears', async () => {
+            it(`when focusing appears`, async () => {
                 inputPO.focus();
                 fixture.detectChanges();
                 await fixture.whenStable();
@@ -55,18 +55,18 @@ export function testFiller(
             });
         });
 
-        describe('if the field has a value', () => {
+        describe(`if the field has a value`, () => {
             beforeEach(() => {
                 testComponent.control.setValue(setValue);
                 fixture.detectChanges();
             });
 
-            it('not visible', () => {
+            it(`not visible`, () => {
                 expect(getFiller()).toBeNull();
             });
 
-            it('also not visible when focusing', () => {
-                inputPO.nativeElement.focus();
+            it(`also not visible when focusing`, () => {
+                inputPO.nativeElement?.focus();
                 fixture.detectChanges();
 
                 expect(getFiller()).toBeNull();

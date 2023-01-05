@@ -1,31 +1,27 @@
 import {
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
     Component,
     ElementRef,
-    forwardRef,
     HostBinding,
     HostListener,
     Inject,
     Input,
+    Optional,
 } from '@angular/core';
 import {
     AbstractTuiInteractive,
-    isNativeFocused,
-    pressedObservable,
-    TUI_FOCUSABLE_ITEM_ACCESSOR,
-    TUI_TAKE_ONLY_TRUSTED_EVENTS,
+    tuiAsFocusableItemAccessor,
     tuiDefaultProp,
     TuiDestroyService,
     TuiFocusableElementAccessor,
     TuiFocusVisibleService,
-    TuiHoveredService,
-    watch,
+    tuiIsNativeFocused,
 } from '@taiga-ui/cdk';
+import {TuiModeDirective} from '@taiga-ui/core/directives';
 import {TuiSizeS} from '@taiga-ui/core/types';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
-import {Observable} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {EMPTY, Observable} from 'rxjs';
+import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 
 import {TUI_BUTTON_OPTIONS, TuiButtonOptions} from './button-options';
 
@@ -35,10 +31,7 @@ import {TUI_BUTTON_OPTIONS, TuiButtonOptions} from './button-options';
     styleUrls: ['./button.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
-        {
-            provide: TUI_FOCUSABLE_ITEM_ACCESSOR,
-            useExisting: forwardRef(() => TuiButtonComponent),
-        },
+        tuiAsFocusableItemAccessor(TuiButtonComponent),
         TuiDestroyService,
         TuiFocusVisibleService,
     ],
@@ -47,10 +40,11 @@ export class TuiButtonComponent
     extends AbstractTuiInteractive
     implements TuiFocusableElementAccessor, TuiButtonOptions
 {
+    private readonly mode$: Observable<unknown> = this.mode?.change$ || EMPTY;
+
     @Input()
-    @HostBinding('attr.data-appearance')
     @tuiDefaultProp()
-    appearance = this.options.appearance || '';
+    appearance: TuiButtonOptions['appearance'] = null;
 
     @Input()
     @tuiDefaultProp()
@@ -79,31 +73,21 @@ export class TuiButtonComponent
     @tuiDefaultProp()
     size = this.options.size;
 
+    readonly appearance$ = this.mode$.pipe(
+        startWith(null),
+        map(() => this.computedAppearance),
+        distinctUntilChanged(),
+    );
+
     constructor(
+        @Optional()
+        @Inject(TuiModeDirective)
+        private readonly mode: TuiModeDirective | null,
         @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
         @Inject(TuiFocusVisibleService) focusVisible$: TuiFocusVisibleService,
-        @Inject(TuiHoveredService) hoveredService: TuiHoveredService,
-        @Inject(TuiDestroyService) destroy$: Observable<void>,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
-        @Inject(TUI_TAKE_ONLY_TRUSTED_EVENTS)
-        private readonly takeOnlyTrustedEvents: boolean,
         @Inject(TUI_BUTTON_OPTIONS) private readonly options: TuiButtonOptions,
     ) {
         super();
-
-        hoveredService
-            .createHovered$(elementRef.nativeElement)
-            .pipe(watch(changeDetectorRef), takeUntil(destroy$))
-            .subscribe(hovered => {
-                this.updateHovered(hovered);
-            });
-        pressedObservable(elementRef.nativeElement, {
-            onlyTrusted: this.takeOnlyTrustedEvents,
-        })
-            .pipe(watch(changeDetectorRef), takeUntil(destroy$))
-            .subscribe(pressed => {
-                this.updatePressed(pressed);
-            });
         focusVisible$.subscribe(focusVisible => {
             this.updateFocusVisible(focusVisible);
         });
@@ -114,11 +98,16 @@ export class TuiButtonComponent
     }
 
     get focused(): boolean {
-        return !this.showLoader && isNativeFocused(this.elementRef.nativeElement);
+        return !this.showLoader && tuiIsNativeFocused(this.elementRef.nativeElement);
     }
 
     get loaderSize(): TuiSizeS {
         return this.size === 'l' || this.size === 'xl' ? 'm' : 's';
+    }
+
+    @HostBinding('attr.data-appearance')
+    get computedAppearance(): string {
+        return this.appearance ?? (this.options.appearance || '');
     }
 
     @HostBinding('attr.disabled')

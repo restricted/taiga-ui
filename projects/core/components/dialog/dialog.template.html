@@ -1,22 +1,20 @@
 <header
     *ngIf="header"
-    polymorpheus-outlet
     class="t-header"
-    [content]="header"
-    [context]="context"
-></header>
+>
+    <ng-container *polymorpheusOutlet="header as text; context: context">
+        {{ text }}
+    </ng-container>
+</header>
 <div class="t-content">
     <h2
         class="t-heading"
         [id]="context.id"
         [textContent]="context.label"
     ></h2>
-    <section
-        polymorpheus-outlet
-        [context]="context"
-        [content]="context.content"
-    >
-        <ng-template let-text>
+    <section>
+        <!-- TODO: Polymorpheus fix type -->
+        <ng-container *polymorpheusOutlet="$any(context.content) as text; context: context">
             {{ text }}
             <div class="t-buttons">
                 <button
@@ -24,10 +22,10 @@
                     size="m"
                     (click)="context.$implicit.complete()"
                 >
-                    OK
+                    {{ $any(context.data)?.button || 'OK' }}
                 </button>
             </div>
-        </ng-template>
+        </ng-container>
     </section>
 </div>
 <div

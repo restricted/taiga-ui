@@ -34,6 +34,10 @@
         border: 2px solid var(--tui-focus);
     }
 
+    &[data-size='s'] {
+        border-radius: var(--tui-radius-xs);
+    }
+
     &[data-tui-host-status='primary'] {
         background-color: var(--tui-primary);
         color: var(--tui-primary-text);
@@ -170,17 +174,18 @@
     }
 }
 
-.text {
-    .text-overflow();
+.t-text {
+    .text-overflow(pre); // @note: fix problem in Safari
     padding-right: 0.02em;
 }
 
-.tag {
+.t-tag {
+    .text-overflow();
     position: relative;
     display: flex;
+    width: auto; // @note: fix problem in Safari
     align-items: center;
     border-radius: inherit;
-    white-space: pre;
 
     :host[data-size='s'] & {
         font: var(--tui-font-text-xs);
@@ -232,7 +237,7 @@
     }
 }
 
-.edit {
+.t-edit {
     .clearinput();
     position: absolute;
     top: 0;
@@ -264,7 +269,7 @@
     }
 }
 
-.icon {
+.t-icon {
     margin: 0 0 0 @space;
     margin-inline-start: @space;
     margin-inline-end: 0;
@@ -301,7 +306,7 @@
     }
 }
 
-.left-content {
+.t-left-content {
     margin: 0 @space 0 0;
     margin-inline-start: 0;
     margin-inline-end: @space;

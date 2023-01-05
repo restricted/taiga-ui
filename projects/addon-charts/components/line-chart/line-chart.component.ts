@@ -1,4 +1,4 @@
-import {Location} from '@angular/common';
+import {Location as NgLocation} from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -7,45 +7,55 @@ import {
     Input,
     NgZone,
     Optional,
+    QueryList,
+    ViewChildren,
 } from '@angular/core';
+import {LOCATION} from '@ng-web-apis/common';
 import {TuiLineChartHintContext} from '@taiga-ui/addon-charts/interfaces';
-import {draw} from '@taiga-ui/addon-charts/utils';
+import {tuiDraw, tuiPrepareExternalUrl} from '@taiga-ui/addon-charts/utils';
 import {
-    inRange,
+    EMPTY_QUERY,
     tuiDefaultProp,
     TuiIdService,
+    tuiInRange,
+    tuiIsPresent,
     tuiPure,
     TuiStringHandler,
     tuiZoneOptimized,
 } from '@taiga-ui/cdk';
-import {TuiPoint} from '@taiga-ui/core';
+import {
+    TuiDriver,
+    TuiHintOptionsDirective,
+    tuiHintOptionsProvider,
+    TuiPoint,
+} from '@taiga-ui/core';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable, Subject} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
 
+// TODO: find the best way for prevent cycle
+// eslint-disable-next-line import/no-cycle
 import {TuiLineChartHintDirective} from './line-chart-hint.directive';
-
-export function smoothingAssertion(smoothingFactor: number): boolean {
-    return inRange(smoothingFactor, 0, 100);
-}
-
-const SMOOTHING_MESSAGE = 'smoothingFactor must be between 0 and 100';
 
 @Component({
     selector: 'tui-line-chart',
     templateUrl: './line-chart.template.html',
     styleUrls: ['./line-chart.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    viewProviders: [tuiHintOptionsProvider({direction: 'top'})],
 })
 export class TuiLineChartComponent {
     private readonly _hovered$ = new Subject<number>();
 
     private readonly autoIdString: string;
 
+    @ViewChildren(TuiDriver)
+    readonly drivers: QueryList<Observable<boolean>> = EMPTY_QUERY;
+
     @Input('value')
     @tuiDefaultProp()
     set valueSetter(value: readonly TuiPoint[]) {
-        this.value = value.filter(item => !item.some(isNaN));
+        this.value = value.filter(item => !item.some(Number.isNaN));
     }
 
     @Input()
@@ -65,12 +75,11 @@ export class TuiLineChartComponent {
     height = 0;
 
     @Input()
-    @tuiDefaultProp(smoothingAssertion, SMOOTHING_MESSAGE)
+    @tuiDefaultProp(
+        (smoothingFactor: number) => tuiInRange(smoothingFactor, 0, 100),
+        'smoothingFactor must be between 0 and 100',
+    )
     smoothingFactor = 0;
-
-    @Input()
-    @tuiDefaultProp()
-    hintContent: PolymorpheusContent<TuiLineChartHintContext<TuiPoint>> = '';
 
     @Input()
     @tuiDefaultProp()
@@ -93,10 +102,14 @@ export class TuiLineChartComponent {
     constructor(
         @Inject(TuiIdService) idService: TuiIdService,
         @Inject(NgZone) private readonly ngZone: NgZone,
-        @Inject(Location) private readonly locationRef: Location,
+        @Inject(NgLocation) private readonly ngLocation: NgLocation,
+        @Inject(LOCATION) private readonly locationRef: Location,
         @Optional()
         @Inject(TuiLineChartHintDirective)
         readonly hintDirective: TuiLineChartHintDirective | null,
+        @Optional()
+        @Inject(TuiHintOptionsDirective)
+        readonly hintOptions: TuiHintOptionsDirective | null,
     ) {
         this.autoIdString = idService.generate();
     }
@@ -106,15 +119,17 @@ export class TuiLineChartComponent {
         return this._hovered$.pipe(distinctUntilChanged(), tuiZoneOptimized(this.ngZone));
     }
 
+    get hintContent(): PolymorpheusContent<TuiLineChartHintContext<TuiPoint>> {
+        return this.hintOptions?.content || '';
+    }
+
     get fillId(): string {
         return `tui-line-chart-${this.autoIdString}`;
     }
 
     get fill(): string {
         return this.filled
-            ? `url(${this.locationRef.prepareExternalUrl(this.locationRef.path())}#${
-                  this.fillId
-              })`
+            ? tuiPrepareExternalUrl(this.ngLocation, this.locationRef, this.fillId)
             : 'none';
     }
 
@@ -173,18 +188,20 @@ export class TuiLineChartComponent {
     getContentContext(
         $implicit: TuiPoint,
         index: number,
-    ): TuiLineChartHintContext<readonly TuiPoint[]> {
+    ): TuiLineChartHintContext<TuiPoint | readonly TuiPoint[]> {
         return (
             this.hintDirective?.getContext(this.value.indexOf($implicit), this) || {
-                $implicit: [],
+                $implicit,
                 index,
             }
         );
     }
 
-    getHovered(hovered: number): TuiPoint | null {
+    getHovered(hovered: number | null): TuiPoint | null {
         // This checks for NaN and null too since async pipe returns null before first item
-        return Number.isInteger(hovered) ? this.value[hovered] : null;
+        return tuiIsPresent(hovered) && Number.isInteger(hovered)
+            ? this.value[hovered]
+            : null;
     }
 
     getBottom(y: number): number {
@@ -219,7 +236,7 @@ export class TuiLineChartComponent {
     private getD(value: readonly TuiPoint[], smoothingFactor: number): string {
         return value.reduce(
             (d, point, index) =>
-                index ? `${d} ${draw(value, index, smoothingFactor)}` : `M ${point}`,
+                index ? `${d} ${tuiDraw(value, index, smoothingFactor)}` : `M ${point}`,
             '',
         );
     }

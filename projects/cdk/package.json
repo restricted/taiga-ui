@@ -1,6 +1,6 @@
 {
     "name": "@taiga-ui/cdk",
-    "version": "2.45.0",
+    "version": "3.15.0",
     "description": "Base library for creating Angular components and applications using Taiga UI principles regarding of actual visual appearance",
     "keywords": [
         "angular",
@@ -15,23 +15,23 @@
     "repository": "https://github.com/tinkoff/taiga-ui",
     "license": "Apache-2.0",
     "dependencies": {
-        "@ng-web-apis/common": "^1.12.1",
-        "@ng-web-apis/mutation-observer": "^1.1.0",
-        "@ng-web-apis/resize-observer": "^1.0.3",
-        "@tinkoff/ng-event-plugins": "^2.5.1",
-        "@tinkoff/ng-polymorpheus": "^3.1.12",
-        "@types/resize-observer-browser": "^0.1.7"
-    },
-    "devDependencies": {
-        "@angular-devkit/schematics": "^9.1.12",
-        "ng-morph": "^2.0.0"
+        "@ng-web-apis/common": "2.1.0",
+        "@ng-web-apis/mutation-observer": "2.0.0",
+        "@ng-web-apis/resize-observer": "2.0.0",
+        "@tinkoff/ng-event-plugins": "3.1.0",
+        "@tinkoff/ng-polymorpheus": "4.0.10",
+        "tslib": "^2.0.0"
     },
     "peerDependencies": {
-        "@angular/animations": ">=9.0.0",
-        "@angular/common": ">=9.0.0",
-        "@angular/core": ">=9.0.0",
-        "@angular/forms": ">=9.0.0",
+        "@angular/animations": ">=12.0.0",
+        "@angular/common": ">=12.0.0",
+        "@angular/core": ">=12.0.0",
+        "@angular/forms": ">=12.0.0",
         "rxjs": ">=6.0.0"
+    },
+    "optionalDependencies": {
+        "ng-morph": "^2.1.0",
+        "parse5": "^6.0.1"
     },
     "ng-update": {
         "migrations": "./schematics/migration.json",
@@ -48,7 +48,11 @@
             "@taiga-ui/addon-tablebars",
             "@taiga-ui/addon-table",
             "@taiga-ui/addon-editor",
-            "@taiga-ui/addon-mobile"
+            "@taiga-ui/addon-mobile",
+            "@taiga-ui/proprietary-banking",
+            "@taiga-ui/proprietary-core",
+            "@taiga-ui/proprietary-icons",
+            "@taiga-ui/proprietary-navigation"
         ]
     },
     "schematics": "./schematics/collection.json"

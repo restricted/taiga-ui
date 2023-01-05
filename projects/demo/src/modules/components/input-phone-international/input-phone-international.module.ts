@@ -2,14 +2,18 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {
     TuiButtonModule,
-    TuiDropdownControllerModule,
-    TuiHintControllerModule,
+    TuiDropdownModule,
+    TuiHintModule,
+    TuiNotificationModule,
     TuiTextfieldControllerModule,
 } from '@taiga-ui/core';
-import {TuiInputPhoneInternationalModule} from '@taiga-ui/kit';
+import {
+    TuiInputPhoneInternationalModule,
+    TuiSortCountriesPipeModule,
+} from '@taiga-ui/kit';
 
 import {InheritedDocumentationModule} from '../abstract/inherited-documentation/inherited-documentation.module';
 import {TuiInputPhoneExample1} from './examples/1';
@@ -24,11 +28,15 @@ import {ExampleTuiInputPhoneInternationalComponent} from './input-phone-internat
         TuiInputPhoneInternationalModule,
         InheritedDocumentationModule,
         TuiTextfieldControllerModule,
-        TuiDropdownControllerModule,
-        TuiHintControllerModule,
+        TuiDropdownModule,
+        TuiHintModule,
         TuiAddonDocModule,
         TuiButtonModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiInputPhoneInternationalComponent)),
+        TuiSortCountriesPipeModule,
+        TuiNotificationModule,
+        RouterModule.forChild(
+            tuiGenerateRoutes(ExampleTuiInputPhoneInternationalComponent),
+        ),
     ],
     declarations: [
         ExampleTuiInputPhoneInternationalComponent,

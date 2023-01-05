@@ -3,13 +3,12 @@ import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {TuiMoneyModule} from '@taiga-ui/addon-commerce';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {TuiActiveZoneModule, TuiFilterPipeModule, TuiLetModule} from '@taiga-ui/cdk';
 import {
     TuiButtonModule,
     TuiCalendarModule,
     TuiDataListModule,
-    TuiDropdownControllerModule,
     TuiDropdownModule,
     TuiGroupModule,
     TuiHostedDropdownModule,
@@ -20,7 +19,7 @@ import {
 } from '@taiga-ui/core';
 import {
     TuiArrowModule,
-    TuiDropdownHoverModule,
+    TuiDataListDropdownManagerModule,
     TuiInputDateRangeModule,
     TuiInputModule,
     TuiMultiSelectModule,
@@ -34,6 +33,7 @@ import {TuiDataListExample3} from './examples/3';
 import {TuiDataListExample4} from './examples/4';
 import {CustomListComponent} from './examples/4/custom-list/custom-list.component';
 import {TuiDataListExample5} from './examples/5';
+import {TuiDataListExample6} from './examples/6';
 
 @NgModule({
     imports: [
@@ -48,21 +48,20 @@ import {TuiDataListExample5} from './examples/5';
         TuiArrowModule,
         TuiNotificationModule,
         TuiDataListModule,
+        TuiDataListDropdownManagerModule,
         TuiSvgModule,
         TuiHostedDropdownModule,
         TuiButtonModule,
         TuiDropdownModule,
         TuiActiveZoneModule,
         TuiAddonDocModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiDataListComponent)),
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTuiDataListComponent)),
         TuiFilterPipeModule,
         TuiCalendarModule,
         TuiInputModule,
         TuiInputDateRangeModule,
-        TuiDropdownHoverModule,
         TuiMoneyModule,
         TuiGroupModule,
-        TuiDropdownControllerModule,
     ],
     declarations: [
         ExampleTuiDataListComponent,
@@ -72,6 +71,7 @@ import {TuiDataListExample5} from './examples/5';
         TuiDataListExample3,
         TuiDataListExample4,
         TuiDataListExample5,
+        TuiDataListExample6,
     ],
     exports: [ExampleTuiDataListComponent],
 })

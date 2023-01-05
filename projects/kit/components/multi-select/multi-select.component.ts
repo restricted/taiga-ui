@@ -4,7 +4,6 @@ import {
     Component,
     ContentChild,
     EventEmitter,
-    forwardRef,
     HostBinding,
     Inject,
     Input,
@@ -18,14 +17,16 @@ import {NgControl} from '@angular/forms';
 import {
     AbstractTuiMultipleControl,
     EMPTY_ARRAY,
-    isNativeFocused,
-    setNativeFocused,
-    TUI_FOCUSABLE_ITEM_ACCESSOR,
     TuiActiveZoneDirective,
+    tuiArrayToggle,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
     TuiBooleanHandler,
     TuiContextWithImplicit,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
+    tuiIsNativeFocused,
+    tuiIsString,
     TuiMapper,
     tuiPure,
     TuiStringHandler,
@@ -33,8 +34,8 @@ import {
 import {
     TEXTFIELD_CONTROLLER_PROVIDER,
     TUI_DATA_LIST_ACCESSOR,
-    TUI_DATA_LIST_HOST,
     TUI_TEXTFIELD_WATCHED_CONTROLLER,
+    tuiAsDataListHost,
     TuiDataListAccessor,
     TuiDataListDirective,
     TuiDataListHost,
@@ -42,13 +43,11 @@ import {
     TuiSizeL,
     TuiSizeM,
     TuiSizeS,
-    TuiSvgService,
     TuiTextfieldController,
 } from '@taiga-ui/core';
 import {TuiStringifiableItem} from '@taiga-ui/kit/classes';
 import {TUI_ARROW_MODE, TuiArrowMode} from '@taiga-ui/kit/components/arrow';
 import {TuiInputTagComponent} from '@taiga-ui/kit/components/input-tag';
-import {iconBlank} from '@taiga-ui/kit/constants';
 import {FIXED_DROPDOWN_CONTROLLER_PROVIDER} from '@taiga-ui/kit/providers';
 import {TUI_ITEMS_HANDLERS, TuiItemsHandlers} from '@taiga-ui/kit/tokens';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
@@ -61,17 +60,12 @@ import {TUI_MULTI_SELECT_OPTIONS, TuiMultiSelectOptions} from './multi-select-op
     styleUrls: ['./multi-select.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
-        {
-            provide: TUI_FOCUSABLE_ITEM_ACCESSOR,
-            useExisting: forwardRef(() => TuiMultiSelectComponent),
-        },
-        {
-            provide: TUI_DATA_LIST_HOST,
-            useExisting: forwardRef(() => TuiMultiSelectComponent),
-        },
-        FIXED_DROPDOWN_CONTROLLER_PROVIDER,
+        tuiAsFocusableItemAccessor(TuiMultiSelectComponent),
+        tuiAsControl(TuiMultiSelectComponent),
+        tuiAsDataListHost(TuiMultiSelectComponent),
         TEXTFIELD_CONTROLLER_PROVIDER,
     ],
+    viewProviders: [FIXED_DROPDOWN_CONTROLLER_PROVIDER],
 })
 export class TuiMultiSelectComponent<T>
     extends AbstractTuiMultipleControl<T>
@@ -104,6 +98,10 @@ export class TuiMultiSelectComponent<T>
     search: string | null = '';
 
     @Input()
+    @tuiDefaultProp()
+    placeholder = '';
+
+    @Input()
     @HostBinding('class._editable')
     @tuiDefaultProp()
     editable = true;
@@ -133,7 +131,6 @@ export class TuiMultiSelectComponent<T>
         @Inject(NgControl)
         control: NgControl | null,
         @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
-        @Inject(TuiSvgService) svgService: TuiSvgService,
         @Inject(TUI_ARROW_MODE)
         private readonly arrowMode: TuiArrowMode,
         @Inject(TUI_ITEMS_HANDLERS)
@@ -144,8 +141,6 @@ export class TuiMultiSelectComponent<T>
         readonly controller: TuiTextfieldController,
     ) {
         super(control, changeDetectorRef);
-
-        svgService.define({iconBlank});
     }
 
     @HostBinding('attr.data-size')
@@ -154,7 +149,7 @@ export class TuiMultiSelectComponent<T>
     }
 
     get arrow(): PolymorpheusContent<
-        TuiContextWithImplicit<TuiSizeS | TuiSizeM | TuiSizeL>
+        TuiContextWithImplicit<TuiSizeL | TuiSizeM | TuiSizeS>
     > {
         return !this.interactive ? this.arrowMode.disabled : this.arrowMode.interactive;
     }
@@ -183,28 +178,12 @@ export class TuiMultiSelectComponent<T>
         return this.search === null ? '' : this.search;
     }
 
-    /**
-     * Pass empty icon to InputTag (inside this component)
-     * to prevent overflow of arrow icon by many tags
-     */
-    get tagIcon(): string {
-        return this.interactive ? 'iconBlank' : '';
-    }
-
-    get inputHidden(): boolean {
-        return !this.editable && !this.computedGroup;
-    }
-
     get computedGroup(): boolean {
         return (
             !!this.valueContent &&
             this.value.length > 0 &&
             (!this.focused || !this.editable)
         );
-    }
-
-    get context(): TuiContextWithImplicit<readonly T[]> {
-        return this.getContext(this.value);
     }
 
     @tuiPure
@@ -224,13 +203,9 @@ export class TuiMultiSelectComponent<T>
 
     readonly disabledItemHandlerWrapper: TuiMapper<
         TuiBooleanHandler<T>,
-        TuiBooleanHandler<string | TuiStringifiableItem<T>>
+        TuiBooleanHandler<TuiStringifiableItem<T> | string>
     > = handler => stringifiable =>
-        typeof stringifiable === 'string' || handler(stringifiable.item);
-
-    onHoveredChange(hovered: boolean): void {
-        this.updateHovered(hovered);
-    }
+        tuiIsString(stringifiable) || handler(stringifiable.item);
 
     onSpace(event: Event): void {
         if (!this.editable) {
@@ -260,31 +235,19 @@ export class TuiMultiSelectComponent<T>
             return;
         }
 
-        const index = value.indexOf(options[0]);
-
         event.preventDefault();
-        this.updateValue(
-            index === -1
-                ? [...value, options[0]]
-                : [...value.slice(0, index), ...value.slice(index + 1)],
-        );
+        this.updateValue(tuiArrayToggle(value, options[0]));
         this.updateSearch(null);
     }
 
     onClick({nativeFocusableElement}: TuiInputTagComponent): void {
         if (
-            this.editable &&
             this.interactive &&
             nativeFocusableElement &&
-            isNativeFocused(nativeFocusableElement)
+            tuiIsNativeFocused(nativeFocusableElement)
         ) {
             this.hostedDropdown?.updateOpen(!this.open);
         }
-    }
-
-    onArrowClick(): void {
-        this.hostedDropdown?.updateOpen(!this.open);
-        this.focusInput();
     }
 
     onInput(value: ReadonlyArray<TuiStringifiableItem<T>>): void {
@@ -300,14 +263,9 @@ export class TuiMultiSelectComponent<T>
         this.updateFocused(active);
     }
 
-    setDisabledState(): void {
+    override setDisabledState(): void {
         super.setDisabledState();
         this.open = false;
-    }
-
-    @tuiPure
-    private getContext($implicit: readonly T[]): TuiContextWithImplicit<readonly T[]> {
-        return {$implicit};
     }
 
     private updateSearch(search: string | null): void {
@@ -317,11 +275,5 @@ export class TuiMultiSelectComponent<T>
 
         this.search = search;
         this.searchChange.emit(search);
-    }
-
-    private focusInput(preventScroll: boolean = false): void {
-        if (this.nativeFocusableElement) {
-            setNativeFocused(this.nativeFocusableElement, true, preventScroll);
-        }
     }
 }

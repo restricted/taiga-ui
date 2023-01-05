@@ -21,7 +21,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
             "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/app/styles/taiga-ui-stackblitz.less", "src/styles.less"]
+            "styles": ["src/app/@stackblitz/styles/taiga-ui-stackblitz.less", "src/styles.less"]
           },
           "configurations": {
             "production": {
@@ -62,23 +62,21 @@
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
-    "sourceMap": true,
+    "sourceMap": false,
     "declaration": false,
-    "downlevelIteration": true,
+    "downlevelIteration": false,
     "experimentalDecorators": true,
-    "module": "esnext",
+    "module": "es2020",
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "es2015",
     "typeRoots": ["node_modules/@types"],
-    "lib": ["es2018", "dom"]
+    "lib": ["esnext", "dom"]
   },
   "angularCompilerOptions": {
-    "enableIvy": false,
+    "enableIvy": true,
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true
   }
 }
 ```
-
-Ivy is disabled because of Stackblitz error: https://github.com/stackblitz/core/issues/1364

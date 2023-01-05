@@ -2,10 +2,11 @@ import {Component, Input} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
 import {tuiRequiredSetter} from '@taiga-ui/cdk';
 
-// @dynamic
 @Component({
     selector: 'example-tui-required-setter-demo',
-    template: '<span *ngFor="let item of items">♥</span>',
+    template: `
+        <span *ngFor="let item of items">♥</span>
+    `,
     changeDetection,
 })
 export class ExampleTuiRequiredSetterDemoComponent {

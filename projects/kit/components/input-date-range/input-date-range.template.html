@@ -1,5 +1,5 @@
 <tui-hosted-dropdown
-    class="hosted"
+    class="t-hosted"
     [canOpen]="canOpen"
     [content]="dropdown"
     [open]="open && canOpen"
@@ -10,23 +10,19 @@
         *tuiLet="dateFiller$ | async as dateFiller"
         automation-id="tui-input-date-range__textfield"
         tuiValueAccessor
-        tuiTextfieldInputMode="numeric"
-        class="textfield"
-        [pseudoFocused]="innerPseudoFocused"
-        [pseudoHovered]="pseudoHovered"
-        [pseudoPressed]="pseudoPressed"
+        class="t-textfield"
+        [tuiTextfieldIcon]="calendarIcon && iconContent"
+        [tuiTextfieldFiller]="getComputedRangeFiller(dateFiller || '')"
+        [pseudoFocus]="innerPseudoFocused"
+        [pseudoHover]="pseudoHover"
+        [pseudoActive]="pseudoActive"
         [invalid]="computedInvalid"
-        [tuiTextfieldExampleText]="computedExampleText"
         [nativeId]="nativeId"
-        [filler]="getComputedRangeFiller(dateFiller)"
         [readOnly]="readOnly"
-        [iconContent]="computedMobile ? mobileIconContent : iconContent"
         [disabled]="computedDisabled"
         [textMask]="computedMask"
         [value]="computedValue"
         (valueChange)="onValueChange($event)"
-        (hoveredChange)="onHovered($event)"
-        (pressedChange)="onPressed($event)"
     >
         <ng-content></ng-content>
         <ng-content
@@ -35,19 +31,13 @@
         ></ng-content>
     </tui-primitive-textfield>
 
-    <ng-template #mobileIconContent>
-        <tui-svg
-            automation-id="tui-input-date-range__icon"
-            [class.icon]="!computedDisabled"
-            [src]="calendarIcon"
-            (click)="onMobileClick()"
-        ></tui-svg>
-    </ng-template>
-
     <ng-template #iconContent>
         <tui-svg
-            [class.icon]="!computedDisabled"
-            [src]="calendarIcon"
+            *polymorpheusOutlet="calendarIcon as src; context: {$implicit: size}"
+            automation-id="tui-input-date-range__icon"
+            [class.t-icon]="!computedDisabled"
+            [src]="src"
+            (click)="onIconClick()"
         ></tui-svg>
     </ng-template>
 

@@ -1,5 +1,5 @@
 <tui-hosted-dropdown
-    class="hosted"
+    class="t-hosted"
     [canOpen]="canOpen"
     [open]="open && canOpen"
     [content]="dropdown"
@@ -9,21 +9,19 @@
         *tuiLet="filler$ | async as filler"
         automation-id="tui-input-date-range__textfield"
         tuiValueAccessor
-        tuiTextfieldInputMode="numeric"
-        class="textfield"
-        [pseudoFocused]="pseudoFocused"
-        [pseudoHovered]="pseudoHovered"
+        class="t-textfield"
+        [tuiTextfieldIcon]="calendarIcon && iconContent"
+        [tuiTextfieldFiller]="getComputedFiller(filler || '')"
+        [pseudoFocus]="pseudoFocus"
+        [pseudoHover]="pseudoHover"
         [invalid]="computedInvalid"
-        [filler]="getComputedFiller(filler)"
         [nativeId]="nativeId"
         [readOnly]="readOnly"
         [focusable]="computedFocusable"
-        [iconContent]="computedMobile ? mobileIconContent : iconContent"
         [disabled]="computedDisabled"
         [textMask]="computedMask"
         [value]="computedValue"
         (valueChange)="onValueChange($event)"
-        (hoveredChange)="onHovered($event)"
         (focusedChange)="onFocused($event)"
     >
         <ng-content></ng-content>
@@ -33,19 +31,13 @@
         ></ng-content>
     </tui-primitive-textfield>
 
-    <ng-template #mobileIconContent>
-        <tui-svg
-            automation-id="tui-input-date-range__icon"
-            [class.icon]="!computedDisabled"
-            [src]="calendarIcon"
-            (click)="onMobileClick()"
-        ></tui-svg>
-    </ng-template>
-
     <ng-template #iconContent>
         <tui-svg
-            [class.icon]="!computedDisabled"
-            [src]="calendarIcon"
+            *polymorpheusOutlet="calendarIcon as src; context: {$implicit: size}"
+            automation-id="tui-input-date-range__icon"
+            [class.t-icon]="!computedDisabled"
+            [src]="src"
+            (click)="onIconClick()"
         ></tui-svg>
     </ng-template>
 
@@ -68,7 +60,7 @@
         <div
             *ngIf="items.length === 1"
             tuiPreventDefault="mousedown"
-            class="button"
+            class="t-button"
         >
             <button
                 tuiLink

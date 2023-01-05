@@ -2,7 +2,6 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    forwardRef,
     HostListener,
     Inject,
     Input,
@@ -14,48 +13,55 @@ import {NgControl} from '@angular/forms';
 import {
     AbstractTuiNullableControl,
     ALWAYS_FALSE_HANDLER,
-    isNativeFocused,
-    setNativeFocused,
-    TUI_FOCUSABLE_ITEM_ACCESSOR,
     TUI_STRICT_MATCHER,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
     TuiBooleanHandler,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
+    tuiIsElement,
+    tuiIsInput,
+    tuiIsNativeFocused,
     tuiPure,
     TuiTime,
     TuiTimeLike,
     TuiTimeMode,
 } from '@taiga-ui/cdk';
-import {TuiPrimitiveTextfieldComponent, TuiTextMaskOptions} from '@taiga-ui/core';
+import {
+    tuiAsDataListHost,
+    tuiAsOptionContent,
+    TuiDataListHost,
+    TuiPrimitiveTextfieldComponent,
+    TuiTextMaskOptions,
+} from '@taiga-ui/core';
+import {TUI_SELECT_OPTION} from '@taiga-ui/kit/components/select-option';
 import {FIXED_DROPDOWN_CONTROLLER_PROVIDER} from '@taiga-ui/kit/providers';
 import {TUI_TIME_TEXTS} from '@taiga-ui/kit/tokens';
 import {
     tuiCreateAutoCorrectedTimePipe,
     tuiCreateTimeMask,
 } from '@taiga-ui/kit/utils/mask';
-import {TextMaskConfig} from 'angular2-text-mask';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 import {TUI_INPUT_TIME_OPTIONS, TuiInputTimeOptions} from './input-time-options';
 
-// @dynamic
 @Component({
     selector: 'tui-input-time',
     templateUrl: './input-time.template.html',
     styleUrls: ['./input-time.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
-        {
-            provide: TUI_FOCUSABLE_ITEM_ACCESSOR,
-            useExisting: forwardRef(() => TuiInputTimeComponent),
-        },
-        FIXED_DROPDOWN_CONTROLLER_PROVIDER,
+        tuiAsFocusableItemAccessor(TuiInputTimeComponent),
+        tuiAsControl(TuiInputTimeComponent),
+        tuiAsDataListHost(TuiInputTimeComponent),
+        tuiAsOptionContent(TUI_SELECT_OPTION),
     ],
+    viewProviders: [FIXED_DROPDOWN_CONTROLLER_PROVIDER],
 })
 export class TuiInputTimeComponent
     extends AbstractTuiNullableControl<TuiTime>
-    implements TuiFocusableElementAccessor
+    implements TuiFocusableElementAccessor, TuiDataListHost<TuiTime>
 {
     @ViewChild(TuiPrimitiveTextfieldComponent)
     private readonly textfield?: TuiPrimitiveTextfieldComponent;
@@ -80,6 +86,7 @@ export class TuiInputTimeComponent
     @tuiDefaultProp()
     mode: TuiInputTimeOptions['mode'] = this.options.mode;
 
+    /** @deprecated use `tuiTextfieldPostfix` from {@link TuiTextfieldControllerModule} instead */
     @Input()
     @tuiDefaultProp()
     postfix: TuiInputTimeOptions['postfix'] = this.options.postfix;
@@ -105,17 +112,15 @@ export class TuiInputTimeComponent
     }
 
     get focused(): boolean {
-        return isNativeFocused(this.nativeFocusableElement);
+        return tuiIsNativeFocused(this.nativeFocusableElement);
     }
 
     get filtered(): readonly TuiTime[] {
         return this.filter(this.items, this.mode, this.computedSearch);
     }
 
-    get textMaskOptions(): TextMaskConfig {
-        return this.calculateMask(
-            this.mode,
-        ) as TuiTextMaskOptions as unknown as TextMaskConfig;
+    get textMaskOptions(): TuiTextMaskOptions {
+        return this.calculateMask(this.mode);
     }
 
     get computedValue(): string {
@@ -127,7 +132,7 @@ export class TuiInputTimeComponent
     }
 
     get innerPseudoFocused(): boolean | null {
-        if (this.pseudoFocused === false) {
+        if (this.pseudoFocus === false) {
             return false;
         }
 
@@ -213,10 +218,6 @@ export class TuiInputTimeComponent
         });
     }
 
-    onHovered(hovered: boolean): void {
-        this.updateHovered(hovered);
-    }
-
     onArrowUp(event: Event): void {
         if (this.items.length) {
             return;
@@ -233,7 +234,7 @@ export class TuiInputTimeComponent
         this.processArrow(event, -1);
     }
 
-    onMenuClick(item: TuiTime): void {
+    handleOption(item: TuiTime): void {
         this.focusInput();
         this.updateValue(item);
     }
@@ -242,7 +243,7 @@ export class TuiInputTimeComponent
         this.open = open;
     }
 
-    writeValue(value: TuiTime | null): void {
+    override writeValue(value: TuiTime | null): void {
         super.writeValue(value);
         this.nativeValue = value ? this.computedValue : '';
     }
@@ -285,8 +286,7 @@ export class TuiInputTimeComponent
     private processArrow(event: Event, shift: -1 | 1): void {
         const {target} = event;
 
-        // TODO: iframe warning
-        if (this.readOnly || !(target instanceof HTMLInputElement)) {
+        if (this.readOnly || !tuiIsElement(target) || !tuiIsInput(target)) {
             return;
         }
 
@@ -328,7 +328,7 @@ export class TuiInputTimeComponent
 
     private focusInput(preventScroll: boolean = false): void {
         if (this.nativeFocusableElement) {
-            setNativeFocused(this.nativeFocusableElement, true, preventScroll);
+            this.nativeFocusableElement.focus({preventScroll});
             this.close();
         }
     }

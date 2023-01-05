@@ -2,14 +2,14 @@ import {TuiOwnerDocumentException} from '@taiga-ui/cdk/exceptions';
 import {Observable} from 'rxjs';
 import {filter, mapTo, startWith, switchMapTo, take} from 'rxjs/operators';
 
-import {mouseDragFinishFrom} from './mouse-drag-finish-from';
-import {typedFromEvent} from './typed-from-event';
+import {tuiMouseDragFinishFrom} from './mouse-drag-finish-from';
+import {tuiTypedFromEvent} from './typed-from-event';
 
 export interface TuiPressedObservableOptions {
     onlyTrusted: boolean;
 }
 
-export function pressedObservable(
+export function tuiPressedObservable(
     element: Element,
     {onlyTrusted}: TuiPressedObservableOptions = {onlyTrusted: true},
 ): Observable<boolean> {
@@ -19,10 +19,10 @@ export function pressedObservable(
         throw new TuiOwnerDocumentException();
     }
 
-    return typedFromEvent(element, 'mousedown').pipe(
+    return tuiTypedFromEvent(element, `mousedown`).pipe(
         filter(({isTrusted}) => isTrusted || !onlyTrusted),
         switchMapTo(
-            mouseDragFinishFrom(ownerDocument).pipe(
+            tuiMouseDragFinishFrom(ownerDocument).pipe(
                 mapTo(false),
                 take(1),
                 startWith(true),

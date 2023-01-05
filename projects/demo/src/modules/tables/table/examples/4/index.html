@@ -38,7 +38,7 @@
     [showLoader]="!!(loading$ | async)"
 >
     <table
-        *tuiLet="data$ | async as data"
+        *ngIf="data$ | async as data"
         tuiTable
         class="table"
         [columns]="columns"
@@ -73,11 +73,12 @@
             </tr>
         </thead>
         <tbody
+            *tuiLet="data | tuiTableSort as sortedData"
             tuiTbody
-            [data]="data"
+            [data]="sortedData"
         >
             <tr
-                *tuiRow="let item of data"
+                *ngFor="let item of sortedData"
                 tuiTr
             >
                 <td
@@ -85,21 +86,21 @@
                     tuiTd
                     [class.match]="isMatch(item.name)"
                 >
-                    {{item.name}}
+                    {{ item.name }}
                 </td>
                 <td
                     *tuiCell="'dob'"
                     tuiTd
                     [class.match]="isMatch(item.dob)"
                 >
-                    {{item.dob}}
+                    {{ item.dob }}
                 </td>
                 <td
                     *tuiCell="'age'"
                     tuiTd
                     [class.match]="isMatch(getAge(item))"
                 >
-                    {{getAge(item)}}
+                    {{ getAge(item) }}
                 </td>
             </tr>
         </tbody>

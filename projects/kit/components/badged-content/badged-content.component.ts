@@ -1,11 +1,11 @@
 import {ChangeDetectionStrategy, Component, HostBinding, Input} from '@angular/core';
-import {isNumber, px, tuiDefaultProp} from '@taiga-ui/cdk';
-import {sizeBigger, TuiSizeL, TuiSizeS, TuiSizeXS, TuiSizeXXL} from '@taiga-ui/core';
-import {TuiStatusT} from '@taiga-ui/kit/types';
+import {tuiDefaultProp, tuiIsNumber, tuiIsString, tuiPx} from '@taiga-ui/cdk';
+import {tuiSizeBigger, TuiSizeL, TuiSizeXS, TuiSizeXXL} from '@taiga-ui/core';
+import {TuiStatus} from '@taiga-ui/kit/types';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
-const BADGE_SIZE: {[key: string]: TuiSizeS | TuiSizeL} = {
-    xs: 's',
+const BADGE_SIZE: {[key: string]: TuiSizeL | TuiSizeXS} = {
+    xs: 'xs',
     s: 's',
     m: 's',
     l: 'm',
@@ -49,17 +49,14 @@ export class TuiBadgedContentComponent {
     rounded = false;
 
     get topNotification(): string {
-        return (!this.contentTop && this.colorTop) ||
-            (this.contentTop && this.contentIsNumber(this.contentTop) && this.badgeHidden)
-            ? this.colorTop
-            : '';
+        return !this.contentTop && this.colorTop ? this.colorTop : '';
     }
 
     get bottomNotification(): string {
         return !this.contentBottom && this.colorBottom ? this.colorBottom : '';
     }
 
-    get badgeSize(): TuiSizeS | TuiSizeL {
+    get badgeSize(): TuiSizeL | TuiSizeXS {
         return BADGE_SIZE[this.size];
     }
 
@@ -68,24 +65,24 @@ export class TuiBadgedContentComponent {
     }
 
     get sizeBig(): boolean {
-        return sizeBigger(this.size);
+        return tuiSizeBigger(this.size);
     }
 
     get boxShadow(): string {
         const borderWidth = this.sizeBig ? 3 : 2;
 
-        return `0 0 0 ${px(borderWidth)}`;
+        return `0 0 0 ${tuiPx(borderWidth)}`;
     }
 
-    contentIsNumber(content: PolymorpheusContent): boolean {
-        return isNumber(content.valueOf());
+    contentIsNumber(content: PolymorpheusContent): content is number {
+        return tuiIsNumber(content?.valueOf());
     }
 
-    contentIsString(content: PolymorpheusContent): boolean {
-        return typeof content.valueOf() === 'string';
+    contentIsString(content: PolymorpheusContent): content is string {
+        return tuiIsString(content?.valueOf());
     }
 
-    getStatus(color: string): TuiStatusT {
+    getStatus(color: string): TuiStatus {
         return color ? 'custom' : 'primary';
     }
 }

@@ -2,7 +2,6 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    forwardRef,
     HostBinding,
     Inject,
     Input,
@@ -12,24 +11,24 @@ import {
 } from '@angular/core';
 import {NgControl} from '@angular/forms';
 import {
-    AbstractTuiControl,
-    clamp,
-    isNativeFocused,
-    isPresent,
-    setNativeFocused,
-    TUI_FOCUSABLE_ITEM_ACCESSOR,
+    AbstractTuiNullableControl,
     TUI_IS_MOBILE,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
+    tuiClamp,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
+    tuiIsNativeFocused,
+    tuiIsPresent,
     tuiPure,
 } from '@taiga-ui/cdk';
 import {
-    formatNumber,
-    NumberFormatSettings,
     TUI_NUMBER_FORMAT,
     TUI_TEXTFIELD_APPEARANCE,
     TUI_TEXTFIELD_SIZE,
     tuiCreateNumberMask,
+    tuiFormatNumber,
+    TuiNumberFormatSettings,
     TuiPrimitiveTextfieldComponent,
     TuiSizeL,
     TuiSizeS,
@@ -39,30 +38,22 @@ import {
 } from '@taiga-ui/core';
 import {TUI_PLUS_MINUS_TEXTS} from '@taiga-ui/kit/tokens';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
-import {TextMaskConfig} from 'angular2-text-mask';
 import {Observable} from 'rxjs';
 
 import {TUI_INPUT_COUNT_OPTIONS, TuiInputCountOptions} from './input-count-options';
 
-// @dynamic
 @Component({
     selector: 'tui-input-count',
     templateUrl: './input-count.template.html',
     styleUrls: ['./input-count.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
-        {
-            provide: TUI_FOCUSABLE_ITEM_ACCESSOR,
-            useExisting: forwardRef(() => TuiInputCountComponent),
-        },
-        {
-            provide: AbstractTuiControl,
-            useExisting: forwardRef(() => TuiInputCountComponent),
-        },
+        tuiAsFocusableItemAccessor(TuiInputCountComponent),
+        tuiAsControl(TuiInputCountComponent),
     ],
 })
 export class TuiInputCountComponent
-    extends AbstractTuiControl<number>
+    extends AbstractTuiNullableControl<number>
     implements TuiWithOptionalMinMax<number>, TuiFocusableElementAccessor
 {
     @ViewChild(TuiPrimitiveTextfieldComponent)
@@ -84,10 +75,12 @@ export class TuiInputCountComponent
     @tuiDefaultProp()
     hideButtons = this.options.hideButtons;
 
+    /** @deprecated use `tuiTextfieldPrefix` from {@link TuiTextfieldControllerModule} instead */
     @Input()
     @tuiDefaultProp()
     prefix = '';
 
+    /** @deprecated use `tuiTextfieldPostfix` from {@link TuiTextfieldControllerModule} instead */
     @Input()
     @tuiDefaultProp()
     postfix = this.options.postfix;
@@ -108,13 +101,13 @@ export class TuiInputCountComponent
         @Inject(TUI_INPUT_COUNT_OPTIONS)
         readonly options: TuiInputCountOptions,
         @Inject(TUI_NUMBER_FORMAT)
-        private readonly numberFormat: NumberFormatSettings,
+        private readonly numberFormat: TuiNumberFormatSettings,
     ) {
         super(control, changeDetectorRef);
     }
 
     @tuiPure
-    getMask(allowNegative: boolean): TextMaskConfig {
+    getMask(allowNegative: boolean): TuiTextMaskOptions {
         return {
             mask: tuiCreateNumberMask({
                 allowNegative,
@@ -122,10 +115,9 @@ export class TuiInputCountComponent
                 thousandSymbol: this.numberFormat.thousandSeparator,
             }),
             guide: false,
-        } as TuiTextMaskOptions as unknown as TextMaskConfig;
+        };
     }
 
-    // TODO: 3.0 Remove in v.3
     @HostBinding('class._hide-buttons')
     get buttonsHidden(): boolean {
         return this.hideButtons || this.appearance === 'table';
@@ -151,7 +143,7 @@ export class TuiInputCountComponent
     }
 
     get focused(): boolean {
-        return isNativeFocused(this.nativeFocusableElement);
+        return tuiIsNativeFocused(this.nativeFocusableElement);
     }
 
     get exampleText(): string {
@@ -163,11 +155,11 @@ export class TuiInputCountComponent
     }
 
     get minusButtonDisabled(): boolean {
-        return !this.interactive || (isPresent(this.value) && this.value <= this.min);
+        return !this.interactive || (tuiIsPresent(this.value) && this.value <= this.min);
     }
 
     get plusButtonDisabled(): boolean {
-        return !this.interactive || (isPresent(this.value) && this.value >= this.max);
+        return !this.interactive || (tuiIsPresent(this.value) && this.value >= this.max);
     }
 
     onButtonMouseDown(event: MouseEvent, disabled: boolean = false): void {
@@ -176,7 +168,7 @@ export class TuiInputCountComponent
         }
 
         event.preventDefault();
-        setNativeFocused(this.nativeFocusableElement);
+        this.nativeFocusableElement.focus();
     }
 
     onFocused(focused: boolean): void {
@@ -187,18 +179,12 @@ export class TuiInputCountComponent
         this.updateFocused(focused);
     }
 
-    onHovered(hovered: boolean): void {
-        this.updateHovered(hovered);
-    }
-
-    onPressed(pressed: boolean): void {
-        this.updatePressed(pressed);
-    }
-
     onValueChange(): void {
         const capped = this.capValue(this.nativeNumberValue);
 
-        if (capped === null || isNaN(capped)) {
+        if (this.isNotNumber(capped)) {
+            this.updateValue(null);
+
             return;
         }
 
@@ -248,10 +234,6 @@ export class TuiInputCountComponent
         }
     }
 
-    protected getFallbackValue(): number {
-        return 0;
-    }
-
     private get nativeNumberValue(): number {
         return parseInt(
             this.nativeValue.split(this.numberFormat.thousandSeparator).join(''),
@@ -272,7 +254,7 @@ export class TuiInputCountComponent
     }
 
     private safeUpdateValue(newValue: number): void {
-        const value = clamp(newValue, this.min, this.max);
+        const value = tuiClamp(newValue, this.min, this.max);
 
         this.updateValue(value);
         this.nativeValue = this.formatNumber(value);
@@ -281,10 +263,16 @@ export class TuiInputCountComponent
     private capValue(value: number): number | null {
         const capped = Math.min(value, this.max);
 
-        return isNaN(capped) || capped < this.min ? null : capped;
+        return Number.isNaN(capped) || capped < this.min ? null : capped;
     }
 
     private onBlur(): void {
+        if (this.isNotNumber(this.value)) {
+            this.updateValue(null);
+
+            return;
+        }
+
         const value = Math.max(this.nativeNumberValue || 0, this.min);
         const formattedValue = this.formatNumber(value);
 
@@ -296,12 +284,11 @@ export class TuiInputCountComponent
         }
     }
 
-    private formatNumber(value: number): string {
-        return formatNumber(
-            value,
-            null,
-            this.numberFormat.decimalSeparator,
-            this.numberFormat.thousandSeparator,
-        );
+    private formatNumber(value: number | null): string {
+        return this.isNotNumber(value) ? '' : tuiFormatNumber(value, this.numberFormat);
+    }
+
+    private isNotNumber(value: number | null): value is null {
+        return Number.isNaN(value) || !tuiIsPresent(value);
     }
 }

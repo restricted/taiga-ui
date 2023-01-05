@@ -1,10 +1,13 @@
+import {tuiIsNumber} from '@taiga-ui/cdk';
+
 declare const global: {Date: typeof Date};
 
 const OriginalDate = global.Date;
 
-export function mockCurrentDate(dateOrNumber: Date | number): void {
-    const date: Date =
-        typeof dateOrNumber === 'number' ? new OriginalDate(dateOrNumber) : dateOrNumber;
+export function tuiMockCurrentDate(dateOrNumber: Date | number): void {
+    const date: Date = tuiIsNumber(dateOrNumber)
+        ? new OriginalDate(dateOrNumber)
+        : dateOrNumber;
 
     class MockDate extends OriginalDate {
         constructor() {
@@ -17,22 +20,6 @@ export function mockCurrentDate(dateOrNumber: Date | number): void {
     global.Date = MockDate as typeof Date;
 }
 
-export function restoreRealDate(): void {
+export function tuiRestoreRealDate(): void {
     global.Date = OriginalDate;
-}
-
-export function mockDateInside(dateMock: Date | number, callback: () => void): void {
-    mockCurrentDate(dateMock);
-    callback();
-    restoreRealDate();
-}
-
-// @bad TODO: find a legal way to spoof time zone on windows
-/**
- * Skips the test on time zones other than `'Europe/Moscow'`.
- */
-export function pendingIfNotMoscowTimeZone(): void {
-    if (Intl.DateTimeFormat().resolvedOptions().timeZone !== 'Europe/Moscow') {
-        pending();
-    }
 }

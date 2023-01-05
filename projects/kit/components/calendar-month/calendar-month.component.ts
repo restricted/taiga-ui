@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import {
     ALWAYS_FALSE_HANDLER,
-    nullableSame,
     TUI_FIRST_DAY,
     TUI_LAST_DAY,
     TuiBooleanHandler,
@@ -17,6 +16,7 @@ import {
     tuiDefaultProp,
     TuiMonth,
     TuiMonthRange,
+    tuiNullableSame,
     tuiPure,
     TuiYear,
 } from '@taiga-ui/cdk';
@@ -28,7 +28,6 @@ import {Observable} from 'rxjs';
 
 const TODAY = TuiDay.currentLocal();
 
-// @dynamic
 @Component({
     selector: 'tui-calendar-month',
     templateUrl: './calendar-month.template.html',
@@ -38,7 +37,7 @@ const TODAY = TuiDay.currentLocal();
 export class TuiCalendarMonthComponent implements TuiWithOptionalMinMax<TuiMonth> {
     @Input()
     @tuiDefaultProp()
-    value: TuiMonthRange | TuiMonth | null = null;
+    value: TuiMonth | TuiMonthRange | null = null;
 
     @Input()
     @tuiDefaultProp()
@@ -98,12 +97,12 @@ export class TuiCalendarMonthComponent implements TuiWithOptionalMinMax<TuiMonth
             return TuiInteractiveState.Disabled;
         }
 
-        if (pressedItem !== null && pressedItem.monthSame(item)) {
-            return TuiInteractiveState.Pressed;
+        if (pressedItem?.monthSame(item)) {
+            return TuiInteractiveState.Active;
         }
 
-        if (hoveredItem !== null && hoveredItem.monthSame(item)) {
-            return TuiInteractiveState.Hovered;
+        if (hoveredItem?.monthSame(item)) {
+            return TuiInteractiveState.Hover;
         }
 
         return null;
@@ -122,33 +121,29 @@ export class TuiCalendarMonthComponent implements TuiWithOptionalMinMax<TuiMonth
 
         const theFirstOfRange = value.from.monthSame(item) && !value.isSingleMonth;
         const hoveredItemAfterFrom =
-            hoveredItem !== null &&
-            hoveredItem.monthAfter(value.from) &&
+            hoveredItem?.monthAfter(value.from) &&
             value.from.monthSame(item) &&
             value.isSingleMonth;
-        const hoveredItemIsCandidatToBeFrom =
-            hoveredItem !== null &&
-            hoveredItem.monthSame(item) &&
-            hoveredItem.monthBefore(value.from) &&
+        const hoveredItemIsCandidateToBeFrom =
+            hoveredItem?.monthSame(item) &&
+            hoveredItem?.monthBefore(value.from) &&
             value.isSingleMonth;
 
-        if (theFirstOfRange || hoveredItemAfterFrom || hoveredItemIsCandidatToBeFrom) {
+        if (theFirstOfRange || hoveredItemAfterFrom || hoveredItemIsCandidateToBeFrom) {
             return TuiRangeState.Start;
         }
 
         const theLastOfRange = value.to.monthSame(item) && !value.isSingleMonth;
         const hoveredItemBeforeTo =
-            hoveredItem !== null &&
             value.to.monthSame(item) &&
-            hoveredItem.monthBefore(value.to) &&
+            hoveredItem?.monthBefore(value.to) &&
             value.isSingleMonth;
-        const hoveredItemIsCandidatToBeTo =
-            hoveredItem !== null &&
-            hoveredItem.monthSame(item) &&
-            hoveredItem.monthAfter(value.from) &&
+        const hoveredItemIsCandidateToBeTo =
+            hoveredItem?.monthSame(item) &&
+            hoveredItem?.monthAfter(value.from) &&
             value.isSingleMonth;
 
-        if (theLastOfRange || hoveredItemBeforeTo || hoveredItemIsCandidatToBeTo) {
+        if (theLastOfRange || hoveredItemBeforeTo || hoveredItemIsCandidateToBeTo) {
             return TuiRangeState.End;
         }
 
@@ -246,7 +241,7 @@ export class TuiCalendarMonthComponent implements TuiWithOptionalMinMax<TuiMonth
     }
 
     private updateHoveredItem(month: TuiMonth | null): void {
-        if (nullableSame(this.hoveredItem, month, (a, b) => a.monthSame(b))) {
+        if (tuiNullableSame(this.hoveredItem, month, (a, b) => a.monthSame(b))) {
             return;
         }
 

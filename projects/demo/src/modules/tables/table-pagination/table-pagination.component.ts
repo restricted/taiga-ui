@@ -21,10 +21,20 @@ export class ExampleTuiTablePaginationComponent {
     size = this.items[0];
 
     readonly example1: TuiDocExample = {
-        HTML: import('!!raw-loader!./examples/1/index.html'),
-        TypeScript: import('!!raw-loader!./examples/1/index.ts'),
+        HTML: import('./examples/1/index.html?raw'),
+        TypeScript: import('./examples/1/index.ts?raw'),
     };
 
-    readonly exampleModule = import('!!raw-loader!./examples/import/import-module.md');
-    readonly exampleHtml = import('!!raw-loader!./examples/import/insert-template.md');
+    readonly example2: TuiDocExample = {
+        TypeScript: import('./examples/2/index.ts?raw'),
+        HTML: import('./examples/2/index.html?raw'),
+    };
+
+    readonly example3: TuiDocExample = {
+        TypeScript: import('./examples/3/index.ts?raw'),
+        HTML: import('./examples/3/index.html?raw'),
+    };
+
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
 }

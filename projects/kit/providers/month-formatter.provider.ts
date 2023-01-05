@@ -8,16 +8,12 @@ import {map} from 'rxjs/operators';
 export const TUI_MONTH_FORMATTER_PROVIDER: FactoryProvider = {
     provide: TUI_MONTH_FORMATTER,
     deps: [TuiMonthPipe],
-    useFactory: monthFormatterFactory,
+    useFactory: (pipe: TuiMonthPipe): TuiHandler<TuiMonth | null, Observable<string>> => {
+        return month =>
+            month
+                ? pipe
+                      .transform(month)
+                      .pipe(map(formatted => `${formatted} ${month.formattedYear}`))
+                : of(``);
+    },
 };
-
-export function monthFormatterFactory(
-    pipe: TuiMonthPipe,
-): TuiHandler<TuiMonth | null, Observable<string>> {
-    return month =>
-        month
-            ? pipe
-                  .transform(month)
-                  .pipe(map(formatted => `${formatted} ${month.formattedYear}`))
-            : of('');
-}

@@ -1,8 +1,8 @@
 <div
-    class="content"
+    class="t-content"
     (tuiActiveZoneChange)="onActiveZone($event)"
 >
-    <ng-container *ngIf="sizeM;  else smallButtons">
+    <ng-container *ngIf="sizeM; else smallButtons">
         <ng-container *ngIf="texts$ | async as texts">
             <button
                 tuiIconButton
@@ -11,16 +11,14 @@
                 size="s"
                 appearance="flat"
                 icon="tuiIconChevronLeft"
-                class="button"
+                class="t-button"
                 [title]="texts[0]"
                 [disabled]="arrowIsDisabledLeft"
                 [focusable]="false"
                 (click)="onArrowClick('left')"
             ></button>
             <ng-container *tuiRepeatTimes="let elementIndex of elementsLength">
-                <ng-container
-                    *tuiLet="getItemIndexByElementIndex(elementIndex) as index"
-                >
+                <ng-container *tuiLet="getItemIndexByElementIndex(elementIndex) as index">
                     <button
                         *ngIf="index !== null; else dotsTemplate"
                         #element
@@ -29,7 +27,7 @@
                         automation-id="tui-pagination__element"
                         shape="square"
                         size="s"
-                        class="button"
+                        class="t-button"
                         [disabled]="disabled"
                         [focusable]="elementIsFocusable(index)"
                         [appearance]="getElementMode(index)"
@@ -37,11 +35,9 @@
                         (keydown.arrowLeft.prevent)="onElementKeyDownArrowLeft(element)"
                         (keydown.arrowRight.prevent)="onElementKeyDownArrowRight(element)"
                     >
-                        <div
-                            polymorpheus-outlet
-                            [content]="content || index + 1"
-                            [context]="getItemContext(index)"
-                        ></div>
+                        <ng-container *polymorpheusOutlet="content || index + 1 as text; context: {$implicit: index}">
+                            {{ text }}
+                        </ng-container>
                     </button>
                 </ng-container>
             </ng-container>
@@ -52,7 +48,7 @@
                 size="s"
                 appearance="flat"
                 icon="tuiIconChevronRight"
-                class="button"
+                class="t-button"
                 [title]="texts[1]"
                 [disabled]="arrowIsDisabledRight"
                 [focusable]="false"
@@ -67,8 +63,8 @@
             tuiButton
             type="button"
             shape="square"
-            class="button button_small"
-            [class.button_active]="indexItem === index"
+            class="t-button t-button_small"
+            [class.t-button_active]="indexItem === index"
             [disabled]="disabled"
             [focusable]="elementIsFocusable(indexItem)"
             [appearance]="getSmallElementMode(indexItem, mode)"
@@ -80,7 +76,7 @@
     <ng-template #dotsTemplate>
         <div
             automation-id="tui-pagination__element"
-            class="dots"
+            class="t-dots"
         ></div>
     </ng-template>
 </div>

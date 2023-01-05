@@ -1,7 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {RouterModule} from '@angular/router';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {TuiLinkModule} from '@taiga-ui/core';
 
 import {TuiTokensExample1} from './examples/1';
@@ -12,6 +12,7 @@ import {TuiTokensExample5} from './examples/5';
 import {TuiTokensExample6} from './examples/6';
 import {TuiTokensExample7} from './examples/7';
 import {TuiTokensExample8} from './examples/8';
+import {TuiTokensExample9} from './examples/9';
 import {ExampleTokensComponent} from './tokens.component';
 
 @NgModule({
@@ -19,7 +20,7 @@ import {ExampleTokensComponent} from './tokens.component';
         CommonModule,
         TuiLinkModule,
         TuiAddonDocModule,
-        RouterModule.forChild(generateRoutes(ExampleTokensComponent)),
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTokensComponent)),
     ],
     declarations: [
         ExampleTokensComponent,
@@ -31,6 +32,7 @@ import {ExampleTokensComponent} from './tokens.component';
         TuiTokensExample6,
         TuiTokensExample7,
         TuiTokensExample8,
+        TuiTokensExample9,
     ],
     exports: [ExampleTokensComponent],
 })

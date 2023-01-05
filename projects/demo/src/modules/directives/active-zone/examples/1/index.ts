@@ -1,17 +1,19 @@
 import {Component} from '@angular/core';
+import {FormControl} from '@angular/forms';
 import {changeDetection} from '@demo/emulate/change-detection';
 import {encapsulation} from '@demo/emulate/encapsulation';
-import {setNativeFocused} from '@taiga-ui/cdk';
 import {TuiInputComponent} from '@taiga-ui/kit';
 
 @Component({
-    selector: 'tui-active-zone-example-1',
-    templateUrl: './index.html',
-    styleUrls: ['./index.less'],
+    selector: `tui-active-zone-example-1`,
+    templateUrl: `./index.html`,
+    styleUrls: [`./index.less`],
     changeDetection,
     encapsulation,
 })
 export class TuiActiveZoneExample1 {
+    readonly control = new FormControl();
+
     childActive = false;
 
     parentActive = false;
@@ -28,7 +30,7 @@ export class TuiActiveZoneExample1 {
 
     onClick({nativeFocusableElement}: TuiInputComponent): void {
         if (nativeFocusableElement) {
-            setNativeFocused(nativeFocusableElement);
+            nativeFocusableElement.focus();
         }
     }
 }

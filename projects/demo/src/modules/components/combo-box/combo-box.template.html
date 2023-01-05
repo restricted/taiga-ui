@@ -9,8 +9,8 @@
             class="tui-space_bottom-3"
         >
             <code>ComboBox</code>
-            is a textfield with a dropdown with items. You can choose one of
-            available options or input a value manually.
+            is a textfield with a dropdown with items. You can choose one of available options or input a value
+            manually.
         </div>
 
         <tui-doc-example
@@ -59,7 +59,29 @@
             id="virtual"
             heading="Virtual scroll"
             [content]="example5"
+            [description]="cdkVirtualScrollDescription"
         >
+            <ng-template #cdkVirtualScrollDescription>
+                You can use
+                <code>ComboBox</code>
+                with
+                <code>ScrollingModule</code>
+                from
+                <a
+                    tuiLink
+                    href="https://material.angular.io/cdk/scrolling/overview"
+                    target="_blank"
+                >
+                    @angular/cdk/scrolling
+                </a>
+                .
+            </ng-template>
+            <tui-notification class="tui-space_bottom-3">
+                Note that virtual scroll can imperatively remove focused option from DOM. This causes ExpressionChange
+                errors and to solve those take a look at a tiny
+                <code>IndexChange</code>
+                directive included in this example.
+            </tui-notification>
             <tui-combo-box-example-5></tui-combo-box-example-5>
         </tui-doc-example>
 
@@ -85,20 +107,21 @@
                     [stringify]="stringify"
                     [strictMatcher]="strictMatcher"
                     [pseudoInvalid]="pseudoInvalid"
-                    [pseudoFocused]="pseudoFocused"
-                    [pseudoHovered]="pseudoHovered"
-                    [pseudoPressed]="pseudoPressed"
+                    [pseudoFocus]="pseudoFocused"
+                    [pseudoHover]="pseudoHovered"
+                    [pseudoActive]="pseudoPressed"
                     [tuiDropdownAlign]="dropdownAlign"
                     [tuiDropdownDirection]="dropdownDirection"
                     [tuiDropdownLimitWidth]="dropdownLimitWidth"
                     [tuiDropdownMinHeight]="dropdownMinHeight"
                     [tuiDropdownMaxHeight]="dropdownMaxHeight"
+                    [tuiDropdownOffset]="dropdownOffset"
                     [tuiHintContent]="hintContent"
                     [tuiHintDirection]="hintDirection"
-                    [tuiHintMode]="hintMode"
+                    [tuiHintAppearance]="hintAppearance"
+                    [tuiTextfieldIconLeft]="iconLeft"
+                    [tuiTextfieldFiller]="filler"
                     [tuiTextfieldCleaner]="cleaner"
-                    [tuiTextfieldMaxLength]="maxLength"
-                    [tuiTextfieldExampleText]="exampleText"
                     [tuiTextfieldLabelOutside]="labelOutside"
                     [tuiTextfieldSize]="size"
                     [(search)]="search"
@@ -158,8 +181,7 @@
                 documentationPropertyType="string | null"
                 [(documentationPropertyValue)]="search"
             >
-                Textfield value to subscribe on input or setting it from the
-                outside (emits
+                Textfield value to subscribe on input or setting it from the outside (emits
                 <code>null</code>
                 when item from list selected)
             </ng-template>
@@ -171,8 +193,7 @@
                 [documentationPropertyValues]="identityMatcherVariants"
                 [(documentationPropertyValue)]="identityMatcher"
             >
-                A function that compares search and value to define a match
-                between them.
+                A function that compares search and value to define a match between them.
                 <strong>Must be a pure function</strong>
             </ng-template>
             <ng-template
@@ -206,8 +227,8 @@
                 [documentationPropertyValues]="strictMatcherVariants"
                 [(documentationPropertyValue)]="strictMatcher"
             >
-                A function that compares search text and item to define a match
-                between them. Lowercase string comparasion function by default.
+                A function that compares search text and item to define a match between them. Lowercase string
+                comparasion function by default.
                 <strong>Should be a pure function</strong>
             </ng-template>
             <ng-template

@@ -1,4 +1,4 @@
-export class InvalidYearException extends Error {
+export class TuiInvalidYearException extends Error {
     constructor(year: number) {
         super(`Invalid year: ${year}`);
     }

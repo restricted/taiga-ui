@@ -1,13 +1,7 @@
 import {Component, TemplateRef, ViewChild} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
+import {TuiDocExample} from '@taiga-ui/addon-doc';
 import {TuiValidationError} from '@taiga-ui/cdk';
-
-import {default as example1Html} from '!!raw-loader!./examples/1/index.html';
-import {default as example1Ts} from '!!raw-loader!./examples/1/index.ts';
-import {default as exampleModule} from '!!raw-loader!./examples/import/import-module.txt';
-import {default as exampleHtml} from '!!raw-loader!./examples/import/insert-template.txt';
-
-import {FrontEndExample} from '../../interfaces/front-end-example';
 
 @Component({
     selector: 'example-tui-error',
@@ -18,12 +12,12 @@ export class ExampleTuiErrorComponent {
     @ViewChild('errorContent')
     errorContent?: TemplateRef<Record<string, unknown>>;
 
-    readonly exampleModule = exampleModule;
-    readonly exampleHtml = exampleHtml;
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
 
-    readonly example1: FrontEndExample = {
-        TypeScript: example1Ts,
-        HTML: example1Html,
+    readonly example1: TuiDocExample = {
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
     };
 
     readonly errorVariants: readonly string[] = [

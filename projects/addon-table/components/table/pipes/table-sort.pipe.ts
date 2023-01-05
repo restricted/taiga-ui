@@ -5,10 +5,12 @@ import {tuiPure} from '@taiga-ui/cdk';
 import {TuiTableDirective} from '../directives/table.directive';
 
 @Pipe({
-    name: 'tuiTableSort',
+    name: `tuiTableSort`,
     pure: false,
 })
-export class TuiTableSortPipe<T> implements PipeTransform {
+export class TuiTableSortPipe<T extends Partial<Record<keyof T, any>>>
+    implements PipeTransform
+{
     constructor(
         @Inject(TuiTableDirective) private readonly table: TuiTableDirective<T>,
     ) {}

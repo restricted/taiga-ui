@@ -10,6 +10,7 @@ export const defaultEditorTools = [
     TuiEditorTool.List,
     TuiEditorTool.Quote,
     TuiEditorTool.Link,
+    TuiEditorTool.Anchor,
     TuiEditorTool.Color,
     TuiEditorTool.Hilite,
     TuiEditorTool.Clear,
@@ -20,4 +21,5 @@ export const defaultEditorTools = [
     TuiEditorTool.Sup,
     TuiEditorTool.Sub,
     TuiEditorTool.Table,
+    TuiEditorTool.Details,
 ];

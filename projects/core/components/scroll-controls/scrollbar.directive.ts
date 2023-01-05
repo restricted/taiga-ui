@@ -7,36 +7,36 @@ import {
     NgZone,
     Optional,
     Renderer2,
+    Self,
 } from '@angular/core';
 import {ANIMATION_FRAME, WINDOW} from '@ng-web-apis/common';
 import {
     POLLING_TIME,
-    preventDefault,
-    stopPropagation,
     TuiDestroyService,
+    tuiPreventDefault,
+    tuiStopPropagation,
+    tuiTypedFromEvent,
     tuiZonefree,
-    typedFromEvent,
 } from '@taiga-ui/cdk';
 import {TUI_ELEMENT_REF, TUI_SCROLL_REF} from '@taiga-ui/core/tokens';
-import {TuiOrientationT} from '@taiga-ui/core/types';
+import {TuiOrientation} from '@taiga-ui/core/types';
 import {fromEvent, merge, Observable} from 'rxjs';
 import {map, switchMap, takeUntil, throttleTime} from 'rxjs/operators';
 
 const MIN_WIDTH = 24;
 
-// @dynamic
 @Directive({
     selector: '[tuiScrollbar]',
     providers: [TuiDestroyService],
 })
 export class TuiScrollbarDirective {
     @Input()
-    tuiScrollbar: TuiOrientationT = 'vertical';
+    tuiScrollbar: TuiOrientation = 'vertical';
 
     constructor(
         @Inject(NgZone) ngZone: NgZone,
         @Inject(Renderer2) renderer: Renderer2,
-        @Inject(TuiDestroyService) destroy$: Observable<void>,
+        @Self() @Inject(TuiDestroyService) destroy$: Observable<void>,
         @Inject(ANIMATION_FRAME) animationFrame$: Observable<number>,
         @Inject(TUI_ELEMENT_REF) private readonly wrapper: ElementRef<HTMLElement>,
         @Optional()
@@ -48,19 +48,19 @@ export class TuiScrollbarDirective {
         @Inject(ViewportScroller) private readonly viewportScroller: ViewportScroller,
     ) {
         const {nativeElement} = this.elementRef;
-        const mousedown$ = typedFromEvent(nativeElement, 'mousedown');
-        const mousemove$ = typedFromEvent(this.documentRef, 'mousemove');
-        const mouseup$ = typedFromEvent(this.documentRef, 'mouseup');
-        const mousedownWrapper$ = typedFromEvent(wrapper.nativeElement, 'mousedown');
+        const mousedown$ = tuiTypedFromEvent(nativeElement, 'mousedown');
+        const mousemove$ = tuiTypedFromEvent(this.documentRef, 'mousemove');
+        const mouseup$ = tuiTypedFromEvent(this.documentRef, 'mouseup');
+        const mousedownWrapper$ = tuiTypedFromEvent(wrapper.nativeElement, 'mousedown');
 
         merge(
             mousedownWrapper$.pipe(
-                preventDefault(),
+                tuiPreventDefault(),
                 map(event => this.getScrolled(event, 0.5, 0.5)),
             ),
             mousedown$.pipe(
-                preventDefault(),
-                stopPropagation(),
+                tuiPreventDefault(),
+                tuiStopPropagation(),
                 switchMap(event => {
                     const rect = nativeElement.getBoundingClientRect();
                     const vertical = getOffsetVertical(event, rect);
@@ -169,9 +169,7 @@ export class TuiScrollbarDirective {
     }
 
     private get computedContainer(): Element {
-        return this.container
-            ? this.container.nativeElement
-            : this.documentRef.scrollingElement!;
+        return this.container?.nativeElement || this.documentRef.documentElement;
     }
 
     private getScrolled(

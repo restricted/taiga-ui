@@ -1,11 +1,10 @@
-import {Component, ElementRef} from '@angular/core';
+import {Component, ElementRef, Inject} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TuiForModule} from '@taiga-ui/cdk';
 import {configureTestSuite} from '@taiga-ui/testing';
 import {Subject} from 'rxjs';
 
-import {TuiForModule} from '../for.module';
-
-describe('TuiFor directive', () => {
+describe(`TuiFor directive`, () => {
     @Component({
         template: `
             <div *ngFor="let item of items$ | async; else: loading; empty: blank">
@@ -18,7 +17,7 @@ describe('TuiFor directive', () => {
     class TestComponent {
         readonly items$ = new Subject<string[]>();
 
-        constructor(readonly elementRef: ElementRef<HTMLElement>) {}
+        constructor(@Inject(ElementRef) readonly elementRef: ElementRef<HTMLElement>) {}
     }
 
     let fixture: ComponentFixture<TestComponent>;
@@ -37,25 +36,25 @@ describe('TuiFor directive', () => {
         fixture.detectChanges();
     });
 
-    it('when ngFor is falsy shows loading', () => {
-        expect(text()).toBe('Loading');
+    it(`when ngFor is falsy shows loading`, () => {
+        expect(text()).toBe(`Loading`);
     });
 
-    it('when ngFor is empty shows empty content', () => {
+    it(`when ngFor is empty shows empty content`, () => {
         testComponent.items$.next([]);
         fixture.detectChanges();
 
-        expect(text()).toBe('Blank');
+        expect(text()).toBe(`Blank`);
     });
 
-    it('does not interfere with regular ngFor', () => {
-        testComponent.items$.next(['1', '2', '3']);
+    it(`does not interfere with regular ngFor`, () => {
+        testComponent.items$.next([`1`, `2`, `3`]);
         fixture.detectChanges();
 
-        expect(text()).toBe('1  2  3');
+        expect(text()).toBe(`1  2  3`);
     });
 
     function text(): string {
-        return testComponent.elementRef.nativeElement.textContent!.trim();
+        return testComponent.elementRef.nativeElement.textContent?.trim() || ``;
     }
 });

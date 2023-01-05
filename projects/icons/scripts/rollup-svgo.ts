@@ -2,9 +2,9 @@ import {createFilter} from '@rollup/pluginutils';
 import {Plugin, TransformResult} from 'rollup';
 import {optimize, OptimizedError, OptimizedSvg, OptimizeOptions} from 'svgo';
 
-type SvgoResult = OptimizedSvg | OptimizedError;
+type SvgoResult = OptimizedError | OptimizedSvg;
 
-export interface RollupSvgoConfig {
+export interface TuiRollupSvgoConfig {
     readonly include?: string;
 
     readonly exclude?: string;
@@ -13,39 +13,39 @@ export interface RollupSvgoConfig {
 }
 
 export function rollupSvgo({
-    include = '**/*.svg',
+    include = `**/*.svg`,
     exclude,
     options,
-}: RollupSvgoConfig = {}): Plugin {
+}: TuiRollupSvgoConfig = {}): Plugin {
     const filter = createFilter(include, exclude);
 
     return {
-        name: 'rollupSvgo',
+        name: `rollupSvgo`,
         transform(svgString: string, path: string): TransformResult {
             const skip = !filter(path);
 
             if (skip) {
-                console.info('\x1b[33m%s\x1b[0m', '[skip]', path);
+                console.info(`\x1B[33m%s\x1B[0m`, `[skip]`, path);
 
                 return;
             }
 
             let data: unknown;
-            let errorMessage: string;
+            let errorMessage: string | undefined;
 
             try {
                 const result: SvgoResult = optimize(svgString, {path, ...options});
 
                 data = (result as OptimizedSvg)?.data || {};
-                errorMessage = result.error as string;
-            } catch (err) {
-                errorMessage = err.message;
+                errorMessage = result.error;
+            } catch (err: unknown) {
+                errorMessage = (err as Error)?.message;
             }
 
             if (errorMessage) {
                 console.error(
-                    '\x1b[31m%s\x1b[0m',
-                    '[error]',
+                    `\x1B[31m%s\x1B[0m`,
+                    `[error]`,
                     path,
                     `\n${svgString}`,
                     `\n${errorMessage}`,
@@ -53,11 +53,11 @@ export function rollupSvgo({
                 process.exit(1);
             }
 
-            console.info('\x1b[32m%s\x1b[0m', '[success]', path);
+            console.info(`\x1B[32m%s\x1B[0m`, `[success]`, path);
 
             return {
                 code: `export default ${JSON.stringify(data)}`,
-                map: {mappings: ''},
+                map: {mappings: ``},
             };
         },
     };

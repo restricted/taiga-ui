@@ -11,7 +11,7 @@
 Install main packages:
 
 ```
-npm i @taiga-ui/{cdk,core,kit}
+npm i @taiga-ui/{cdk,core,kit,addon-mobile}
 ```
 
 Install doc:
@@ -81,7 +81,7 @@ npm i @taiga-ui/addon-doc
    const appRoutes: Routes = [
      {
        path: 'super-page',
-       loadChildren: '../super-page/super-page.module#SuperModule',
+       loadChildren: async () => (await import('../super-page/super-page.module')).SuperModule,
        data: {
          title: 'Super Page',
        },
@@ -100,11 +100,11 @@ npm i @taiga-ui/addon-doc
    ```typescript
    import {NgModule} from '@angular/core';
    import {RouterModule} from '@angular/router';
-   import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+   import {tuiGenerateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
    import {SuperComponent} from './super.component';
 
    @NgModule({
-     imports: [TuiAddonDocModule, RouterModule.forChild(generateRoutes(SuperComponent))],
+     imports: [TuiAddonDocModule, RouterModule.forChild(tuiGenerateRoutes(SuperComponent))],
      declarations: [SuperComponent],
      exports: [SuperComponent],
    })
@@ -116,9 +116,6 @@ npm i @taiga-ui/addon-doc
    ```typescript
    import {Component} from '@angular/core';
 
-   import {default as exampleHtml} from '!!raw-loader!./examples/1/index.html';
-   import {default as exampleTs} from '!!raw-loader!./examples/1/index.ts';
-
    @Component({
      selector: 'super-component',
      templateUrl: './account.template.html',
@@ -126,13 +123,17 @@ npm i @taiga-ui/addon-doc
    export class SuperComponent {
      // Keys would be used as tabs for code example
      readonly example = {
-       TypeScript: exampleTs,
-       HTML: exampleHtml,
+       // import a file as a string
+       TypeScript: import('./examples/1/index.ts?raw'),
+       HTML: import('./examples/1/index.html?raw'),
      };
 
      readonly inputVariants = ['input 1', 'input 2'];
    }
    ```
+
+   > You can use any tool to import a file as a string. For example, you can use
+   > [Webpack Asset Modules](https://webpack.js.org/guides/asset-modules/).
 
    _Template:_
 

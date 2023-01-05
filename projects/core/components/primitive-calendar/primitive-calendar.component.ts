@@ -9,20 +9,20 @@ import {
 } from '@angular/core';
 import {
     ALWAYS_FALSE_HANDLER,
-    nullableSame,
     TuiBooleanHandler,
     TuiDay,
     TuiDayRange,
     tuiDefaultProp,
+    TuiHandler,
+    TuiInjectionTokenType,
     TuiMonth,
+    tuiNullableSame,
 } from '@taiga-ui/cdk';
 import {TUI_DEFAULT_MARKER_HANDLER} from '@taiga-ui/core/constants';
 import {TuiInteractiveState, TuiRangeState} from '@taiga-ui/core/enums';
-import {TUI_ORDERED_SHORT_WEEK_DAYS, WEEK_DAYS_NAMES} from '@taiga-ui/core/tokens';
-import {TuiColor, TuiMarkerHandler} from '@taiga-ui/core/types';
-import {Observable} from 'rxjs';
+import {TUI_DAY_TYPE_HANDLER, TUI_SHORT_WEEK_DAYS} from '@taiga-ui/core/tokens';
+import {TuiMarkerHandler} from '@taiga-ui/core/types';
 
-// @dynamic
 @Component({
     selector: 'tui-primitive-calendar',
     templateUrl: './primitive-calendar.template.html',
@@ -47,7 +47,7 @@ export class TuiPrimitiveCalendarComponent {
 
     @Input()
     @tuiDefaultProp()
-    value: TuiDayRange | TuiDay | null = null;
+    value: TuiDay | TuiDayRange | null = null;
 
     @Input()
     @tuiDefaultProp()
@@ -64,8 +64,10 @@ export class TuiPrimitiveCalendarComponent {
     readonly dayClick = new EventEmitter<TuiDay>();
 
     constructor(
-        @Inject(TUI_ORDERED_SHORT_WEEK_DAYS)
-        readonly weekDays$: Observable<WEEK_DAYS_NAMES>,
+        @Inject(TUI_SHORT_WEEK_DAYS)
+        readonly unorderedWeekDays$: TuiInjectionTokenType<typeof TUI_SHORT_WEEK_DAYS>,
+        @Inject(TUI_DAY_TYPE_HANDLER)
+        readonly dayTypeHandler: TuiHandler<TuiDay, string>,
     ) {}
 
     @HostBinding('class._single')
@@ -80,7 +82,7 @@ export class TuiPrimitiveCalendarComponent {
         day: TuiDay,
         today: boolean,
         inRange: boolean,
-    ): null | [TuiColor | string] | [TuiColor | string, TuiColor | string] => {
+    ): [string, string] | [string] | null => {
         if (today || inRange) {
             return null;
         }
@@ -97,12 +99,12 @@ export class TuiPrimitiveCalendarComponent {
             return TuiInteractiveState.Disabled;
         }
 
-        if (pressedItem && pressedItem.daySame(item)) {
-            return TuiInteractiveState.Pressed;
+        if (pressedItem?.daySame(item)) {
+            return TuiInteractiveState.Active;
         }
 
-        if (hoveredItem && hoveredItem.daySame(item)) {
-            return TuiInteractiveState.Hovered;
+        if (hoveredItem?.daySame(item)) {
+            return TuiInteractiveState.Hover;
         }
 
         return null;
@@ -121,12 +123,10 @@ export class TuiPrimitiveCalendarComponent {
 
         if (
             (value.from.daySame(item) && !value.isSingleDay) ||
-            (hoveredItem &&
-                hoveredItem.dayAfter(value.from) &&
+            (hoveredItem?.dayAfter(value.from) &&
                 value.from.daySame(item) &&
                 value.isSingleDay) ||
-            (hoveredItem &&
-                hoveredItem.daySame(item) &&
+            (hoveredItem?.daySame(item) &&
                 hoveredItem.dayBefore(value.from) &&
                 value.isSingleDay)
         ) {
@@ -135,12 +135,10 @@ export class TuiPrimitiveCalendarComponent {
 
         if (
             (value.to.daySame(item) && !value.isSingleDay) ||
-            (hoveredItem &&
-                hoveredItem.dayBefore(value.from) &&
+            (hoveredItem?.dayBefore(value.from) &&
                 value.from.daySame(item) &&
                 value.isSingleDay) ||
-            (hoveredItem &&
-                hoveredItem.daySame(item) &&
+            (hoveredItem?.daySame(item) &&
                 hoveredItem.dayAfter(value.from) &&
                 value.isSingleDay)
         ) {
@@ -193,7 +191,7 @@ export class TuiPrimitiveCalendarComponent {
     }
 
     private updateHoveredItem(day: TuiDay | null): void {
-        if (nullableSame(this.hoveredItem, day, (a, b) => a.daySame(b))) {
+        if (tuiNullableSame(this.hoveredItem, day, (a, b) => a.daySame(b))) {
             return;
         }
 

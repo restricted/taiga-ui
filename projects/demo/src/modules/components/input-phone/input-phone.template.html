@@ -53,24 +53,29 @@
                     [formControl]="control"
                     [focusable]="focusable"
                     [readOnly]="readOnly"
-                    [tuiTextfieldAutocomplete]="autocomplete"
+                    [tuiTextfieldIconLeft]="iconLeft"
                     [tuiTextfieldCleaner]="cleaner"
                     [tuiTextfieldCustomContent]="customContent"
                     [tuiTextfieldLabelOutside]="labelOutside"
                     [tuiTextfieldSize]="size"
+                    [tuiTextfieldFiller]="filler"
+                    [tuiTextfieldPrefix]="prefix"
+                    [tuiTextfieldPostfix]="postfix"
                     [countryCode]="countryCode"
                     [phoneMaskAfterCountryCode]="phoneMaskAfterCountryCode"
                     [pseudoInvalid]="pseudoInvalid"
-                    [pseudoFocused]="pseudoFocused"
-                    [pseudoHovered]="pseudoHovered"
+                    [pseudoFocus]="pseudoFocused"
+                    [pseudoHover]="pseudoHovered"
                     [tuiDropdownAlign]="dropdownAlign"
                     [tuiDropdownDirection]="dropdownDirection"
                     [tuiDropdownLimitWidth]="dropdownLimitWidth"
                     [tuiDropdownMinHeight]="dropdownMinHeight"
                     [tuiDropdownMaxHeight]="dropdownMaxHeight"
+                    [tuiDropdownOffset]="dropdownOffset"
                     [tuiHintContent]="hintContent"
                     [tuiHintDirection]="hintDirection"
-                    [tuiHintMode]="hintMode"
+                    [tuiHintAppearance]="hintAppearance"
+                    [style.text-align]="textAlign"
                 >
                     Type a phone number
                 </tui-input-phone>
@@ -117,11 +122,22 @@
                 documentationPropertyMode="input-output"
                 documentationPropertyType="string"
             >
-                Textfield value to subscribe on input or setting it from the
-                outside
+                Textfield value to subscribe on input or setting it from the outside
             </ng-template>
         </tui-doc-documentation>
         <inherited-documentation [dropdown]="true"></inherited-documentation>
+        <tui-doc-documentation heading="CSS customization">
+            <ng-template
+                i18n
+                documentationPropertyMode="input"
+                documentationPropertyType="string"
+                documentationPropertyName="style.text-align"
+                [documentationPropertyValues]="textAlignVariants"
+                [(documentationPropertyValue)]="textAlign"
+            >
+                Custom align content by text-align
+            </ng-template>
+        </tui-doc-documentation>
     </ng-template>
 
     <ng-template pageTab>

@@ -1,31 +1,55 @@
 import {readFileSync, writeFileSync} from 'fs';
 import {glob} from 'glob';
 
+import {processLog, successLog} from '../../projects/cdk/schematics/utils/colored-log';
 import {updatePackageJsonStructure} from './update-package-json-structure';
 
 const INDENTATION = 4;
 
 export function syncVersions(
     filesOrDirectories: string[],
-    version: string,
+    newVersion: string,
     ignores: string[] = [],
 ): void {
     const patterns = filesOrDirectories.map(pattern =>
-        pattern.endsWith('.json')
+        pattern.endsWith(`.json`)
             ? pattern
             : `${pattern}/**/*(package.json|package-lock.json)`,
     );
 
     const files = patterns
-        .map(pattern => glob.sync(pattern, {ignore: '**/node_modules/**'}))
-        .flatMap(files => files);
+        .map(pattern => glob.sync(pattern, {ignore: `**/node_modules/**`}))
+        .flatMap(files => files)
+        .filter(file => !file.includes(`node_modules`));
 
     for (const file of files) {
-        const packageJson = JSON.parse(readFileSync(file).toString());
-        const isPackageLockJson = file.endsWith('-lock.json');
+        const originalJSON = `${JSON.stringify(
+            JSON.parse(readFileSync(file).toString()),
+            null,
+            INDENTATION,
+        )}`;
+        const packageJson = JSON.parse(originalJSON);
+        const prevVersion = packageJson.version;
 
-        updatePackageJsonStructure(packageJson, version, isPackageLockJson, ignores);
-        writeFileSync(file, `${JSON.stringify(packageJson, null, INDENTATION)}\n`);
-        console.info('\x1b[32m%s\x1b[0m', `[synchronized]:`, file);
+        if (!prevVersion) {
+            continue;
+        }
+
+        updatePackageJsonStructure({
+            isPackageLockFile: file.endsWith(`-lock.json`),
+            packageJson,
+            prevVersion,
+            newVersion,
+            ignores,
+        });
+
+        const updatedJSON = `${JSON.stringify(packageJson, null, INDENTATION)}`;
+
+        if (originalJSON !== updatedJSON) {
+            writeFileSync(file, `${updatedJSON}\n`);
+            successLog(`[synchronized]: ${file}`);
+        } else {
+            processLog(`[no changes]: ${file}`);
+        }
     }
 }

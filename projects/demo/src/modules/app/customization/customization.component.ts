@@ -1,19 +1,19 @@
-import {AfterViewInit, Component, Inject, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Inject, Self, ViewChild} from '@angular/core';
 import {DomSanitizer, SafeStyle} from '@angular/platform-browser';
 import {changeDetection} from '@demo/emulate/change-detection';
-import {USER_AGENT} from '@ng-web-apis/common';
 import {TuiDocDemoComponent} from '@taiga-ui/addon-doc';
-import {isIE, px, TuiDestroyService, tuiPure} from '@taiga-ui/cdk';
+import {TuiDestroyService, tuiIsString, tuiPure, tuiPx} from '@taiga-ui/cdk';
 import {TuiBrightness} from '@taiga-ui/core';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
+// TODO: find the best way for prevent cycle
+// eslint-disable-next-line import/no-cycle
 import {
     TUI_DOC_CUSTOMIZATION_PROVIDERS,
     TUI_DOC_CUSTOMIZATION_VARS,
 } from './customization.providers';
 
-// @dynamic
 @Component({
     selector: 'tui-customization',
     templateUrl: './customization.template.html',
@@ -25,15 +25,12 @@ export class TuiCustomizationComponent implements AfterViewInit {
     @ViewChild('demo')
     private readonly demo?: TuiDocDemoComponent;
 
-    readonly isIE = isIE(this.userAgent);
-
     readonly change$ = new Subject<void>();
 
     constructor(
-        @Inject(TuiDestroyService) private readonly destroy$: TuiDestroyService,
+        @Self() @Inject(TuiDestroyService) private readonly destroy$: TuiDestroyService,
         @Inject(DomSanitizer) private readonly sanitizer: DomSanitizer,
         @Inject(TUI_DOC_CUSTOMIZATION_VARS) private variables: Record<string, string>,
-        @Inject(USER_AGENT) private readonly userAgent: string,
     ) {}
 
     get style(): SafeStyle {
@@ -57,7 +54,7 @@ export class TuiCustomizationComponent implements AfterViewInit {
     }
 
     get mode(): TuiBrightness | null {
-        return (this.demo && this.demo.mode) || null;
+        return this.demo?.mode || null;
     }
 
     ngAfterViewInit(): void {
@@ -78,14 +75,14 @@ export class TuiCustomizationComponent implements AfterViewInit {
         return key.includes('onLight');
     }
 
-    onModelChange(variable: string, value: string | number): void {
+    onModelChange(variable: string, value: number | string): void {
         this.variables = {
             ...this.variables,
-            [variable]: typeof value === 'string' ? value : px(value),
+            [variable]: tuiIsString(value) ? value : tuiPx(value),
         };
     }
 
-    getType(key: string): 'number' | 'color' | 'string' {
+    getType(key: string): 'color' | 'number' | 'string' {
         const variable = this.variables[key];
 
         if (key.includes('boxshadow')) {
@@ -97,7 +94,7 @@ export class TuiCustomizationComponent implements AfterViewInit {
             : 'number';
     }
 
-    getVariable(key: string): string | number {
+    getVariable(key: string): number | string {
         const variable = this.variables[key];
 
         return variable.includes('px') ? Number.parseInt(variable, 10) : variable;

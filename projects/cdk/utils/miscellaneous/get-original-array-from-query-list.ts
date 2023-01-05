@@ -6,7 +6,9 @@ import {QueryList} from '@angular/core';
  * @param queryList
  * @returns original array from {@link QueryList}.
  */
-export function getOriginalArrayFromQueryList<T>(queryList: QueryList<T>): readonly T[] {
+export function tuiGetOriginalArrayFromQueryList<T>(
+    queryList: QueryList<T>,
+): readonly T[] {
     let array: readonly T[] = [];
 
     queryList.find((_item, _index, originalArray) => {

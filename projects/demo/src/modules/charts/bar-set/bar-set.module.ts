@@ -2,7 +2,8 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {RouterModule} from '@angular/router';
 import {TuiBarSetModule} from '@taiga-ui/addon-charts';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
+import {TuiFormatNumberPipeModule} from '@taiga-ui/core';
 
 import {ExampleTuiBarSetComponent} from './bar-set.component';
 import {TuiBarSetExample1} from './examples/1';
@@ -16,8 +17,9 @@ import {TuiBarSetExample5} from './examples/5';
         CommonModule,
         RouterModule,
         TuiBarSetModule,
+        TuiFormatNumberPipeModule,
         TuiAddonDocModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiBarSetComponent)),
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTuiBarSetComponent)),
     ],
     declarations: [
         ExampleTuiBarSetComponent,

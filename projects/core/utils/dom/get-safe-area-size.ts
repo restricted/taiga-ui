@@ -3,17 +3,17 @@
  *
  * ATTENTION: Only use in browser environment
  */
-export function getSafeAreaSize(): number {
-    if (!CSS.supports('padding-top: env(safe-area-inset-top)')) {
+export function tuiGetSafeAreaSize(): number {
+    if (!CSS.supports(`padding-top: env(safe-area-inset-top)`)) {
         return 0;
     }
 
-    const div = document.createElement('div');
+    const div = document.createElement(`div`);
 
-    div.style.paddingTop = 'env(safe-area-inset-top)';
+    div.style.paddingTop = `env(safe-area-inset-top)`;
     document.body.appendChild(div);
 
-    const safeAreaSize = parseInt(window.getComputedStyle(div).paddingTop!, 10) || 0;
+    const safeAreaSize = parseInt(window.getComputedStyle(div).paddingTop, 10) || 0;
 
     document.body.removeChild(div);
 

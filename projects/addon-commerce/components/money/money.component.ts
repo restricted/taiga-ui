@@ -5,22 +5,22 @@ import {
     Inject,
     Input,
 } from '@angular/core';
-import {TuiCurrencyVariants, TuiMoneySignT} from '@taiga-ui/addon-commerce/types';
-import {CHAR_EN_DASH, tuiDefaultProp} from '@taiga-ui/cdk';
 import {
-    formatNumber,
-    NumberFormatSettings,
-    TUI_NUMBER_FORMAT,
-    TuiDecimalT,
-} from '@taiga-ui/core';
+    TuiCurrencyVariants,
+    TuiMoneySign,
+    TuiMoneySignSymbol,
+} from '@taiga-ui/addon-commerce/types';
+import {CHAR_MINUS, CHAR_PLUS, tuiDefaultProp} from '@taiga-ui/cdk';
+import {TuiDecimal} from '@taiga-ui/core';
 
 import {TUI_MONEY_OPTIONS, TuiMoneyOptions} from './money-options';
+import {tuiFormatSignSymbol} from './utils/format-sign-symbol';
 
 @Component({
     selector: 'tui-money',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './money.template.html',
     styleUrls: ['./money.style.less'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TuiMoneyComponent {
     @Input()
@@ -29,7 +29,7 @@ export class TuiMoneyComponent {
 
     @Input()
     @tuiDefaultProp()
-    decimal: TuiDecimalT = this.options.decimal;
+    decimal: TuiDecimal = this.options.decimal;
 
     @Input()
     @tuiDefaultProp()
@@ -37,7 +37,7 @@ export class TuiMoneyComponent {
 
     @Input()
     @tuiDefaultProp()
-    sign: TuiMoneySignT = this.options.sign;
+    sign: TuiMoneySign = this.options.sign;
 
     @Input()
     @tuiDefaultProp()
@@ -51,44 +51,15 @@ export class TuiMoneyComponent {
     @tuiDefaultProp()
     singleColor = this.options.singleColor;
 
-    get integerPart(): string {
-        return formatNumber(
-            Math.floor(Math.abs(this.value)),
-            null,
-            this.numberFormat.decimalSeparator,
-            this.numberFormat.thousandSeparator,
-        );
-    }
-
-    get fractionPart(): string {
-        const {decimal, value} = this;
-        const fraction = value.toFixed(this.precision).split('.')[1];
-
-        return decimal === 'never' ||
-            (parseInt(fraction, 10) === 0 && decimal !== 'always')
-            ? ''
-            : this.numberFormat.decimalSeparator + fraction;
-    }
-
-    get signSymbol(): '' | typeof CHAR_EN_DASH | '+' {
-        const {sign, value} = this;
-
-        if (sign === 'never' || !value || (sign === 'negative-only' && value > 0)) {
-            return '';
-        }
-
-        if (sign === 'force-negative' || (value < 0 && sign !== 'force-positive')) {
-            return CHAR_EN_DASH;
-        }
-
-        return '+';
+    get signSymbol(): TuiMoneySignSymbol {
+        return tuiFormatSignSymbol(this.value, this.sign);
     }
 
     @HostBinding('class._red')
     get red(): boolean {
         return (
             this.colored &&
-            (this.signSymbol === CHAR_EN_DASH ||
+            (this.signSymbol === CHAR_MINUS ||
                 (this.value < 0 && this.sign !== 'force-positive'))
         );
     }
@@ -97,7 +68,7 @@ export class TuiMoneyComponent {
     get green(): boolean {
         return (
             this.colored &&
-            (this.signSymbol === '+' ||
+            (this.signSymbol === CHAR_PLUS ||
                 (this.value > 0 && this.sign !== 'force-negative'))
         );
     }
@@ -107,10 +78,5 @@ export class TuiMoneyComponent {
         return this.singleColor || (this.value === 0 && this.colored);
     }
 
-    constructor(
-        @Inject(TUI_NUMBER_FORMAT)
-        private readonly numberFormat: NumberFormatSettings,
-        @Inject(TUI_MONEY_OPTIONS)
-        private readonly options: TuiMoneyOptions,
-    ) {}
+    constructor(@Inject(TUI_MONEY_OPTIONS) private readonly options: TuiMoneyOptions) {}
 }

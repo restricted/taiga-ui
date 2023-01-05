@@ -1,4 +1,5 @@
 <tui-accordion
+    *ngIf="svgIcons.rubles | async as lazySvg"
     class="container"
     [rounded]="false"
 >
@@ -14,7 +15,7 @@
             <div class="operation-pic">
                 <tui-svg
                     class="operation-icon"
-                    [src]="svgIcons.rubl"
+                    [src]="lazySvg?.default || ''"
                 ></tui-svg>
             </div>
             <div class="operation-title">Get your money</div>
@@ -33,11 +34,14 @@
                 [formGroup]="testForm"
             >
                 <tui-input
-                    tuiTextfieldExampleText="Roman Sedov"
                     formControlName="name"
                     class="input"
                 >
                     Your name
+                    <input
+                        tuiTextfield
+                        placeholder="Roman Sedov"
+                    />
                 </tui-input>
                 <tui-select
                     formControlName="accounts"
@@ -82,7 +86,7 @@
             <div class="operation-pic">
                 <tui-svg
                     class="operation-icon"
-                    [src]="svgIcons.rubl"
+                    [src]="lazySvg?.default || ''"
                 ></tui-svg>
             </div>
             <div class="operation-title">Get your money back</div>
@@ -91,9 +95,7 @@
                     class="operation-amount"
                     [value]="23000"
                 ></tui-money>
-                <div class="operation-status operation-status_success">
-                    Approved
-                </div>
+                <div class="operation-status operation-status_success">Approved</div>
             </div>
         </div>
         <ng-template tuiAccordionItemContent>
@@ -103,11 +105,14 @@
                 [formGroup]="testForm"
             >
                 <tui-input
-                    tuiTextfieldExampleText="Roman Sedov"
                     formControlName="name"
                     class="input"
                 >
                     Your name
+                    <input
+                        tuiTextfield
+                        placeholder="Roman Sedov"
+                    />
                 </tui-input>
                 <tui-select
                     formControlName="accounts"
@@ -152,7 +157,7 @@
             <div class="operation-pic">
                 <tui-svg
                     class="operation-icon"
-                    [src]="svgIcons.rubl"
+                    [src]="lazySvg?.default || ''"
                 ></tui-svg>
             </div>
             <div class="operation-title">Get your neighbor's money</div>
@@ -161,9 +166,7 @@
                     class="operation-amount"
                     [value]="23000"
                 ></tui-money>
-                <div class="operation-status operation-status_error">
-                    Declined
-                </div>
+                <div class="operation-status operation-status_error">Declined</div>
             </div>
         </div>
         <ng-template tuiAccordionItemContent>
@@ -173,11 +176,14 @@
                 [formGroup]="testForm"
             >
                 <tui-input
-                    tuiTextfieldExampleText="Roman Sedov"
                     formControlName="name"
                     class="input"
                 >
                     Your name
+                    <input
+                        tuiTextfield
+                        placeholder="Roman Sedov"
+                    />
                 </tui-input>
                 <tui-select
                     formControlName="accounts"

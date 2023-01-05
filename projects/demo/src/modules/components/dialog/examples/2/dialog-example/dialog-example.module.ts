@@ -8,7 +8,12 @@ import {
     TuiDataListModule,
     TuiTextfieldControllerModule,
 } from '@taiga-ui/core';
-import {TuiDataListWrapperModule, TuiInputModule, TuiSelectModule} from '@taiga-ui/kit';
+import {
+    TuiDataListWrapperModule,
+    TuiInputModule,
+    TuiSelectModule,
+    TuiSliderModule,
+} from '@taiga-ui/kit';
 
 import {DialogExampleComponent} from './dialog-example.component';
 
@@ -23,10 +28,10 @@ import {DialogExampleComponent} from './dialog-example.component';
         TuiTextfieldControllerModule,
         TuiDataListModule,
         TuiDataListWrapperModule,
+        TuiSliderModule,
         TuiAutoFocusModule,
     ],
     declarations: [DialogExampleComponent],
     exports: [DialogExampleComponent],
-    entryComponents: [DialogExampleComponent], // for stackblitz
 })
 export class DialogExampleModule {}

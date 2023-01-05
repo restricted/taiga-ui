@@ -1,6 +1,6 @@
 <tui-pie-chart
     [value]="value"
-    [hintContent]="content"
+    [tuiHintContent]="content"
 ></tui-pie-chart>
 
 <ng-template
@@ -11,5 +11,5 @@
         [singleColor]="true"
         [value]="value[index]"
     ></tui-money>
-    <div>{{labels[index]}}</div>
+    <div>{{ labels[index] }}</div>
 </ng-template>

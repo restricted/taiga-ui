@@ -106,19 +106,19 @@
                     [min]="min"
                     [max]="max"
                     [defaultActiveYearMonth]="defaultActiveYearMonth"
-                    [pseudoFocused]="pseudoFocused"
-                    [pseudoHovered]="pseudoHovered"
+                    [pseudoFocus]="pseudoFocused"
+                    [pseudoHover]="pseudoHovered"
                     [pseudoInvalid]="pseudoInvalid"
                     [readOnly]="readOnly"
                     [timeMode]="mode"
                     [tuiHintContent]="hintContent"
                     [tuiHintDirection]="hintDirection"
-                    [tuiHintMode]="hintMode"
-                    [tuiTextfieldAutocomplete]="autocomplete"
+                    [tuiHintAppearance]="hintAppearance"
+                    [tuiTextfieldIconLeft]="iconLeft"
                     [tuiTextfieldCleaner]="cleaner"
-                    [tuiTextfieldExampleText]="exampleText"
                     [tuiTextfieldLabelOutside]="labelOutside"
                     [tuiTextfieldSize]="size"
+                    [style.text-align]="textAlign"
                 >
                     Choose date and time
                 </tui-input-date-time>
@@ -142,10 +142,7 @@
                 [documentationPropertyValues]="disabledItemHandlerVariants"
                 [(documentationPropertyValue)]="disabledItemHandler"
             >
-                <div>
-                    A handler that gets a date and returns true if it is
-                    disabled.
-                </div>
+                <div>A handler that gets a date and returns true if it is disabled.</div>
 
                 <strong>Must be a pure function</strong>
             </ng-template>
@@ -177,8 +174,7 @@
                 [documentationPropertyValues]="defaultActiveYearMonthVariants"
                 [(documentationPropertyValue)]="defaultActiveYearMonth"
             >
-                The default active month that is shown when you opens calendar
-                for the first time
+                The default active month that is shown when you opens calendar for the first time
             </ng-template>
             <ng-template
                 i18n
@@ -192,6 +188,18 @@
             </ng-template>
         </tui-doc-documentation>
         <inherited-documentation [dropdown]="true"></inherited-documentation>
+        <tui-doc-documentation heading="CSS customization">
+            <ng-template
+                i18n
+                documentationPropertyMode="input"
+                documentationPropertyType="string"
+                documentationPropertyName="style.text-align"
+                [documentationPropertyValues]="textAlignVariants"
+                [(documentationPropertyValue)]="textAlign"
+            >
+                Custom align content by text-align
+            </ng-template>
+        </tui-doc-documentation>
     </ng-template>
 
     <ng-template pageTab>

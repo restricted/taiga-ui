@@ -1,7 +1,6 @@
-@import '../../taiga-ui-local';
+@import '../../taiga-ui-local.less';
 
 /* stylelint-disable order/order */
-tui-wrapper[data-appearance='table'],
 [tuiWrapper][data-appearance='table'] {
     border-radius: 0;
     background: transparent;
@@ -46,7 +45,7 @@ tui-wrapper[data-appearance='table'],
 
     .wrapper-hover({
         &:not(._focused):before {
-            background-color: var(--tui-clear-disabled);
+            background-color: var(--tui-clear);
         }
     });
 

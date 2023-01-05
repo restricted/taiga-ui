@@ -1,13 +1,6 @@
 import {Component} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
-
-import {default as example1Html} from '!!raw-loader!./examples/1/index.html';
-import {default as example1Ts} from '!!raw-loader!./examples/1/index.ts';
-import {default as exampleComponent} from '!!raw-loader!./examples/import/component.txt';
-import {default as exampleModule} from '!!raw-loader!./examples/import/import-module.txt';
-import {default as exampleHtml} from '!!raw-loader!./examples/import/insert-template.txt';
-
-import {FrontEndExample} from '../../interfaces/front-end-example';
+import {TuiDocExample} from '@taiga-ui/addon-doc';
 
 @Component({
     selector: 'example-tui-zoom',
@@ -15,12 +8,12 @@ import {FrontEndExample} from '../../interfaces/front-end-example';
     changeDetection,
 })
 export class ExampleTuiZoomComponent {
-    readonly exampleModule = exampleModule;
-    readonly exampleHtml = exampleHtml;
-    readonly exampleComponent = exampleComponent;
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
+    readonly exampleComponent = import('./examples/import/component.md?raw');
 
-    readonly example1: FrontEndExample = {
-        TypeScript: example1Ts,
-        HTML: example1Html,
+    readonly example1: TuiDocExample = {
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
     };
 }

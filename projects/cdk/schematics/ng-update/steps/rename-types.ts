@@ -1,27 +1,72 @@
-import {getNamedImportReferences} from '../../utils/get-named-import-references';
-import {Node} from 'ng-morph';
-import {TYPES_TO_RENAME} from '../constants/types';
+import {getImports, ImportSpecifier, Node} from 'ng-morph';
+import {TypeNode} from 'ts-morph';
 
-export function renameTypes(): void {
-    TYPES_TO_RENAME.forEach(({from, to, moduleSpecifier}) => {
-        renameType(from, to, moduleSpecifier);
-    });
+import {TuiSchema} from '../../ng-add/schema';
+import {
+    infoLog,
+    REPLACE_SYMBOL,
+    SMALL_TAB_SYMBOL,
+    SUCCESS_SYMBOL,
+    successLog,
+} from '../../utils/colored-log';
+import {getNamedImportReferences} from '../../utils/get-named-import-references';
+import {removeImport, renameImport} from '../../utils/import-manipulations';
+import {TypeToRename} from '../interfaces/type-to-rename';
+
+export function renameTypes(options: TuiSchema, types: readonly TypeToRename[]): void {
+    !options[`skip-logs`] &&
+        infoLog(`${SMALL_TAB_SYMBOL}${REPLACE_SYMBOL} renaming types...`);
+
+    types.forEach(({from, to, moduleSpecifier, preserveGenerics}) =>
+        renameType(from, to, moduleSpecifier, preserveGenerics),
+    );
+
+    !options[`skip-logs`] &&
+        successLog(`${SMALL_TAB_SYMBOL}${SUCCESS_SYMBOL} types renamed \n`);
 }
 
-function renameType(from: string, to: string, moduleSpecifier?: string | string[]): void {
+function renameType(
+    from: string,
+    to?: string,
+    moduleSpecifier?: string[] | string,
+    preserveGenerics: boolean = false,
+): void {
     const references = getNamedImportReferences(from, moduleSpecifier);
 
-    for (let ref of references) {
+    references.forEach(ref => {
         const parent = ref.getParent();
 
         if (Node.isImportSpecifier(parent)) {
-            const namedImport = parent
-                .getImportDeclaration()
-                .getNamedImports()
-                .find(specifier => specifier.getName() === from);
-            namedImport?.replaceWithText(to);
+            processImport(parent, from, to);
         } else if (Node.isTypeReferenceNode(parent)) {
-            parent.replaceWithText(to);
+            const targetType =
+                preserveGenerics && to ? addGeneric(to, parent.getTypeArguments()) : to;
+
+            parent.replaceWithText(targetType || `any`);
         }
+    });
+}
+
+function processImport(node: ImportSpecifier, from: string, to?: string): void {
+    const filePath = node.getSourceFile().getFilePath();
+    const targetImportAlreadyExists = Boolean(
+        getImports(filePath, {namedImports: to}).length,
+    );
+
+    if (to && !targetImportAlreadyExists) {
+        renameImport(node, removeGeneric(to), removeGeneric(from));
+    } else {
+        removeImport(node);
     }
+}
+
+function removeGeneric(type: string): string {
+    return type.replace(/<.*>$/gi, ``);
+}
+
+function addGeneric(typeName: string, generics: TypeNode[]): string {
+    const typeArgs = generics.map(t => t.getType().getText());
+    const genericType = typeArgs.length ? `<${typeArgs.join(`, `)}>` : ``;
+
+    return typeName + genericType;
 }

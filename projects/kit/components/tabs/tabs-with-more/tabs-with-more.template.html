@@ -14,7 +14,7 @@
             ></ng-container>
             <ng-template #hidden>
                 <div [class.t-overflown]="isOverflown(index)">
-                    <ng-container *ngTemplateOutlet="item"></ng-container>
+                    <ng-container [ngTemplateOutlet]="item"></ng-container>
                 </div>
             </ng-template>
         </ng-container>
@@ -27,15 +27,14 @@
     >
         <button
             tuiTab
-            class="t-more"
             [class._active]="isMoreActive"
+            [class.t-no-margin]="isMoreAlone"
             [tuiFocusable]="isMoreFocusable"
             (keydown.arrowLeft.prevent)="onArrowLeft()"
         >
-            <span
-                polymorpheus-outlet
-                [content]="moreContent || more"
-            ></span>
+            <ng-container *polymorpheusOutlet="moreContent || more as text">
+                {{ text }}
+            </ng-container>
         </button>
         <ng-template #more>
             {{ moreWord$ | async }}

@@ -3,6 +3,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
+    HostListener,
     Inject,
     Input,
     Optional,
@@ -11,13 +12,14 @@ import {
     SecurityContext,
     ViewEncapsulation,
 } from '@angular/core';
-import {TUI_EDITOR_STYLES} from '@taiga-ui/addon-editor/tokens';
+import {TuiTiptapEditorDirective} from '@taiga-ui/addon-editor/directives/tiptap-editor';
+import {tuiIsElement} from '@taiga-ui/cdk';
 import {TUI_SANITIZER} from '@taiga-ui/core';
 
-// @dynamic
 @Component({
     selector: 'tui-editor-socket',
     template: '',
+    styleUrls: ['./editor-socket.component.less'],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
@@ -43,21 +45,34 @@ export class TuiEditorSocketComponent {
         @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
         @Inject(Renderer2) private readonly renderer: Renderer2,
         @Inject(Sanitizer) private readonly sanitizer: Sanitizer,
-        @Inject(DOCUMENT) {head}: Document,
-        @Inject(TUI_EDITOR_STYLES) styles: string,
         @Optional()
         @Inject(TUI_SANITIZER)
         private readonly tuiSanitizer: Sanitizer | null,
-    ) {
-        if (head.querySelector('style[data-tui-editor-socket]')) {
+        @Inject(DOCUMENT)
+        private readonly document: Document,
+        @Optional()
+        @Inject(TuiTiptapEditorDirective)
+        private readonly editor: TuiTiptapEditorDirective | null,
+    ) {}
+
+    /**
+     * @description:
+     * the main problem is that the external environment editor can use different base href="../"
+     * More information: https://rogerkeays.com/blog/using-base-href-with-anchors
+     */
+    @HostListener('click', ['$event'])
+    click(event: Event): void {
+        if (this.editor || !tuiIsElement(event.target)) {
             return;
         }
 
-        const style = renderer.createElement('style');
+        const href = event.target?.closest('a')?.getAttribute('href') || '';
 
-        renderer.setProperty(style, 'textContent', styles);
-        renderer.setAttribute(style, 'data-tui-editor-socket', '');
+        if (!href.startsWith('#')) {
+            return;
+        }
 
-        head.appendChild(style);
+        this.document.location.hash = href.replace('#', '');
+        event.preventDefault();
     }
 }

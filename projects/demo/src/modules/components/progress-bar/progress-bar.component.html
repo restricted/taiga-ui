@@ -14,10 +14,7 @@
         </dl>
         <p i18n>
             <strong>Usage:</strong>
-            <code>
-                &lt;progress tuiProgressBar value="40"
-                max="100"&gt;&lt;/progress&gt;
-            </code>
+            <code>&lt;progress tuiProgressBar value="40" max="100"&gt;&lt;/progress&gt;</code>
             .
         </p>
 
@@ -64,6 +61,26 @@
             [content]="stackedExample"
         >
             <tui-progress-bar-example-5></tui-progress-bar-example-5>
+        </tui-doc-example>
+
+        <tui-doc-example
+            id="indeterminate"
+            i18n-heading
+            heading="Indeterminate"
+            [description]="indeterminateStateDescription"
+            [content]="indeterminateExample"
+        >
+            <ng-template #indeterminateStateDescription>
+                <p>Indeterminate state expresses an unspecified amount of wait time.</p>
+                <p>
+                    If there is no
+                    <code>[value]</code>
+                    attribute, the
+                    <code>ProgressBar</code>
+                    is indeterminate.
+                </p>
+            </ng-template>
+            <tui-progress-bar-example-6></tui-progress-bar-example-6>
         </tui-doc-example>
     </ng-template>
 

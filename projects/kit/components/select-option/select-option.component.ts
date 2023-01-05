@@ -4,17 +4,23 @@ import {
     ElementRef,
     Inject,
     OnInit,
+    Optional,
     TemplateRef,
 } from '@angular/core';
 import {NgControl} from '@angular/forms';
 import {
-    isPresent,
     TUI_DEFAULT_IDENTITY_MATCHER,
     TuiContextWithImplicit,
     TuiIdentityMatcher,
-    typedFromEvent,
+    tuiIsPresent,
+    tuiTypedFromEvent,
 } from '@taiga-ui/cdk';
-import {TUI_DATA_LIST_HOST, TuiDataListHost, TuiOptionComponent} from '@taiga-ui/core';
+import {
+    TUI_DATA_LIST_HOST,
+    TuiDataListComponent,
+    TuiDataListHost,
+    TuiOptionComponent,
+} from '@taiga-ui/core';
 import {POLYMORPHEUS_CONTEXT, PolymorpheusComponent} from '@tinkoff/ng-polymorpheus';
 import {EMPTY, merge} from 'rxjs';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
@@ -27,8 +33,8 @@ import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 })
 export class TuiSelectOptionComponent<T> implements OnInit {
     readonly selected$ = merge(
-        this.control.valueChanges ?? EMPTY,
-        typedFromEvent(this.elementRef.nativeElement, 'animationstart'),
+        this.control.valueChanges || EMPTY,
+        tuiTypedFromEvent(this.elementRef.nativeElement, 'animationstart'),
     ).pipe(
         startWith(null),
         map(() => this.selected),
@@ -42,6 +48,9 @@ export class TuiSelectOptionComponent<T> implements OnInit {
         private readonly host: TuiDataListHost<T>,
         @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
         @Inject(TuiOptionComponent) protected readonly option: TuiOptionComponent<T>,
+        @Optional()
+        @Inject(TuiDataListComponent)
+        protected readonly dataList: TuiDataListComponent<T> | null,
         @Inject(NgControl) protected readonly control: NgControl,
     ) {}
 
@@ -58,7 +67,7 @@ export class TuiSelectOptionComponent<T> implements OnInit {
          */
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         Promise.resolve().then(() => {
-            if (isPresent(this.option.value) && this.host.checkOption) {
+            if (tuiIsPresent(this.option.value) && this.host.checkOption) {
                 this.host.checkOption(this.option.value);
             }
         });
@@ -66,8 +75,8 @@ export class TuiSelectOptionComponent<T> implements OnInit {
 
     protected get selected(): boolean {
         return (
-            isPresent(this.option.value) &&
-            isPresent(this.control.value) &&
+            tuiIsPresent(this.option.value) &&
+            tuiIsPresent(this.control.value) &&
             this.matcher(this.control.value, this.option.value)
         );
     }

@@ -7,10 +7,10 @@ import {tuiAssert} from '@taiga-ui/cdk/classes';
  * @param min lower limit
  * @param max upper limit
  */
-export function clamp(value: number, min: number, max: number): number {
-    tuiAssert.assert(!isNaN(value));
-    tuiAssert.assert(!isNaN(min));
-    tuiAssert.assert(!isNaN(max));
+export function tuiClamp(value: number, min: number, max: number): number {
+    tuiAssert.assert(!Number.isNaN(value));
+    tuiAssert.assert(!Number.isNaN(min));
+    tuiAssert.assert(!Number.isNaN(max));
     tuiAssert.assert(max >= min);
 
     return Math.min(max, Math.max(min, value));

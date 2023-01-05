@@ -1,32 +1,31 @@
-import {InjectionToken, ValueProvider} from '@angular/core';
-import {TuiHorizontalDirection} from '@taiga-ui/core/types';
-import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
+import {
+    TUI_TEXTFIELD_DEFAULT_OPTIONS,
+    TUI_TEXTFIELD_OPTIONS,
+    TuiTextfieldOptions,
+    tuiTextfieldOptionsProvider,
+} from '@taiga-ui/core/directives';
 
-export interface TuiPrimitiveTextfieldOptions {
-    readonly iconAlign: TuiHorizontalDirection;
-    readonly iconCleaner: PolymorpheusContent;
-}
+/**
+ * @deprecated:
+ * use {@link TuiTextfieldOptions}
+ */
+export type TuiPrimitiveTextfieldOptions = TuiTextfieldOptions;
 
-// TODO: 3.0 remove in ivy compilation
-export const TUI_PRIMITIVE_TEXTFIELD_ICON_CLEANER = 'tuiIconCloseLarge';
+/**
+ * @deprecated:
+ * use {@link TUI_TEXTFIELD_DEFAULT_OPTIONS}
+ */
+export const TUI_PRIMITIVE_TEXTFIELD_DEFAULT_OPTIONS: TuiPrimitiveTextfieldOptions =
+    TUI_TEXTFIELD_DEFAULT_OPTIONS;
 
-/** Default values for primitive textfield options */
-export const TUI_PRIMITIVE_TEXTFIELD_DEFAULT_OPTIONS: TuiPrimitiveTextfieldOptions = {
-    iconAlign: 'right',
-    iconCleaner: TUI_PRIMITIVE_TEXTFIELD_ICON_CLEANER,
-};
+/**
+ * @deprecated:
+ * use {@link TUI_TEXTFIELD_OPTIONS}
+ */
+export const TUI_PRIMITIVE_TEXTFIELD_OPTIONS = TUI_TEXTFIELD_OPTIONS;
 
-export const TUI_PRIMITIVE_TEXTFIELD_OPTIONS =
-    new InjectionToken<TuiPrimitiveTextfieldOptions>(
-        'Default parameters for primitive textfield component',
-        {
-            factory: () => TUI_PRIMITIVE_TEXTFIELD_DEFAULT_OPTIONS,
-        },
-    );
-
-export const tuiPrimitiveTextfieldOptionsProvider: (
-    options: Partial<TuiPrimitiveTextfieldOptions>,
-) => ValueProvider = (options: Partial<TuiPrimitiveTextfieldOptions>) => ({
-    provide: TUI_PRIMITIVE_TEXTFIELD_OPTIONS,
-    useValue: {...TUI_PRIMITIVE_TEXTFIELD_DEFAULT_OPTIONS, ...options},
-});
+/**
+ * @deprecated:
+ * use {@link tuiTextfieldOptionsProvider}
+ */
+export const tuiPrimitiveTextfieldOptionsProvider = tuiTextfieldOptionsProvider;

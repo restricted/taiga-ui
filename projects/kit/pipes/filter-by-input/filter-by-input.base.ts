@@ -1,11 +1,11 @@
 import {
-    isPresent,
     TuiFocusableElementAccessor,
+    tuiIsPresent,
     tuiPure,
     TuiStringHandler,
     TuiStringMatcher,
 } from '@taiga-ui/cdk';
-import {isFlat} from '@taiga-ui/kit/utils';
+import {tuiIsFlat} from '@taiga-ui/kit/utils';
 
 export type ArrayElement<A> = A extends ReadonlyArray<infer T>
     ? A extends ReadonlyArray<ReadonlyArray<infer G>>
@@ -13,27 +13,27 @@ export type ArrayElement<A> = A extends ReadonlyArray<infer T>
         : T
     : never;
 
-export abstract class TuiFilterByInputBase {
+export abstract class AbstractTuiFilterByInput {
     protected abstract readonly accessor: TuiFocusableElementAccessor;
 
     protected get query(): string {
         return this.accessor.nativeFocusableElement
-            ? (this.accessor.nativeFocusableElement as any).value || ''
-            : '';
+            ? (this.accessor.nativeFocusableElement as HTMLInputElement).value || ``
+            : ``;
     }
 
     @tuiPure
     protected filter<T>(
-        items: readonly T[] | ReadonlyArray<readonly T[]> | null,
+        items: ReadonlyArray<readonly T[]> | readonly T[] | null,
         matcher: TuiStringMatcher<T>,
         stringify: TuiStringHandler<T>,
         query: string,
-    ): readonly T[] | ReadonlyArray<readonly T[]> | null {
+    ): ReadonlyArray<readonly T[]> | readonly T[] | null {
         if (!items) {
             return null;
         }
 
-        return isFlat(items)
+        return tuiIsFlat(items)
             ? this.filterFlat(items, matcher, stringify, query)
             : this.filter2d(items, matcher, stringify, query);
     }
@@ -46,7 +46,7 @@ export abstract class TuiFilterByInputBase {
     ): readonly T[] {
         const match = this.getMatch(items, stringify, query);
 
-        return isPresent(match)
+        return tuiIsPresent(match)
             ? items
             : items.filter(item => matcher(item, query, stringify));
     }
@@ -58,10 +58,10 @@ export abstract class TuiFilterByInputBase {
         query: string,
     ): ReadonlyArray<readonly T[]> {
         const match = items.find(item =>
-            isPresent(this.getMatch(item, stringify, query)),
+            tuiIsPresent(this.getMatch(item, stringify, query)),
         );
 
-        return isPresent(match)
+        return tuiIsPresent(match)
             ? items
             : items.map(inner => this.filterFlat(inner, matcher, stringify, query));
     }

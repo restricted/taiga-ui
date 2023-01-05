@@ -2,17 +2,22 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {
     TuiButtonModule,
-    TuiHintControllerModule,
+    TuiErrorModule,
+    TuiHintModule,
     TuiLabelModule,
     TuiLinkModule,
     TuiNotificationModule,
     TuiSvgModule,
     TuiTextfieldControllerModule,
 } from '@taiga-ui/core';
-import {TuiFieldErrorModule, TuiRadioListModule, TuiTextAreaModule} from '@taiga-ui/kit';
+import {
+    TuiFieldErrorPipeModule,
+    TuiRadioListModule,
+    TuiTextAreaModule,
+} from '@taiga-ui/kit';
 
 import {InheritedDocumentationModule} from '../abstract/inherited-documentation/inherited-documentation.module';
 import {TuiTextAreaExample1} from './examples/1';
@@ -37,10 +42,11 @@ import {ExampleTuiTextAreaComponent} from './text-area.component';
         TuiLinkModule,
         TuiLabelModule,
         TuiTextfieldControllerModule,
-        TuiHintControllerModule,
+        TuiHintModule,
         TuiNotificationModule,
-        TuiFieldErrorModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiTextAreaComponent)),
+        TuiErrorModule,
+        TuiFieldErrorPipeModule,
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTuiTextAreaComponent)),
     ],
     declarations: [
         ExampleTuiTextAreaComponent,

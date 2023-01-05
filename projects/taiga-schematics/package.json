@@ -1,6 +1,6 @@
 {
     "name": "taiga-ui",
-    "version": "2.43.0",
+    "version": "3.15.0",
     "description": "Taiga UI package that provides ng add command for Taiga library",
     "keywords": [
         "angular",
@@ -15,11 +15,8 @@
     "repository": "https://github.com/tinkoff/taiga-ui",
     "license": "Apache-2.0",
     "dependencies": {
-        "@angular-devkit/schematics": "^9.1.12",
-        "ng-morph": "^2.0.0"
+        "@taiga-ui/cdk": "^3.15.0",
+        "tslib": "^2.0.0"
     },
-    "devDependencies": {
-        "@angular-devkit/schematics-cli": "~0.901.12"
-    },
-    "schematics": "./collection.json"
+    "schematics": "../@taiga-ui/cdk/schematics/collection.json"
 }

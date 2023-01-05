@@ -3,6 +3,8 @@ import {TuiContextWithImplicit} from '@taiga-ui/cdk';
 import {TuiSizeL, TuiSizeM, TuiSizeS} from '@taiga-ui/core';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
+// TODO: find the best way for prevent cycle
+// eslint-disable-next-line import/no-cycle
 import {TUI_ARROW} from './arrow.component';
 
 export interface TuiArrowOptions {
@@ -10,18 +12,14 @@ export interface TuiArrowOptions {
     readonly iconLarge: PolymorpheusContent;
 }
 
-// TODO: 3.0 remove in ivy compilation
-export const TUI_ARROW_ICON_SMALL = 'tuiIconChevronDown';
-export const TUI_ARROW_ICON_LARGE = 'tuiIconChevronDownLarge';
-
 /** Default values for arrow options */
 export const TUI_ARROW_DEFAULT_OPTIONS: TuiArrowOptions = {
-    iconSmall: TUI_ARROW_ICON_SMALL,
-    iconLarge: TUI_ARROW_ICON_LARGE,
+    iconSmall: `tuiIconChevronDown`,
+    iconLarge: `tuiIconChevronDownLarge`,
 };
 
 export const TUI_ARROW_OPTIONS = new InjectionToken<TuiArrowOptions>(
-    'Default parameters for arrow component',
+    `[TUI_ARROW_OPTIONS]: Default parameters for arrow component`,
     {
         factory: () => TUI_ARROW_DEFAULT_OPTIONS,
     },
@@ -36,15 +34,15 @@ export const tuiArrowOptionsProvider: (
 
 export interface TuiArrowMode {
     readonly interactive: PolymorpheusContent<
-        TuiContextWithImplicit<TuiSizeS | TuiSizeM | TuiSizeL>
+        TuiContextWithImplicit<TuiSizeL | TuiSizeM | TuiSizeS>
     >;
     readonly disabled: PolymorpheusContent<
-        TuiContextWithImplicit<TuiSizeS | TuiSizeM | TuiSizeL>
+        TuiContextWithImplicit<TuiSizeL | TuiSizeM | TuiSizeS>
     >;
 }
 
 export const TUI_ARROW_MODE: InjectionToken<TuiArrowMode> = new InjectionToken(
-    'Type of icon in dropdowns for interactive or disable mode',
+    `[TUI_ARROW_MODE]: Type of icon in dropdowns for interactive or disable mode`,
     {
         factory: () => ({
             interactive: TUI_ARROW,

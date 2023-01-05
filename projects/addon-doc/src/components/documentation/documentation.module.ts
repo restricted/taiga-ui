@@ -2,11 +2,11 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
+import {TuiFilterPipeModule} from '@taiga-ui/cdk';
 import {
     TuiDataListModule,
-    TuiDropdownControllerModule,
+    TuiDropdownModule,
     TuiGroupModule,
-    TuiHintControllerModule,
     TuiLinkModule,
     TuiModeModule,
     TuiNotificationModule,
@@ -25,6 +25,14 @@ import {
 import {TuiInputOpacityModule} from '../../internal/input-opacity/input-opacity.module';
 import {TuiDocDocumentationComponent} from './documentation.component';
 import {TuiDocDocumentationPropertyConnectorDirective} from './documentation-property-connector.directive';
+import {TuiShowCleanerPipe} from './pipes/cleaner.pipe';
+import {TuiShowContentTooltip} from './pipes/content-tooltip.pipe';
+import {TuiInspectPipe} from './pipes/inspect.pipe';
+import {TuiGetOpacityPipe} from './pipes/opacity.pipe';
+import {TuiIsOptionalPipe} from './pipes/optional.pipe';
+import {TuiIsPrimitivePolymorpheusContentPipe} from './pipes/primitive-polymorpheus-content.pipe';
+import {TuiStripOptionalPipe} from './pipes/strip-optional.pipe';
+import {TuiGetColorPipe} from './pipes/сolor.pipe';
 
 @NgModule({
     imports: [
@@ -42,14 +50,22 @@ import {TuiDocDocumentationPropertyConnectorDirective} from './documentation-pro
         TuiInputOpacityModule,
         TuiPrimitiveTextfieldModule,
         TuiTextfieldControllerModule,
-        TuiHintControllerModule,
-        TuiDropdownControllerModule,
+        TuiDropdownModule,
         TuiDataListModule,
         TuiDataListWrapperModule,
         TuiNotificationModule,
+        TuiFilterPipeModule,
     ],
     declarations: [
+        TuiInspectPipe,
+        TuiGetColorPipe,
+        TuiGetOpacityPipe,
+        TuiIsOptionalPipe,
+        TuiShowCleanerPipe,
+        TuiStripOptionalPipe,
+        TuiShowContentTooltip,
         TuiDocDocumentationComponent,
+        TuiIsPrimitivePolymorpheusContentPipe,
         TuiDocDocumentationPropertyConnectorDirective,
     ],
     exports: [

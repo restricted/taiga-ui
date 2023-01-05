@@ -1,18 +1,17 @@
-import {Directive, ElementRef, Inject, Input, NgZone} from '@angular/core';
+import {Directive, ElementRef, Inject, Input, NgZone, Self} from '@angular/core';
 import {ANIMATION_FRAME, PERFORMANCE} from '@ng-web-apis/common';
-import {describeSector} from '@taiga-ui/addon-charts/utils';
+import {tuiDescribeSector} from '@taiga-ui/addon-charts/utils';
 import {
-    clamp,
-    easeInOutQuad,
+    tuiClamp,
     tuiDefaultProp,
     TuiDestroyService,
+    tuiEaseInOutQuad,
     tuiZonefree,
 } from '@taiga-ui/cdk';
 import {TUI_ANIMATIONS_DURATION} from '@taiga-ui/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {map, pairwise, switchMap, takeUntil, takeWhile} from 'rxjs/operators';
 
-// @dynamic
 @Directive({
     selector: 'path[tuiPieChart]',
     providers: [TuiDestroyService],
@@ -29,7 +28,7 @@ export class TuiPieChartDirective {
     constructor(
         @Inject(ElementRef) {nativeElement}: ElementRef<SVGPathElement>,
         @Inject(NgZone) ngZone: NgZone,
-        @Inject(TuiDestroyService) destroy$: Observable<unknown>,
+        @Self() @Inject(TuiDestroyService) destroy$: Observable<unknown>,
         @Inject(PERFORMANCE) performance: Performance,
         @Inject(ANIMATION_FRAME) animationFrame$: Observable<number>,
         @Inject(TUI_ANIMATIONS_DURATION) duration: number,
@@ -44,7 +43,9 @@ export class TuiPieChartDirective {
 
                     return animationFrame$.pipe(
                         map(timestamp =>
-                            easeInOutQuad(clamp((timestamp - now) / duration, 0, 1)),
+                            tuiEaseInOutQuad(
+                                tuiClamp((timestamp - now) / duration, 0, 1),
+                            ),
                         ),
                         takeWhile(progress => progress < 1, true),
                         map(progress => [
@@ -57,7 +58,7 @@ export class TuiPieChartDirective {
                 takeUntil(destroy$),
             )
             .subscribe(([start, end]) => {
-                nativeElement.setAttribute('d', describeSector(start, end));
+                nativeElement.setAttribute('d', tuiDescribeSector(start, end));
             });
     }
 }

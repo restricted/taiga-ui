@@ -8,26 +8,24 @@ import {combineLatest, Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 export const TUI_DIALOG_CLOSES_ON_BACK = new InjectionToken<Observable<boolean>>(
-    'Is closing dialog on browser backward navigation enabled',
+    '[TUI_DIALOG_CLOSES_ON_BACK]: Is closing dialog on browser backward navigation enabled',
     {
         factory: () => of(false),
     },
 );
 
-// TODO: 3.0 remove in ivy compilation
-export const FAKE_HISTORY_STATE = {label: 'ignoreMe'} as const;
-// TODO: 3.0 remove in ivy compilation
-export const isFakeHistoryState = (
+const FAKE_HISTORY_STATE = {label: 'ignoreMe'} as const;
+const isFakeHistoryState = (
     historyState: Record<string, unknown>,
 ): historyState is typeof FAKE_HISTORY_STATE =>
     historyState?.label === FAKE_HISTORY_STATE.label;
 
-// @dynamic
 @Component({
     selector: 'tui-dialog-host',
     templateUrl: './dialog-host.template.html',
     styleUrls: ['./dialog-host.style.less'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    // So that we do not force OnPush on custom dialogs
+    changeDetection: ChangeDetectionStrategy.Default,
     animations: [TUI_PARENT_ANIMATION],
 })
 export class TuiDialogHostComponent<T extends TuiDialog<unknown, unknown>> {

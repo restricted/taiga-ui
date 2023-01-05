@@ -4,13 +4,13 @@ import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {TuiCardModule, TuiMoneyModule} from '@taiga-ui/addon-commerce';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {TuiAutoFocusModule, TuiLetModule, TuiMapperPipeModule} from '@taiga-ui/cdk';
 import {
     TuiButtonModule,
     TuiDataListModule,
-    TuiDropdownControllerModule,
-    TuiHintControllerModule,
+    TuiDropdownModule,
+    TuiHintModule,
     TuiLabelModule,
     TuiLinkModule,
     TuiLoaderModule,
@@ -42,6 +42,7 @@ import {TuiSelectExample8} from './examples/8';
 import {TuiSelectExample9} from './examples/9';
 import {ExampleMyAccountComponent} from './examples/9/account/my-account.component';
 import {TuiSelectExample10} from './examples/10';
+import {TuiSelectExample11} from './examples/11';
 import {ExampleTuiSelectComponent} from './select.component';
 
 @NgModule({
@@ -62,9 +63,9 @@ import {ExampleTuiSelectComponent} from './select.component';
         TuiMoneyModule,
         TuiAvatarModule,
         TuiSvgModule,
-        TuiDropdownControllerModule,
+        TuiDropdownModule,
         TuiTextfieldControllerModule,
-        TuiHintControllerModule,
+        TuiHintModule,
         TuiAutoFocusModule,
         TuiLetModule,
         TuiLoaderModule,
@@ -76,7 +77,7 @@ import {ExampleTuiSelectComponent} from './select.component';
         TuiAddonDocModule,
         TuiMarkerIconModule,
         TuiMapperPipeModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiSelectComponent)),
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTuiSelectComponent)),
     ],
     declarations: [
         ExampleTuiSelectComponent,
@@ -91,6 +92,7 @@ import {ExampleTuiSelectComponent} from './select.component';
         TuiSelectExample8,
         TuiSelectExample9,
         TuiSelectExample10,
+        TuiSelectExample11,
     ],
     exports: [ExampleTuiSelectComponent],
 })

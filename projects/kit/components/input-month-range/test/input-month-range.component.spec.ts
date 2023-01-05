@@ -3,12 +3,10 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {TuiMonth, TuiMonthRange} from '@taiga-ui/cdk';
+import {TuiInputMonthRangeComponent, TuiInputMonthRangeModule} from '@taiga-ui/kit';
 import {configureTestSuite} from '@taiga-ui/testing';
 
-import {TuiInputMonthRangeComponent} from '../input-month-range.component';
-import {TuiInputMonthRangeModule} from '../input-month-range.module';
-
-describe('InputMonthRange', () => {
+describe(`InputMonthRange`, () => {
     @Component({
         template: `
             <tui-input-month-range [formControl]="control"></tui-input-month-range>
@@ -43,24 +41,24 @@ describe('InputMonthRange', () => {
         fixture.detectChanges();
     });
 
-    describe('computedValue', () => {
-        it('returns empty string if no value', () => {
+    describe(`computedValue`, () => {
+        it(`returns empty string if no value`, () => {
             testComponent.control.setValue(null);
 
-            expect(component.nativeFocusableElement!.value).toBe('');
+            expect(component.nativeFocusableElement?.value).toBe(``);
         });
 
-        it('returns a half of stringified range if single month', () => {
+        it(`returns a half of stringified range if single month`, () => {
             const testMonth = new TuiMonth(2020, 4);
             const testRange = new TuiMonthRange(testMonth, testMonth);
 
-            component.nativeFocusableElement!.focus();
+            component.nativeFocusableElement?.focus();
             component.writeValue(testRange);
 
-            expect(component.computeValue('May 2020', 'May 2020')).toBe(`May 2020 — `);
+            expect(component.computeValue(`May 2020`, `May 2020`)).toBe(`May 2020 – `);
         });
 
-        it('returns a full of stringified range if single month and readonly state', () => {
+        it(`returns a full of stringified range if single month and readonly state`, () => {
             const testMonth = new TuiMonth(2020, 4);
             const testRange = new TuiMonthRange(testMonth, testMonth);
 
@@ -68,46 +66,46 @@ describe('InputMonthRange', () => {
             component.nativeFocusableElement?.focus();
             component.writeValue(testRange);
 
-            expect(component.computeValue('May 2020', 'May 2020')).toBe(
-                `May 2020 — May 2020`,
+            expect(component.computeValue(`May 2020`, `May 2020`)).toBe(
+                `May 2020 – May 2020`,
             );
         });
 
-        it('returns the whole stringified range if there is', () => {
+        it(`returns the whole stringified range if there is`, () => {
             const testMonth = new TuiMonth(2020, 4);
             const testRange = new TuiMonthRange(testMonth, testMonth.append({month: 2}));
 
-            component.nativeFocusableElement!.focus();
+            component.nativeFocusableElement?.focus();
             component.writeValue(testRange);
 
-            expect(component.computeValue('May 2020', 'July 2020')).toBe(
-                `May 2020 — July 2020`,
+            expect(component.computeValue(`May 2020`, `July 2020`)).toBe(
+                `May 2020 – July 2020`,
             );
         });
 
-        it('returns the whole stringified range of single month if there is no focus on input', () => {
+        it(`returns the whole stringified range of single month if there is no focus on input`, () => {
             const testMonth = new TuiMonth(2020, 4);
             const testRange = new TuiMonthRange(testMonth, testMonth);
 
             component.writeValue(testRange);
 
-            expect(component.computeValue('May 2020', 'May 2020')).toBe(
-                `May 2020 — May 2020`,
+            expect(component.computeValue(`May 2020`, `May 2020`)).toBe(
+                `May 2020 – May 2020`,
             );
         });
     });
 
-    describe('onMonthClick', () => {
-        it('creates a new single month range if there is no value', () => {
+    describe(`onMonthClick`, () => {
+        it(`creates a new single month range if there is no value`, () => {
             const newMonth = new TuiMonth(2020, 5);
 
             component.onMonthClick(newMonth);
 
-            expect(component.value!.from.month).toBe(newMonth.month);
-            expect(component.value!.to.month).toBe(newMonth.month);
+            expect(component.value?.from.month).toBe(newMonth.month);
+            expect(component.value?.to.month).toBe(newMonth.month);
         });
 
-        it('creates a new single month range if there is a range value', () => {
+        it(`creates a new single month range if there is a range value`, () => {
             const previousRange = new TuiMonthRange(
                 new TuiMonth(2020, 2),
                 new TuiMonth(2020, 3),
@@ -118,23 +116,23 @@ describe('InputMonthRange', () => {
 
             component.onMonthClick(newMonth);
 
-            expect(component.value!.from.month).toBe(newMonth.month);
-            expect(component.value!.to.month).toBe(newMonth.month);
+            expect(component.value?.from.month).toBe(newMonth.month);
+            expect(component.value?.to.month).toBe(newMonth.month);
         });
 
-        it('update value and sort it if it can be a new range', () => {
+        it(`update value and sort it if it can be a new range`, () => {
             const newMonthStart = new TuiMonth(2020, 5);
             const newMonthEnd = new TuiMonth(2020, 7);
 
             component.onMonthClick(newMonthStart);
             component.onMonthClick(newMonthEnd);
 
-            expect(component.value!.from.month).toBe(newMonthStart.month);
-            expect(component.value!.to.month).toBe(newMonthEnd.month);
+            expect(component.value?.from.month).toBe(newMonthStart.month);
+            expect(component.value?.to.month).toBe(newMonthEnd.month);
         });
 
-        it('empty value opens dropdown', () => {
-            component.onValueChange('');
+        it(`empty value opens dropdown`, () => {
+            component.onValueChange(``);
             fixture.detectChanges();
             expect(component.open).toEqual(true);
         });

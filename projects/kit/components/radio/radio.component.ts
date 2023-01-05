@@ -4,7 +4,6 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
-    forwardRef,
     HostBinding,
     Inject,
     Input,
@@ -15,12 +14,13 @@ import {
 import {NgControl} from '@angular/forms';
 import {
     AbstractTuiNullableControl,
-    isNativeFocused,
     TUI_DEFAULT_IDENTITY_MATCHER,
-    TUI_FOCUSABLE_ITEM_ACCESSOR,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
     TuiIdentityMatcher,
+    tuiIsNativeFocused,
     TuiNativeFocusableElement,
 } from '@taiga-ui/cdk';
 import {TUI_ANIMATION_OPTIONS, tuiScaleIn, TuiSizeL} from '@taiga-ui/core';
@@ -28,17 +28,14 @@ import {TuiRadioGroupComponent} from '@taiga-ui/kit/components/radio-group';
 
 import {TUI_RADIO_OPTIONS, TuiRadioOptions} from './radio-options';
 
-// @dynamic
 @Component({
     selector: 'tui-radio',
     templateUrl: './radio.template.html',
     styleUrls: ['./radio.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
-        {
-            provide: TUI_FOCUSABLE_ITEM_ACCESSOR,
-            useExisting: forwardRef(() => TuiRadioComponent),
-        },
+        tuiAsFocusableItemAccessor(TuiRadioComponent),
+        tuiAsControl(TuiRadioComponent),
     ],
     animations: [tuiScaleIn],
 })
@@ -95,7 +92,7 @@ export class TuiRadioComponent<T>
     }
 
     @HostBinding('class._disabled')
-    get computedDisabled(): boolean {
+    override get computedDisabled(): boolean {
         return this.disabled || this.pseudoDisabled;
     }
 
@@ -106,7 +103,7 @@ export class TuiRadioComponent<T>
     }
 
     get focused(): boolean {
-        return isNativeFocused(this.nativeFocusableElement);
+        return tuiIsNativeFocused(this.nativeFocusableElement);
     }
 
     get checked(): boolean {
@@ -117,7 +114,7 @@ export class TuiRadioComponent<T>
                   this.identityMatcher(this.value, this.item);
     }
 
-    get computedName(): string {
+    override get computedName(): string {
         return this.name || this.radioGroupName || this.controlName || '';
     }
 
@@ -133,14 +130,6 @@ export class TuiRadioComponent<T>
 
     onFocused(focused: boolean): void {
         this.updateFocused(focused);
-    }
-
-    onHovered(hovered: boolean): void {
-        this.updateHovered(hovered);
-    }
-
-    onPressed(pressed: boolean): void {
-        this.updatePressed(pressed);
     }
 
     onFocusVisible(focusVisible: boolean): void {

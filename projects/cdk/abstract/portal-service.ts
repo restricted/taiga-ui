@@ -1,13 +1,9 @@
-import {
-    ComponentFactory,
-    ComponentRef,
-    EmbeddedViewRef,
-    Injectable,
-    Injector,
-    TemplateRef,
-} from '@angular/core';
+import {ComponentRef, EmbeddedViewRef, Injectable, TemplateRef} from '@angular/core';
 import {TuiNoHostException} from '@taiga-ui/cdk/exceptions';
+import {PolymorpheusComponent} from '@tinkoff/ng-polymorpheus';
 
+// TODO: find the best way for prevent cycle
+// eslint-disable-next-line import/no-cycle
 import {AbstractTuiPortalHostComponent} from './portal-host';
 
 /**
@@ -29,8 +25,8 @@ export abstract class AbstractTuiPortalService {
         this.host = host;
     }
 
-    add<C>(componentFactory: ComponentFactory<C>, injector: Injector): ComponentRef<C> {
-        return this.safeHost.addComponentChild(componentFactory, injector);
+    add<C>(component: PolymorpheusComponent<C, any>): ComponentRef<C> {
+        return this.safeHost.addComponentChild(component);
     }
 
     remove<C>({hostView}: ComponentRef<C>): void {

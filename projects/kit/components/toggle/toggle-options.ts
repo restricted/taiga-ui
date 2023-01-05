@@ -13,29 +13,23 @@ export interface TuiToggleOptions {
     readonly size: TuiSizeL;
 }
 
-/**
- * @deprecated: use TuiToggleOptions instead
- * todo: remove in 3.0
- */
-export type ToggleOptions = TuiToggleOptions;
-
 /** Default values for the toggle options. */
 export const TUI_TOGGLE_DEFAULT_OPTIONS: TuiToggleOptions = {
     icons: {
         toggleOff({$implicit}: TuiContextWithImplicit<TuiSizeL>): string {
-            return $implicit === 'm' ? 'tuiIconToggleOff' : 'tuiIconToggleOffLarge';
+            return $implicit === `m` ? `tuiIconToggleOff` : `tuiIconToggleOffLarge`;
         },
         toggleOn({$implicit}: TuiContextWithImplicit<TuiSizeL>): string {
-            return $implicit === 'm' ? 'tuiIconToggleOn' : 'tuiIconToggleOnLarge';
+            return $implicit === `m` ? `tuiIconToggleOn` : `tuiIconToggleOnLarge`;
         },
     },
     singleColor: false,
     showIcons: false,
-    size: 'm',
+    size: `m`,
 };
 
 export const TUI_TOGGLE_OPTIONS = new InjectionToken<TuiToggleOptions>(
-    'Default parameters for toggle component',
+    `[TUI_TOGGLE_OPTIONS]: Default parameters for toggle component`,
     {
         factory: () => TUI_TOGGLE_DEFAULT_OPTIONS,
     },

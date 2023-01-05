@@ -1,12 +1,9 @@
 <tui-primitive-textfield
     tuiValueAccessor
-    tuiTextfieldAutocomplete="off"
-    tuiTextfieldInputMode="numeric"
-    class="textfield"
-    [tuiTextfieldMaxLength]="18"
-    [pseudoFocused]="pseudoFocused"
-    [pseudoHovered]="pseudoHovered"
-    [pseudoPressed]="pseudoPressed"
+    class="t-textfield"
+    [pseudoFocus]="pseudoFocus"
+    [pseudoHover]="pseudoHover"
+    [pseudoActive]="pseudoActive"
     [focusable]="focusable"
     [nativeId]="nativeId"
     [prefix]="prefix"
@@ -19,8 +16,6 @@
     (valueChange)="onValueChange()"
     (keydown)="onKeydown($event)"
     (focusedChange)="onFocused($event)"
-    (hoveredChange)="onHovered($event)"
-    (pressedChange)="onPressed($event)"
 >
     <ng-content></ng-content>
     <ng-content
@@ -30,13 +25,13 @@
 </tui-primitive-textfield>
 <ng-container *ngIf="!buttonsHidden">
     <ng-container *ngIf="minusTexts$ | async as texts">
-        <section class="buttons">
+        <section class="t-buttons">
             <button
                 tuiIconButton
                 type="button"
                 automation-id="tui-input-count__plus-button"
                 size="s"
-                class="button button_plus"
+                class="t-button t-button_plus"
                 [icon]="iconUp"
                 [appearance]="options.appearance"
                 [title]="texts[0]"
@@ -50,7 +45,7 @@
                 type="button"
                 automation-id="tui-input-count__minus-button"
                 size="s"
-                class="button button_minus"
+                class="t-button t-button_minus"
                 [icon]="iconDown"
                 [appearance]="options.appearance"
                 [disabled]="minusButtonDisabled"

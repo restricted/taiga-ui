@@ -3,7 +3,6 @@ import {
     Component,
     ElementRef,
     EventEmitter,
-    forwardRef,
     Inject,
     Input,
     Optional,
@@ -13,14 +12,14 @@ import {
 } from '@angular/core';
 import {
     AbstractTuiInteractive,
-    clamp,
     EMPTY_QUERY,
-    isNativeFocusedIn,
-    setNativeFocused,
     TUI_FOCUSABLE_ITEM_ACCESSOR,
+    tuiAsFocusableItemAccessor,
+    tuiClamp,
     TuiContextWithImplicit,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
+    tuiIsNativeFocusedIn,
     TuiNativeFocusableElement,
 } from '@taiga-ui/cdk';
 import {
@@ -32,29 +31,19 @@ import {
     TuiSizeS,
 } from '@taiga-ui/core';
 import {TUI_PAGINATION_TEXTS} from '@taiga-ui/kit/tokens';
-import {horizontalDirectionToNumber} from '@taiga-ui/kit/utils/math';
+import {tuiHorizontalDirectionToNumber} from '@taiga-ui/kit/utils/math';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
 
 const DOTS_LENGTH = 1;
 const ACTIVE_ITEM_LENGTH = 1;
 
-export function nonNegativeInteger(length: number): boolean {
-    return Number.isInteger(length) && length >= 0;
-}
-
-// @dynamic
 @Component({
     selector: 'tui-pagination',
     templateUrl: './pagination.template.html',
     styleUrls: ['./pagination.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [
-        {
-            provide: TUI_FOCUSABLE_ITEM_ACCESSOR,
-            useExisting: forwardRef(() => TuiPaginationComponent),
-        },
-    ],
+    providers: [tuiAsFocusableItemAccessor(TuiPaginationComponent)],
 })
 export class TuiPaginationComponent
     extends AbstractTuiInteractive
@@ -144,7 +133,7 @@ export class TuiPaginationComponent
     }
 
     get focused(): boolean {
-        return isNativeFocusedIn(this.elementRef.nativeElement);
+        return tuiIsNativeFocusedIn(this.elementRef.nativeElement);
     }
 
     /**
@@ -172,10 +161,6 @@ export class TuiPaginationComponent
 
     elementIsFocusable(index: number): boolean {
         return this.index === index && !this.focused;
-    }
-
-    getItemContext(index: number): TuiContextWithImplicit<number> {
-        return {$implicit: index};
     }
 
     /**
@@ -211,7 +196,11 @@ export class TuiPaginationComponent
 
         const computedIndex = this.index - this.maxHalfLength + elementIndex;
 
-        return clamp(computedIndex, elementIndex, this.lastIndex - reverseElementIndex);
+        return tuiClamp(
+            computedIndex,
+            elementIndex,
+            this.lastIndex - reverseElementIndex,
+        );
     }
 
     getElementMode(index: number): TuiAppearance {
@@ -237,8 +226,8 @@ export class TuiPaginationComponent
             (_, index, array) => array[index + 1] === element,
         );
 
-        if (previous && previous.nativeFocusableElement) {
-            setNativeFocused(previous.nativeFocusableElement);
+        if (previous?.nativeFocusableElement) {
+            previous.nativeFocusableElement.focus();
         }
     }
 
@@ -251,8 +240,8 @@ export class TuiPaginationComponent
             (_, index, array) => array[index - 1] === element,
         );
 
-        if (next && next.nativeFocusableElement) {
-            setNativeFocused(next.nativeFocusableElement);
+        if (next?.nativeFocusableElement) {
+            next.nativeFocusableElement.focus();
         }
     }
 
@@ -312,7 +301,11 @@ export class TuiPaginationComponent
 
     private tryChangeTo(direction: TuiHorizontalDirection): void {
         this.updateIndex(
-            clamp(this.index + horizontalDirectionToNumber(direction), 0, this.lastIndex),
+            tuiClamp(
+                this.index + tuiHorizontalDirectionToNumber(direction),
+                0,
+                this.lastIndex,
+            ),
         );
     }
 
@@ -320,7 +313,7 @@ export class TuiPaginationComponent
         const {nativeFocusableElement} = this;
 
         if (nativeFocusableElement) {
-            setNativeFocused(nativeFocusableElement);
+            nativeFocusableElement.focus();
         }
     }
 
@@ -332,4 +325,8 @@ export class TuiPaginationComponent
         this.index = index;
         this.indexChange.emit(index);
     }
+}
+
+function nonNegativeInteger(length: number): boolean {
+    return Number.isInteger(length) && length >= 0;
 }

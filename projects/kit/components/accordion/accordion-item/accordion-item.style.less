@@ -13,13 +13,9 @@
     }
 }
 
-.wrapper {
+.t-wrapper {
     position: relative;
     border-radius: inherit;
-
-    &:focus {
-        outline: none;
-    }
 
     &:after {
         .fullsize();
@@ -72,9 +68,11 @@
     }
 }
 
-.header {
+.t-header {
+    .clearbtn();
     .transition(background);
     display: flex;
+    width: 100%;
     font: var(--tui-font-text-l);
     align-items: center;
     box-sizing: border-box;
@@ -83,6 +81,8 @@
     padding: 0.75rem 1.25rem;
     color: var(--tui-text-01);
     cursor: pointer;
+    text-align: left;
+    outline: none;
 
     :host[data-mode='onDark'] & {
         color: var(--tui-text-01-night);
@@ -102,16 +102,10 @@
         padding-right: 0.75rem;
     }
 
-    :host:hover:not([data-mode]) & {
-        background: var(--tui-base-02);
-    }
-
-    :host:hover[data-mode='onDark'] &,
     :host[data-mode='onDark'] &_open {
         background: var(--tui-clear-inverse);
     }
 
-    :host:hover[data-mode='onLight'] &,
     :host[data-mode='onLight'] &_open {
         background: var(--tui-clear);
     }
@@ -130,9 +124,23 @@
     :host._disabled & {
         cursor: default;
     }
+
+    &_hoverable {
+        :host:hover:not([data-mode]) & {
+            background: var(--tui-base-02);
+        }
+
+        :host:hover[data-mode='onDark'] & {
+            background: var(--tui-clear-inverse);
+        }
+
+        :host:hover[data-mode='onLight'] & {
+            background: var(--tui-clear);
+        }
+    }
 }
 
-.title {
+.t-title {
     .text-overflow();
     margin-right: 0;
     flex-grow: 1;
@@ -142,7 +150,7 @@
     }
 }
 
-.icon {
+.t-icon {
     .transition(~'transform, color');
     width: 1.5rem;
     height: 1.5rem;
@@ -174,7 +182,7 @@
     }
 }
 
-.content {
+.t-content {
     font: var(--tui-font-text-m);
     padding: 1.25rem;
     word-wrap: break-word;

@@ -1,4 +1,4 @@
-import {DOCUMENT, isPlatformServer} from '@angular/common';
+import {isPlatformServer} from '@angular/common';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -6,14 +6,13 @@ import {
     Inject,
     OnInit,
     PLATFORM_ID,
+    Self,
 } from '@angular/core';
 import {SafeHtml} from '@angular/platform-browser';
 import {TuiDestroyService} from '@taiga-ui/cdk';
 import {TuiSvgService} from '@taiga-ui/core/services';
-import {innerHTML} from '@taiga-ui/core/utils/polyfills';
 import {takeUntil} from 'rxjs/operators';
 
-// @dynamic
 @Component({
     selector: 'tui-svg-defs-host',
     templateUrl: './svg-defs-host.template.html',
@@ -26,15 +25,14 @@ export class TuiSvgDefsHostComponent implements OnInit {
     isBrowser = true;
 
     constructor(
-        @Inject(DOCUMENT) documentRef: Document,
         @Inject(TuiSvgService) private readonly svgService: TuiSvgService,
         @Inject(ChangeDetectorRef) private readonly changeDetectorRef: ChangeDetectorRef,
+        @Self()
         @Inject(TuiDestroyService)
         private readonly destroy$: TuiDestroyService,
         @Inject(PLATFORM_ID) platformId: Record<string, unknown>,
     ) {
         this.isBrowser = !isPlatformServer(platformId);
-        innerHTML(documentRef);
     }
 
     // @bad TODO: Looks like it could be async piped but it was probably written like that for a reason

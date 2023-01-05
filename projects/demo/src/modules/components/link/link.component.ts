@@ -1,17 +1,7 @@
 import {Component} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
+import {TuiDocExample} from '@taiga-ui/addon-doc';
 import {TuiHorizontalDirection} from '@taiga-ui/core';
-
-import {default as example1Html} from '!!raw-loader!./examples/1/index.html';
-import {default as example1Ts} from '!!raw-loader!./examples/1/index.ts';
-import {default as example2Html} from '!!raw-loader!./examples/2/index.html';
-import {default as example2Ts} from '!!raw-loader!./examples/2/index.ts';
-import {default as example3Html} from '!!raw-loader!./examples/3/index.html';
-import {default as example3Ts} from '!!raw-loader!./examples/3/index.ts';
-import {default as exampleModule} from '!!raw-loader!./examples/import/import-module.txt';
-import {default as exampleHtml} from '!!raw-loader!./examples/import/insert-template.txt';
-
-import {FrontEndExample} from '../../interfaces/front-end-example';
 
 @Component({
     selector: 'example-tui-link',
@@ -19,22 +9,28 @@ import {FrontEndExample} from '../../interfaces/front-end-example';
     changeDetection,
 })
 export class ExampleTuiLinkComponent {
-    readonly exampleModule = exampleModule;
-    readonly exampleHtml = exampleHtml;
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
 
-    readonly example1: FrontEndExample = {
-        TypeScript: example1Ts,
-        HTML: example1Html,
+    readonly example1: TuiDocExample = {
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
     };
 
-    readonly example2: FrontEndExample = {
-        TypeScript: example2Ts,
-        HTML: example2Html,
+    readonly example2: TuiDocExample = {
+        TypeScript: import('./examples/2/index.ts?raw'),
+        HTML: import('./examples/2/index.html?raw'),
     };
 
-    readonly example3: FrontEndExample = {
-        TypeScript: example3Ts,
-        HTML: example3Html,
+    readonly example3: TuiDocExample = {
+        TypeScript: import('./examples/3/index.ts?raw'),
+        HTML: import('./examples/3/index.html?raw'),
+    };
+
+    readonly example4: TuiDocExample = {
+        TypeScript: import('./examples/4/index.ts?raw'),
+        HTML: import('./examples/4/index.html?raw'),
+        LESS: import('./examples/4/index.less?raw'),
     };
 
     pseudo = false;
@@ -42,11 +38,11 @@ export class ExampleTuiLinkComponent {
 
     readonly modeValues = ['positive', 'negative'] as const;
 
-    mode: 'positive' | 'negative' | null = null;
+    mode: 'negative' | 'positive' | null = null;
 
     readonly iconAlignValues: readonly TuiHorizontalDirection[] = ['right', 'left'];
 
-    icon: string | null = null;
+    icon = '';
 
     readonly iconVariants = ['tuiIconStarLarge', 'tuiIconGeoLarge'];
 

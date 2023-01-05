@@ -19,24 +19,24 @@ import {ABSTRACT_PROPS_ACCESSOR} from '../abstract/inherited-documentation/abstr
     ],
 })
 export class ExampleTuiInputCountComponent extends AbstractExampleTuiControl {
-    readonly exampleForm = import('!!raw-loader!./examples/import/declare-form.txt');
-    readonly exampleModule = import('!!raw-loader!./examples/import/import-module.txt');
-    readonly exampleHtml = import('!!raw-loader!./examples/import/insert-template.txt');
-    readonly exampleOptions = import('!!raw-loader!./examples/import/define-options.txt');
+    readonly exampleForm = import('./examples/import/declare-form.md?raw');
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
+    readonly exampleOptions = import('./examples/import/define-options.md?raw');
 
     readonly example1: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/1/index.ts'),
-        HTML: import('!!raw-loader!./examples/1/index.html'),
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
     };
 
     readonly example2: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/2/index.ts'),
-        HTML: import('!!raw-loader!./examples/2/index.html'),
+        TypeScript: import('./examples/2/index.ts?raw'),
+        HTML: import('./examples/2/index.html?raw'),
     };
 
     readonly example3: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/3/index.ts'),
-        HTML: import('!!raw-loader!./examples/3/index.html'),
+        TypeScript: import('./examples/3/index.ts?raw'),
+        HTML: import('./examples/3/index.html?raw'),
     };
 
     min = 0;
@@ -46,15 +46,11 @@ export class ExampleTuiInputCountComponent extends AbstractExampleTuiControl {
 
     stepValues = [1, 2, 3, 4, 5];
 
-    readonly sizeVariants: readonly TuiSizeL[] = ['m', 'l'];
+    override readonly sizeVariants: readonly TuiSizeL[] = ['m', 'l'];
 
-    size: TuiSizeL = this.sizeVariants[1];
+    override size: TuiSizeL = this.sizeVariants[1];
 
     hideButtons = false;
 
     control = new FormControl();
-
-    prefix = '';
-
-    postfix = '';
 }

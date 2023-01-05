@@ -1,3 +1,3 @@
-export function capitalizeFirstLetter(value: string): string {
+export function tuiCapitalizeFirstLetter(value: string): string {
     return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }

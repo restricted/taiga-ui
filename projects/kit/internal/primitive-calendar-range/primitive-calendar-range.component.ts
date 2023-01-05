@@ -8,6 +8,7 @@ import {
     OnInit,
     Optional,
     Output,
+    Self,
 } from '@angular/core';
 import {
     ALWAYS_FALSE_HANDLER,
@@ -20,10 +21,10 @@ import {
     TuiDestroyService,
     TuiMapper,
     TuiMonth,
-    watch,
+    tuiWatch,
 } from '@taiga-ui/cdk';
 import {TUI_DEFAULT_MARKER_HANDLER, TuiMarkerHandler} from '@taiga-ui/core';
-import {TUI_CALENDAR_DATA_STREAM} from '@taiga-ui/kit/tokens';
+import {TUI_CALENDAR_DATE_STREAM} from '@taiga-ui/kit/tokens';
 import {Observable} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
@@ -75,18 +76,18 @@ export class TuiPrimitiveCalendarRangeComponent implements OnInit {
     userViewedMonthSecond: TuiMonth = this.defaultViewedMonthSecond;
 
     constructor(
-        @Inject(TUI_CALENDAR_DATA_STREAM)
+        @Inject(TUI_CALENDAR_DATE_STREAM)
         @Optional()
         valueChanges: Observable<TuiDayRange | null> | null,
         @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
-        @Inject(TuiDestroyService) destroy$: TuiDestroyService,
+        @Self() @Inject(TuiDestroyService) destroy$: TuiDestroyService,
     ) {
         if (!valueChanges) {
             return;
         }
 
         valueChanges
-            .pipe(watch(changeDetectorRef), takeUntil(destroy$))
+            .pipe(tuiWatch(changeDetectorRef), takeUntil(destroy$))
             .subscribe(value => {
                 this.value = value;
                 this.updateViewedMonths();
@@ -115,21 +116,15 @@ export class TuiPrimitiveCalendarRangeComponent implements OnInit {
     onSectionFirstViewedMonth(month: TuiMonth): void {
         this.userViewedMonthFirst = month;
 
-        if (this.userViewedMonthSecond.year < this.userViewedMonthFirst.year) {
-            this.userViewedMonthSecond = this.userViewedMonthSecond.append({
-                year: month.year - this.userViewedMonthSecond.year,
-            });
-        }
+        this.userViewedMonthSecond = this.userViewedMonthFirst.append({month: 1});
     }
 
     onSectionSecondViewedMonth(month: TuiMonth): void {
         this.userViewedMonthSecond = month;
 
-        if (this.userViewedMonthFirst.year > this.userViewedMonthSecond.year) {
-            this.userViewedMonthFirst = this.userViewedMonthFirst.append({
-                year: month.year - this.userViewedMonthFirst.year,
-            });
-        }
+        this.userViewedMonthFirst = this.userViewedMonthSecond.append({
+            month: -1,
+        });
     }
 
     onDayClick(day: TuiDay): void {
@@ -175,11 +170,7 @@ export class TuiPrimitiveCalendarRangeComponent implements OnInit {
     private updateViewedMonths(): void {
         this.userViewedMonthFirst =
             this.value === null ? this.defaultViewedMonthFirst : this.value.from;
-        this.userViewedMonthSecond =
-            this.value === null ? this.defaultViewedMonthSecond : this.value.to;
 
-        if (this.userViewedMonthFirst.monthSame(this.userViewedMonthSecond)) {
-            this.userViewedMonthSecond = this.userViewedMonthSecond.append({month: 1});
-        }
+        this.userViewedMonthSecond = this.userViewedMonthFirst.append({month: 1});
     }
 }

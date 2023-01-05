@@ -9,46 +9,41 @@ import {
     TUI_TEXTFIELD_APPEARANCE,
     TUI_TEXTFIELD_LABEL_OUTSIDE,
     TUI_TEXTFIELD_SIZE,
+    TuiAppearance,
 } from '@taiga-ui/core';
 import {TUI_INPUT_COUNT_OPTIONS, TuiInputCountOptions} from '@taiga-ui/kit';
 
+// TODO: find the best way for prevent cycle
+// eslint-disable-next-line import/no-cycle
 import {TuiTableDirective} from '../directives/table.directive';
 import {TUI_STUCK_PROVIDER} from './stuck.provider';
-
-// TODO: 3.0 remove in ivy compilation
-export const TABLE_THRESHOLD = [0, 1];
-export const TABLE_LABEL = {
-    labelOutside: true,
-};
-
-export function inputCountOptionsFactory(
-    options: TuiInputCountOptions,
-): TuiInputCountOptions {
-    return {...options, hideButtons: true};
-}
 
 export const TUI_TABLE_PROVIDERS = [
     {
         provide: INTERSECTION_ROOT_MARGIN,
-        useValue: '10000px 10000px 10000px 0px',
+        useValue: `10000px 10000px 10000px 0px`,
     },
     {
         provide: INTERSECTION_THRESHOLD,
-        useValue: TABLE_THRESHOLD,
+        useValue: [0, 1],
     },
     {
         provide: TUI_TEXTFIELD_APPEARANCE,
-        // TODO: 3.0 remove in ivy compilation
-        useValue: 'table', // TuiAppearance.Table
+        useValue: TuiAppearance.Table,
     },
     {
         provide: TUI_TEXTFIELD_LABEL_OUTSIDE,
-        useValue: TABLE_LABEL,
+        useValue: {
+            labelOutside: true,
+        },
     },
     {
         provide: TUI_INPUT_COUNT_OPTIONS,
         deps: [[new SkipSelf(), TUI_INPUT_COUNT_OPTIONS]],
-        useFactory: inputCountOptionsFactory,
+        useFactory: (options: TuiInputCountOptions): TuiInputCountOptions => ({
+            ...options,
+            hideButtons: true,
+        }),
     },
     {
         provide: TUI_TEXTFIELD_SIZE,

@@ -1,13 +1,9 @@
 import {ChangeDetectorRef, InjectionToken, Provider} from '@angular/core';
-import {TuiDestroyService, watch} from '@taiga-ui/cdk';
+import {TuiDestroyService, tuiWatch} from '@taiga-ui/cdk';
 import {merge, NEVER, Observable} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
 import {TuiTextfieldController} from './textfield.controller';
-import {
-    TUI_TEXTFIELD_AUTOCOMPLETE,
-    TuiTextfieldAutocompleteDirective,
-} from './textfield-autocomplete.directive';
 import {
     TUI_TEXTFIELD_CLEANER,
     TuiTextfieldCleanerDirective,
@@ -17,52 +13,33 @@ import {
     TuiTextfieldCustomContentDirective,
 } from './textfield-custom-content.directive';
 import {
-    TUI_TEXTFIELD_EXAMPLE_TEXT,
-    TuiTextfieldExampleTextDirective,
-} from './textfield-example-text.directive';
+    TUI_TEXTFIELD_FILLER,
+    TuiTextfieldFillerDirective,
+} from './textfield-filler.directive';
+import {TUI_TEXTFIELD_ICON, TuiTextfieldIconDirective} from './textfield-icon.directive';
 import {
-    TUI_TEXTFIELD_INPUT_MODE,
-    TuiTextfieldInputModeDirective,
-} from './textfield-input-mode.directive';
+    TUI_TEXTFIELD_ICON_LEFT,
+    TuiTextfieldIconLeftDirective,
+} from './textfield-icon-left.directive';
 import {
     TUI_TEXTFIELD_LABEL_OUTSIDE,
     TuiTextfieldLabelOutsideDirective,
 } from './textfield-label-outside.directive';
+import {TUI_TEXTFIELD_OPTIONS, TuiTextfieldOptions} from './textfield-options';
 import {
-    TUI_TEXTFIELD_MAX_LENGTH,
-    TuiTextfieldMaxLengthDirective,
-} from './textfield-max-length.directive';
+    TUI_TEXTFIELD_POSTFIX,
+    TuiTextfieldPostfixDirective,
+} from './textfield-postfix.directive';
+import {
+    TUI_TEXTFIELD_PREFIX,
+    TuiTextfieldPrefixDirective,
+} from './textfield-prefix.directive';
 import {TUI_TEXTFIELD_SIZE, TuiTextfieldSizeDirective} from './textfield-size.directive';
-import {TUI_TEXTFIELD_TYPE, TuiTextfieldTypeDirective} from './textfield-type.directive';
 
 export const TUI_TEXTFIELD_WATCHED_CONTROLLER =
-    new InjectionToken<TuiTextfieldController>('watched textfield controller');
-
-export function textfieldWatchedControllerFactory(
-    changeDetectorRef: ChangeDetectorRef,
-    destroy$: Observable<void>,
-    ...controllers: [
-        TuiTextfieldAutocompleteDirective,
-        TuiTextfieldCleanerDirective,
-        TuiTextfieldCustomContentDirective,
-        TuiTextfieldExampleTextDirective,
-        TuiTextfieldInputModeDirective,
-        TuiTextfieldLabelOutsideDirective,
-        TuiTextfieldMaxLengthDirective,
-        TuiTextfieldSizeDirective,
-        // @ts-ignore remove after TS update
-        TuiTextfieldTypeDirective,
-    ]
-): TuiTextfieldController {
-    const change$ = merge(...controllers.map(({change$}) => change$ || NEVER)).pipe(
-        watch(changeDetectorRef),
-        takeUntil(destroy$),
+    new InjectionToken<TuiTextfieldController>(
+        `[TUI_TEXTFIELD_WATCHED_CONTROLLER]: watched textfield controller`,
     );
-
-    change$.subscribe();
-
-    return new TuiTextfieldController(change$, ...controllers);
-}
 
 export const TEXTFIELD_CONTROLLER_PROVIDER: Provider = [
     TuiDestroyService,
@@ -71,16 +48,40 @@ export const TEXTFIELD_CONTROLLER_PROVIDER: Provider = [
         deps: [
             ChangeDetectorRef,
             TuiDestroyService,
-            TUI_TEXTFIELD_AUTOCOMPLETE,
+            TUI_TEXTFIELD_OPTIONS,
             TUI_TEXTFIELD_CLEANER,
             TUI_TEXTFIELD_CUSTOM_CONTENT,
-            TUI_TEXTFIELD_EXAMPLE_TEXT,
-            TUI_TEXTFIELD_INPUT_MODE,
+            TUI_TEXTFIELD_ICON,
+            TUI_TEXTFIELD_ICON_LEFT,
             TUI_TEXTFIELD_LABEL_OUTSIDE,
-            TUI_TEXTFIELD_MAX_LENGTH,
             TUI_TEXTFIELD_SIZE,
-            TUI_TEXTFIELD_TYPE,
+            TUI_TEXTFIELD_PREFIX,
+            TUI_TEXTFIELD_POSTFIX,
+            TUI_TEXTFIELD_FILLER,
         ],
-        useFactory: textfieldWatchedControllerFactory,
+        useFactory: (
+            changeDetectorRef: ChangeDetectorRef,
+            destroy$: Observable<void>,
+            options: TuiTextfieldOptions,
+            ...controllers: [
+                TuiTextfieldCleanerDirective,
+                TuiTextfieldCustomContentDirective,
+                TuiTextfieldIconDirective,
+                TuiTextfieldIconLeftDirective,
+                TuiTextfieldLabelOutsideDirective,
+                TuiTextfieldSizeDirective,
+                TuiTextfieldPrefixDirective,
+                TuiTextfieldPostfixDirective,
+                TuiTextfieldFillerDirective,
+            ]
+        ) => {
+            const change$ = merge(
+                ...controllers.map(({change$}) => change$ || NEVER),
+            ).pipe(tuiWatch(changeDetectorRef), takeUntil(destroy$));
+
+            change$.subscribe();
+
+            return new TuiTextfieldController(change$, options, ...controllers);
+        },
     },
 ];

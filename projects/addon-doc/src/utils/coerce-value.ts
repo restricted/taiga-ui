@@ -1,11 +1,17 @@
-export function coerceValue<T>(value?: T): T | number | string | boolean | null | object {
+export function tuiCoerceValue<T>(
+    value?: T,
+): Record<string, any> | T | boolean | number | string | null {
     const prepared = String(value).trim();
 
     if (isEmptyParamValue(prepared)) {
         return null;
-    } else if (isBooleanParamValue(prepared)) {
-        return String(prepared) === 'true';
-    } else if (isNumberParamValue(prepared)) {
+    }
+
+    if (isBooleanParamValue(prepared)) {
+        return String(prepared) === `true`;
+    }
+
+    if (isNumberParamValue(prepared)) {
         return Number(prepared);
     }
 
@@ -21,21 +27,23 @@ export function coerceValue<T>(value?: T): T | number | string | boolean | null 
 }
 
 function isEmptyParamValue(value: string): boolean {
-    return ['undefined', 'null', 'NaN', 'Infinity'].includes(value);
+    return [`undefined`, `null`, `NaN`, `Infinity`].includes(value);
 }
 
 function isBooleanParamValue(value: string): boolean {
-    return value === 'true' || value === 'false';
+    return value === `true` || value === `false`;
 }
 
 function isNumberParamValue(value: string): boolean {
+    // TODO: investigate to disallow potentially catastrophic exponential-time regular expressions.
+    // eslint-disable-next-line unicorn/no-unsafe-regex
     return /^-?[\d.]+(?:e-?\d+)?$/.test(value);
 }
 
 function isPossibleArray(value: string): boolean {
-    return value.startsWith('[') && value.endsWith(']');
+    return value.startsWith(`[`) && value.endsWith(`]`);
 }
 
 function isPossibleObject(value: string): boolean {
-    return value.startsWith('{') && value.endsWith('}');
+    return value.startsWith(`{`) && value.endsWith(`}`);
 }

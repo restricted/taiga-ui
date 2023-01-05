@@ -7,10 +7,7 @@
         i18n
         pageTab
     >
-        <p>
-            This module allows you to create various tables, both static and
-            editable.
-        </p>
+        <p>This module allows you to create various tables, both static and editable.</p>
 
         <tui-doc-example
             id="basic"
@@ -54,8 +51,33 @@
             i18n-heading
             heading="Virtual scroll"
             [content]="example5"
+            [description]="cdkVirtualScrollDescription"
         >
+            <ng-template #cdkVirtualScrollDescription>
+                You can use
+                <code>Table</code>
+                with
+                <code>ScrollingModule</code>
+                from
+                <a
+                    tuiLink
+                    href="https://material.angular.io/cdk/scrolling/overview"
+                    target="_blank"
+                >
+                    @angular/cdk/scrolling
+                </a>
+                .
+            </ng-template>
             <tui-table-example-5></tui-table-example-5>
+        </tui-doc-example>
+
+        <tui-doc-example
+            id="dynamic"
+            i18n-heading
+            heading="Dynamic columns"
+            [content]="example6"
+        >
+            <tui-table-example-6></tui-table-example-6>
         </tui-doc-example>
     </ng-template>
 
@@ -116,13 +138,11 @@
                     <p>
                         Used inside
                         <code>thead</code>
-                        to layout headings for the columns. You can have
-                        multiple rows and use
+                        to layout headings for the columns. You can have multiple rows and use
                         <code>rowSpan</code>
                         on
                         <code>th</code>
-                        elements if you want to create some complex heading for
-                        your table.
+                        elements if you want to create some complex heading for your table.
                     </p>
 
                     <hr />
@@ -183,8 +203,7 @@
                             documentationPropertyMode="input"
                             documentationPropertyType="PolymorpheusContent"
                         >
-                            Optional heading content for the group that makes it
-                            collapsable
+                            Optional heading content for the group that makes it collapsable
                         </ng-template>
                         <ng-template
                             i18n
@@ -233,14 +252,6 @@
                         <code>tr</code>
                         element inside
                         <code>thead</code>
-                    </p>
-
-                    <hr />
-
-                    <h2>*tuiRow="let item of data"</h2>
-                    <p>
-                        Used to define template for a
-                        <em>row</em>
                     </p>
 
                     <hr />

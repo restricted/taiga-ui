@@ -1,10 +1,10 @@
-import {getAcceptArray} from '../get-accept-array';
+import {tuiGetAcceptArray} from '@taiga-ui/kit';
 
-describe('Accept array', () => {
-    it('returns array of formats', () => {
-        expect(getAcceptArray('image/*,application/pdf')).toEqual([
-            'image/*',
-            'application/pdf',
+describe(`Accept array`, () => {
+    it(`returns array of formats`, () => {
+        expect(tuiGetAcceptArray(`image/*,application/pdf`)).toEqual([
+            `image/*`,
+            `application/pdf`,
         ]);
     });
 });

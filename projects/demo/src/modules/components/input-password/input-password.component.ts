@@ -19,32 +19,32 @@ import {ABSTRACT_PROPS_ACCESSOR} from '../abstract/inherited-documentation/abstr
     ],
 })
 export class ExampleTuiInputPasswordComponent extends AbstractExampleTuiControl {
-    readonly exampleForm = import('!!raw-loader!./examples/import/declare-form.txt');
-    readonly exampleModule = import('!!raw-loader!./examples/import/import-module.txt');
-    readonly exampleHtml = import('!!raw-loader!./examples/import/insert-template.txt');
-    readonly exampleOptions = import('!!raw-loader!./examples/import/define-options.txt');
+    readonly exampleForm = import('./examples/import/declare-form.md?raw');
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
+    readonly exampleOptions = import('./examples/import/define-options.md?raw');
 
     readonly example1: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/1/index.ts'),
-        HTML: import('!!raw-loader!./examples/1/index.html'),
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
     };
 
     readonly example2: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/2/index.ts'),
-        HTML: import('!!raw-loader!./examples/2/index.html'),
+        TypeScript: import('./examples/2/index.ts?raw'),
+        HTML: import('./examples/2/index.html?raw'),
     };
 
-    readonly maxLengthVariants: readonly number[] = [10];
+    override readonly maxLengthVariants: readonly number[] = [10];
 
-    autocompleteVariants: TuiAutofillFieldName[] = [
+    override autocompleteVariants: TuiAutofillFieldName[] = [
         'off',
         'new-password',
         'current-password',
     ];
 
-    autocomplete: TuiAutofillFieldName | '' = '';
+    override autocomplete: TuiAutofillFieldName | '' = '';
 
-    maxLength = null;
+    override maxLength = null;
 
     control = new FormControl('', Validators.required);
 }

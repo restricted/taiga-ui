@@ -6,7 +6,12 @@ import {
     QueryList,
     ViewChildren,
 } from '@angular/core';
-import {EMPTY_QUERY, isNativeFocused, isPresent, tuiDefaultProp} from '@taiga-ui/cdk';
+import {
+    EMPTY_QUERY,
+    tuiDefaultProp,
+    tuiIsNativeFocused,
+    tuiIsPresent,
+} from '@taiga-ui/cdk';
 import {
     TuiOptionComponent,
     TuiSizeL,
@@ -17,7 +22,7 @@ import {TuiItemsHandlers} from '@taiga-ui/kit/tokens';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
 @Directive()
-export abstract class AbstractDataListWrapper<T> {
+export abstract class AbstractTuiDataListWrapper<T> {
     @ViewChildren(forwardRef(() => TuiOptionComponent))
     protected readonly optionsQuery: QueryList<TuiOptionComponent<T>> = EMPTY_QUERY;
 
@@ -28,13 +33,16 @@ export abstract class AbstractDataListWrapper<T> {
 
     @Input()
     @tuiDefaultProp()
-    emptyContent: PolymorpheusContent = '';
+    emptyContent: PolymorpheusContent = ``;
 
     @Input()
     @tuiDefaultProp()
-    size: TuiSizeXS | TuiSizeL = 'm';
+    size: TuiSizeL | TuiSizeXS = this.defaultSize;
 
-    protected constructor(protected readonly itemsHandlers: TuiItemsHandlers<T>) {}
+    protected constructor(
+        protected readonly itemsHandlers: TuiItemsHandlers<T>,
+        protected readonly defaultSize: TuiSizeL | TuiSizeXS,
+    ) {}
 
     @Input()
     @tuiDefaultProp()
@@ -45,14 +53,13 @@ export abstract class AbstractDataListWrapper<T> {
         $implicit: T,
         {nativeElement}: ElementRef<HTMLElement>,
     ): TuiValueContentContext<T> {
-        return {$implicit, active: isNativeFocused(nativeElement)};
+        return {$implicit, active: tuiIsNativeFocused(nativeElement)};
     }
 
     getOptions(includeDisabled: boolean = false): readonly T[] {
         return this.optionsQuery
-            .toArray()
             .filter(({disabled}) => includeDisabled || !disabled)
             .map(({value}) => value)
-            .filter(isPresent);
+            .filter(tuiIsPresent);
     }
 }

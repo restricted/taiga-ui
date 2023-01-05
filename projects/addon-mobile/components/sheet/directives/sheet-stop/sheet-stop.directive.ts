@@ -1,4 +1,4 @@
-import {Directive, ElementRef, Inject} from '@angular/core';
+import {Directive, ElementRef, Inject, Self} from '@angular/core';
 import {TuiDestroyService} from '@taiga-ui/cdk';
 import {TUI_SCROLL_REF} from '@taiga-ui/core';
 import {Observable} from 'rxjs';
@@ -11,10 +11,7 @@ import {
     withLatestFrom,
 } from 'rxjs/operators';
 
-import {
-    TUI_SHEET_DRAGGED,
-    TUI_SHEET_SCROLL,
-} from '../../components/sheet/sheet.providers';
+import {TUI_SHEET_DRAGGED, TUI_SHEET_SCROLL} from '../../sheet-tokens';
 
 @Directive({
     selector: '[tuiSheetStop]',
@@ -23,7 +20,7 @@ import {
 export class TuiSheetStopDirective {
     constructor(
         @Inject(ElementRef) elementRef: ElementRef<HTMLElement>,
-        @Inject(TuiDestroyService) destroy$: Observable<unknown>,
+        @Self() @Inject(TuiDestroyService) destroy$: Observable<unknown>,
         @Inject(TUI_SHEET_DRAGGED) dragged$: Observable<boolean>,
         @Inject(TUI_SHEET_SCROLL) scroll$: Observable<number>,
         @Inject(TUI_SCROLL_REF) {nativeElement}: ElementRef<HTMLElement>,

@@ -14,9 +14,10 @@ import {
 } from '@taiga-ui/core';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
+// TODO: find the best way for prevent cycle
+// eslint-disable-next-line import/no-cycle
 import {TuiSidebarDirective} from './sidebar.directive';
 
-// @dynamic
 @Component({
     selector: 'aside[tuiSidebar]',
     templateUrl: './sidebar.template.html',
@@ -46,6 +47,10 @@ export class TuiSidebarComponent implements DoCheck {
     }
 
     @HostBinding('class')
+    get directionHostClass(): string {
+        return `t-${this.directive.direction}`;
+    }
+
     get direction(): TuiHorizontalDirection {
         return this.directive.direction;
     }

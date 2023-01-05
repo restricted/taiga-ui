@@ -4,7 +4,12 @@ import {tuiDefaultProp} from '@taiga-ui/cdk';
 import {TUI_SPIN_TEXTS} from '@taiga-ui/core';
 import {Observable} from 'rxjs';
 
-// @dynamic
+import {TuiTablePagination} from './table-pagination';
+import {
+    TUI_TABLE_PAGINATION_OPTIONS,
+    TuiTablePaginationOptions,
+} from './table-pagination-options';
+
 @Component({
     selector: 'tui-table-pagination',
     templateUrl: './table-pagination.template.html',
@@ -13,7 +18,7 @@ import {Observable} from 'rxjs';
 export class TuiTablePaginationComponent {
     @Input()
     @tuiDefaultProp()
-    items: readonly number[] = [10, 20, 50, 100];
+    items: readonly number[] = this.options.items;
 
     @Input()
     @tuiDefaultProp()
@@ -25,20 +30,32 @@ export class TuiTablePaginationComponent {
 
     @Input()
     @tuiDefaultProp()
-    size = this.items[0];
+    size = this.options.size;
 
+    /**
+     * TODO: Remove in 4.0
+     * @deprecated use paginationChange
+     */
     @Output()
     readonly pageChange = new EventEmitter<number>();
 
+    /**
+     * TODO: Remove in 4.0
+     * @deprecated use paginationChange
+     */
     @Output()
     readonly sizeChange = new EventEmitter<number>();
+
+    @Output()
+    readonly paginationChange = new EventEmitter<TuiTablePagination>();
 
     open = false;
 
     constructor(
         @Inject(TUI_SPIN_TEXTS) readonly spinTexts$: Observable<[string, string]>,
         @Inject(TUI_TABLE_PAGINATION_TEXTS)
-        readonly texts$: Observable<Record<'pages' | 'linesPerPage' | 'of', string>>,
+        readonly texts$: Observable<Record<'linesPerPage' | 'of' | 'pages', string>>,
+        @Inject(TUI_TABLE_PAGINATION_OPTIONS) readonly options: TuiTablePaginationOptions,
     ) {}
 
     get pages(): number {
@@ -61,6 +78,13 @@ export class TuiTablePaginationComponent {
         return this.end === this.total;
     }
 
+    get pagination(): TuiTablePagination {
+        return {
+            page: this.page,
+            size: this.size,
+        };
+    }
+
     onItem(size: number): void {
         const {start} = this;
 
@@ -69,15 +93,18 @@ export class TuiTablePaginationComponent {
         this.open = false;
         this.page = Math.floor(start / this.size);
         this.pageChange.emit(this.page);
+        this.paginationChange.emit(this.pagination);
     }
 
     back(): void {
         this.page--;
         this.pageChange.emit(this.page);
+        this.paginationChange.emit(this.pagination);
     }
 
     forth(): void {
         this.page++;
         this.pageChange.emit(this.page);
+        this.paginationChange.emit(this.pagination);
     }
 }

@@ -4,10 +4,11 @@
 >
     <ng-container *ngFor="let item of items">
         <tui-island *tuiItem>
-            <h2 class="tui-island__title">{{item}}</h2>
+            <h2 class="tui-island__title">{{ item }}</h2>
+            <!-- TODO: update documentation here -->
             <a
                 tuiButton
-                href="https://en.wikipedia.org/wiki/{{item}}"
+                href="https://en.wikipedia.org/wiki/{{ item }}"
             >
                 Wiki
             </a>

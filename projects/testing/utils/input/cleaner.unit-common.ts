@@ -4,51 +4,51 @@ import {DebugElement} from '@angular/core';
 import {ComponentFixture} from '@angular/core/testing';
 import {FormControl} from '@angular/forms';
 
-import {NativeInputPO} from '../native-input.page-object';
-import {PageObject} from '../page-object';
+import {TuiNativeInputPO} from '../native-input.page-object';
+import {TuiPageObject} from '../page-object';
 
 interface TestParams {
-    pageObject: PageObject<any>;
-    fixture: ComponentFixture<any>;
+    pageObject: TuiPageObject<unknown>;
+    fixture: ComponentFixture<unknown>;
     testComponent: TestComponent;
-    inputPO: NativeInputPO;
+    inputPO: TuiNativeInputPO;
     prefix: string;
 }
 
 interface TestComponent {
     control?: FormControl;
-    value?: any;
+    value?: unknown;
     disabled?: boolean;
     cleaner: boolean;
     readOnly: boolean;
 }
 
-export function testCleaner(
+export function tuiTestCleaner(
     context: TestParams,
-    setValue: any = 'value',
+    setValue: any = `value`,
     clearValue: any = null,
 ): void {
-    let pageObject: PageObject<any>;
-    let fixture: ComponentFixture<any>;
+    let pageObject: TuiPageObject<unknown>;
+    let fixture: ComponentFixture<unknown>;
     let testComponent: TestComponent;
-    let inputPO: NativeInputPO;
+    let inputPO: TuiNativeInputPO;
 
-    describe('Cross for field cleaning', () => {
+    describe(`Cross for field cleaning`, () => {
         beforeEach(() => {
             pageObject = context.pageObject;
             fixture = context.fixture;
             testComponent = context.testComponent;
             inputPO = context.inputPO;
 
-            fixture.detectChanges();
+            fixture.autoDetectChanges();
         });
 
-        describe('Cross included', () => {
+        describe(`Cross included`, () => {
             beforeEach(() => {
                 testComponent.cleaner = true;
             });
 
-            it('If no value is specified, the cross is not shown', () => {
+            it(`If no value is specified, the cross is not shown`, () => {
                 updateValue(clearValue);
 
                 fixture.detectChanges();
@@ -56,7 +56,7 @@ export function testCleaner(
                 expect(getCleaner()).toBeNull();
             });
 
-            it('If the field is readonly, the cross is not shown', () => {
+            it(`If the field is readonly, the cross is not shown`, () => {
                 updateValue(setValue);
 
                 testComponent.readOnly = true;
@@ -65,7 +65,7 @@ export function testCleaner(
                 expect(getCleaner()).toBeNull();
             });
 
-            it('If the field is disabled, the cross is not shown', () => {
+            it(`If the field is disabled, the cross is not shown`, () => {
                 updateValue(setValue);
 
                 if (testComponent.control) {
@@ -78,7 +78,7 @@ export function testCleaner(
                 expect(getCleaner()).toBeNull();
             });
 
-            it('If a value is specified, a cross is shown', () => {
+            it(`If a value is specified, a cross is shown`, () => {
                 updateValue(setValue);
 
                 fixture.detectChanges();
@@ -86,7 +86,7 @@ export function testCleaner(
                 expect(getCleaner()).not.toBeNull();
             });
 
-            it('When you click on the cross, the field value is cleared', () => {
+            it(`When you click on the cross, the field value is cleared`, () => {
                 updateValue(setValue);
 
                 fixture.detectChanges();
@@ -94,7 +94,7 @@ export function testCleaner(
                 getCleaner()!.nativeElement.click();
                 fixture.detectChanges();
 
-                expect(inputPO.value).toBe('');
+                expect(inputPO.value).toBe(``);
 
                 if (testComponent.control !== undefined) {
                     expect(testComponent.control.value).toEqual(clearValue);
@@ -106,8 +106,8 @@ export function testCleaner(
             });
         });
 
-        describe('Cross disabled', () => {
-            it('The value is set, the cross is not shown', () => {
+        describe(`Cross disabled`, () => {
+            it(`The value is set, the cross is not shown`, () => {
                 updateValue(setValue);
 
                 testComponent.cleaner = false;
@@ -118,7 +118,7 @@ export function testCleaner(
         });
     });
 
-    function updateValue(value: any): void {
+    function updateValue(value: unknown): void {
         if (testComponent.control) {
             testComponent.control.setValue(value);
         } else {

@@ -1,19 +1,15 @@
-import {Directive, DoCheck, forwardRef} from '@angular/core';
-import {TUI_TEXTFIELD_HOST, TuiAbstractTextfieldHost} from '@taiga-ui/core';
+import {Directive, DoCheck} from '@angular/core';
+import {tuiIsInput} from '@taiga-ui/cdk';
+import {AbstractTuiTextfieldHost, tuiAsTextfieldHost} from '@taiga-ui/core';
 
 import {TuiInputPasswordComponent} from './input-password.component';
 
 @Directive({
     selector: 'tui-input-password',
-    providers: [
-        {
-            provide: TUI_TEXTFIELD_HOST,
-            useExisting: forwardRef(() => TuiInputPasswordDirective),
-        },
-    ],
+    providers: [tuiAsTextfieldHost(TuiInputPasswordDirective)],
 })
 export class TuiInputPasswordDirective
-    extends TuiAbstractTextfieldHost<TuiInputPasswordComponent>
+    extends AbstractTuiTextfieldHost<TuiInputPasswordComponent>
     implements DoCheck
 {
     input?: HTMLInputElement;
@@ -22,13 +18,16 @@ export class TuiInputPasswordDirective
         this.host.onValueChange(value);
     }
 
-    process(input: HTMLInputElement): void {
+    override process(input: HTMLInputElement): void {
         this.input = input;
     }
 
     ngDoCheck(): void {
-        if (this.input) {
-            this.input.type = this.host.isPasswordHidden ? 'password' : 'text';
+        if (
+            this.host.nativeFocusableElement &&
+            tuiIsInput(this.host.nativeFocusableElement)
+        ) {
+            this.host.nativeFocusableElement.type = this.host.inputType;
         }
     }
 }

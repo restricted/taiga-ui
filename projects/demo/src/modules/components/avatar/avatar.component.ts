@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
 import {RawLoaderContent, TuiDocExample} from '@taiga-ui/addon-doc';
-import {TuiSizeXS, TuiSizeXXL} from '@taiga-ui/core';
+import {TuiSizeXXL, TuiSizeXXS} from '@taiga-ui/core';
 
 @Component({
     selector: 'example-avatar',
@@ -10,30 +10,41 @@ import {TuiSizeXS, TuiSizeXXL} from '@taiga-ui/core';
 })
 export class ExampleTuiAvatarComponent {
     readonly exampleOptions: RawLoaderContent = import(
-        '!!raw-loader!./examples/import/define-options.md'
+        './examples/import/define-options.md?raw'
     );
 
     readonly exampleModule: RawLoaderContent = import(
-        '!!raw-loader!./examples/import/import-module.md'
+        './examples/import/import-module.md?raw'
     );
 
     readonly exampleHtml: RawLoaderContent = import(
-        '!!raw-loader!./examples/import/insert-template.md'
+        './examples/import/insert-template.md?raw'
     );
 
     readonly example1: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/1/index.ts'),
-        HTML: import('!!raw-loader!./examples/1/index.html'),
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
     };
 
     readonly example2: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/2/index.ts'),
-        HTML: import('!!raw-loader!./examples/2/index.html'),
+        TypeScript: import('./examples/2/index.ts?raw'),
+        HTML: import('./examples/2/index.html?raw'),
     };
 
     readonly example3: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/3/index.ts'),
-        HTML: import('!!raw-loader!./examples/3/index.html'),
+        TypeScript: import('./examples/3/index.ts?raw'),
+        HTML: import('./examples/3/index.html?raw'),
+    };
+
+    readonly example4: TuiDocExample = {
+        TypeScript: import('./examples/4/index.ts?raw'),
+        HTML: import('./examples/4/index.html?raw'),
+        LESS: import('./examples/4/index.html?raw'),
+    };
+
+    readonly example5: TuiDocExample = {
+        TypeScript: import('./examples/5/index.ts?raw'),
+        HTML: import('./examples/5/index.html?raw'),
     };
 
     readonly avatarUrlVariants: readonly string[] = [
@@ -48,7 +59,8 @@ export class ExampleTuiAvatarComponent {
 
     autoColor = false;
 
-    readonly sizeVariants: ReadonlyArray<TuiSizeXS | TuiSizeXXL> = [
+    readonly sizeVariants: ReadonlyArray<TuiSizeXXL | TuiSizeXXS> = [
+        'xxs',
         'xs',
         's',
         'm',
@@ -57,5 +69,11 @@ export class ExampleTuiAvatarComponent {
         'xxl',
     ];
 
-    size = this.sizeVariants[2];
+    size = this.sizeVariants[3];
+
+    border = 'var(--tui-base-01)';
+
+    color = 'var(--tui-text-01)';
+
+    background = 'var(--tui-secondary-active)';
 }

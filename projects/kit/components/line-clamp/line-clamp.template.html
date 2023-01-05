@@ -1,10 +1,13 @@
 <div
-    polymorpheus-outlet
-    tuiHintId="unnecessary"
-    tuiHintMode="overflow"
-    class="wrapper"
+    *tuiLet="lineClamp$ | async as lineClamp"
+    tuiHintCustomPosition
+    class="t-wrapper"
     [tuiHint]="computedContent"
-    [style.-webkit-line-clamp]="lineClamp$ | async"
-    [content]="content"
+    [style.-webkit-line-clamp]="lineClamp"
+    [style.word-break]="(lineClamp || 0) > 1 ? 'break-word' : 'break-all'"
     (tuiResize)="updateView()"
-></div>
+>
+    <ng-container *polymorpheusOutlet="content as text">
+        {{ text }}
+    </ng-container>
+</div>

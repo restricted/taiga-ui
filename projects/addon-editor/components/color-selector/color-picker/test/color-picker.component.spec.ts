@@ -1,9 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-
-import {TuiColorPickerComponent} from '../color-picker.component';
-import {TuiColorPickerModule} from '../color-picker.module';
+import {TuiColorPickerComponent, TuiColorPickerModule} from '@taiga-ui/addon-editor';
 
 @Component({
     template: `
@@ -17,7 +15,7 @@ class TestComponent {
     color = [0, 255, 0, 1];
 }
 
-describe('ColorPicker', () => {
+describe(`ColorPicker`, () => {
     let fixture: ComponentFixture<TestComponent>;
     let testComponent: TestComponent;
 
@@ -32,7 +30,7 @@ describe('ColorPicker', () => {
         fixture.detectChanges();
     });
 
-    it('Parses color', () => {
+    it(`Parses color`, () => {
         expect(testComponent.component.currentColor).toEqual([0, 255, 0]);
         expect(testComponent.component.point).toEqual([1, 0]);
         expect(testComponent.component.opacity).toBe(1);

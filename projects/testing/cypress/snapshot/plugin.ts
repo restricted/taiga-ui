@@ -1,11 +1,12 @@
 /// <reference types="cypress" />
+/// <reference types="node" />
 
 import fs from 'fs';
 
 declare module 'cypress-image-snapshot/plugin' {
     function matchImageSnapshotPlugin(
         details: Cypress.ScreenshotDetails,
-    ): void | Cypress.AfterScreenshotReturnObject;
+    ): Cypress.AfterScreenshotReturnObject | void;
 }
 
 export interface TuiSnapshotPluginOptions {
@@ -19,16 +20,16 @@ export async function tuiAddSnapshotPlugin(
     {newSnapshotMarkEnabled, newSnapshotMarkFn}: TuiSnapshotPluginOptions,
 ): Promise<void> {
     const {addMatchImageSnapshotPlugin, matchImageSnapshotPlugin} = await import(
-        'cypress-image-snapshot/plugin'
+        `cypress-image-snapshot/plugin`
     );
 
     addMatchImageSnapshotPlugin(on, config);
 
-    on('after:screenshot', (details: Cypress.ScreenshotDetails) => {
+    on(`after:screenshot`, (details: Cypress.ScreenshotDetails) => {
         const {name, path, testFailure} = details;
         const possibleSnapshotPath = path
-            .replace('screenshots', 'snapshots')
-            .replace(/\.(\w+)$/g, '.snap.$1');
+            .replace(`screenshots`, `snapshots`)
+            .replace(/\.(\w+)$/g, `.snap.$1`);
         const snapshotAlreadyExists = fs.existsSync(possibleSnapshotPath);
 
         if (newSnapshotMarkEnabled && !testFailure && !snapshotAlreadyExists) {
@@ -38,8 +39,8 @@ export async function tuiAddSnapshotPlugin(
             fs.renameSync(path, newPath);
 
             console.info(
-                '\x1b[32m%s\x1b[0m',
-                '\t[tuiAddSnapshotPlugin]:',
+                `\x1B[32m%s\x1B[0m`,
+                `\t[tuiAddSnapshotPlugin]:`,
                 `${name} => ${newName}`,
             );
 

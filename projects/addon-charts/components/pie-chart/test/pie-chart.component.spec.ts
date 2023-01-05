@@ -1,11 +1,10 @@
 import {Location} from '@angular/common';
 import {Component} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {configureTestSuite, PageObject} from '@taiga-ui/testing';
+import {TuiPieChartModule} from '@taiga-ui/addon-charts';
+import {configureTestSuite, TuiPageObject} from '@taiga-ui/testing';
 
-import {TuiPieChartModule} from '../pie-chart.module';
-
-describe('PieChart', () => {
+describe(`PieChart`, () => {
     @Component({
         template: `
             <tui-pie-chart [value]="value"></tui-pie-chart>
@@ -16,7 +15,7 @@ describe('PieChart', () => {
     }
 
     let fixture: ComponentFixture<TestComponent>;
-    let pageObject: PageObject<TestComponent>;
+    let pageObject: TuiPageObject<TestComponent>;
 
     configureTestSuite(() => {
         TestBed.configureTestingModule({
@@ -26,7 +25,7 @@ describe('PieChart', () => {
                 {
                     provide: Location,
                     useValue: {
-                        path: () => '',
+                        path: () => ``,
                     },
                 },
             ],
@@ -35,11 +34,11 @@ describe('PieChart', () => {
 
     beforeEach(() => {
         fixture = TestBed.createComponent(TestComponent);
-        pageObject = new PageObject(fixture);
+        pageObject = new TuiPageObject(fixture);
         fixture.detectChanges();
     });
 
-    it('Has segment for each item in value', () => {
-        expect(pageObject.getAllByAutomationId('tui-pie-chart__segment').length).toBe(3);
+    it(`Has segment for each item in value`, () => {
+        expect(pageObject.getAllByAutomationId(`tui-pie-chart__segment`).length).toBe(3);
     });
 });

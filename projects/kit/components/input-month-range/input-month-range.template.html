@@ -1,5 +1,5 @@
 <tui-hosted-dropdown
-    class="hosted"
+    class="t-hosted"
     [canOpen]="interactive"
     [content]="dropdown"
     [open]="open && interactive"
@@ -7,18 +7,21 @@
     (tuiActiveZoneChange)="onActiveZone($event)"
 >
     <tui-primitive-textfield
-        class="textfield"
+        class="t-textfield"
         [editable]="false"
         [disabled]="computedDisabled"
         [nativeId]="nativeId"
         [readOnly]="readOnly"
-        [iconContent]="calendarIcon"
-        [pseudoFocused]="pseudoFocused"
-        [pseudoHovered]="pseudoHovered"
+        [tuiTextfieldIcon]="calendarIcon"
+        [pseudoFocus]="pseudoFocus"
+        [pseudoHover]="pseudoHover"
         [invalid]="computedInvalid"
-        [value]="value ? computeValue(value.from | tuiMapper : formatter | async, value.to | tuiMapper : formatter | async) : ''"
+        [value]="
+            value
+                ? computeValue(value.from | tuiMapper : formatter | async, value.to | tuiMapper : formatter | async)
+                : ''
+        "
         (valueChange)="onValueChange($event)"
-        (hoveredChange)="onHovered($event)"
     >
         <ng-content></ng-content>
         <ng-content
@@ -34,6 +37,7 @@
             [min]="min"
             [max]="max"
             [value]="value"
+            [year]="computedDefaultActiveYear"
             (monthClick)="onMonthClick($event)"
         ></tui-calendar-month>
     </ng-template>

@@ -1,11 +1,12 @@
 import {Component, ViewChild} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {
+    TuiAvatarComponent,
+    TuiAvatarModule,
+    tuiAvatarOptionsProvider,
+} from '@taiga-ui/kit';
 
-import {TuiAvatarComponent} from '../avatar.component';
-import {TuiAvatarModule} from '../avatar.module';
-import {tuiAvatarOptionsProvider} from '../avatar-options';
-
-describe('Avatar component options', () => {
+describe(`Avatar component options`, () => {
     let fixture: ComponentFixture<TestComponent>;
     let testComponent: TestComponent;
 
@@ -25,7 +26,7 @@ describe('Avatar component options', () => {
             declarations: [TestComponent],
             providers: [
                 tuiAvatarOptionsProvider({
-                    size: 'l',
+                    size: `l`,
                     autoColor: true,
                     rounded: true,
                 }),
@@ -37,8 +38,8 @@ describe('Avatar component options', () => {
         fixture.detectChanges();
     });
 
-    it('override by custom options', () => {
-        expect(testComponent.component.size).toEqual('l');
+    it(`override by custom options`, () => {
+        expect(testComponent.component.size).toEqual(`l`);
         expect(testComponent.component.autoColor).toEqual(true);
         expect(testComponent.component.rounded).toEqual(true);
     });

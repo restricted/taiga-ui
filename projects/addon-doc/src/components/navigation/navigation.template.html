@@ -1,46 +1,32 @@
-<tui-hosted-dropdown
-    *tuiLet="filteredItems as filtered"
-    tuiAutoFocus
-    tuiDropdownLimitWidth="fixed"
+<tui-input
+    #input
+    tuiTextfieldSize="m"
+    tuiTextfieldIconLeft="tuiIconSearch"
     class="t-input"
-    [autoFocus]="!!sidebar"
-    [content]="dropdown"
-    [canOpen]="canOpen"
-    [(open)]="open"
+    [formControl]="search"
+    [tuiAutoFocus]="!!sidebar"
+    [tuiTextfieldCleaner]="true"
+    [tuiTextfieldLabelOutside]="true"
 >
-    <tui-primitive-textfield
-        iconAlign="left"
-        tuiTextfieldSize="m"
-        iconContent="tuiIconSearch"
-        [pseudoFocused]="open || null"
-        [tuiTextfieldCleaner]="true"
-        [tuiTextfieldLabelOutside]="true"
-        [value]="search"
-        (valueChange)="onSearchChange($event)"
-    >
-        {{ searchText }}
-    </tui-primitive-textfield>
-    <ng-template
-        #dropdown
-        let-activeZone
-    >
-        <tui-data-list>
+    {{ searchText }}
+    <ng-container *ngIf="canOpen">
+        <tui-data-list *tuiDataList>
             <tui-opt-group
-                *ngFor="let group of filtered; let index = index"
+                *ngFor="let group of filtered$ | async; let index = index"
                 [label]="labels[index] || ''"
             >
                 <a
                     *ngFor="let item of group"
                     tuiOption
                     [routerLink]="item.route"
-                    (click)="onClick()"
+                    (click)="onClick(input)"
                 >
                     {{ item.title }}
                 </a>
             </tui-opt-group>
         </tui-data-list>
-    </ng-template>
-</tui-hosted-dropdown>
+    </ng-container>
+</tui-input>
 
 <nav class="t-navigation">
     <tui-scrollbar
@@ -64,11 +50,9 @@
                     <div class="t-section">
                         <ng-container
                             *ngFor="let item of items[index]; index as subIndex"
-                        >
-                            <ng-container
-                                *ngTemplateOutlet="pages; context: {item: item, index: index * 100 + subIndex}"
-                            ></ng-container>
-                        </ng-container>
+                            [ngTemplateOutlet]="pages"
+                            [ngTemplateOutletContext]="{item: item, index: index * 100 + subIndex}"
+                        ></ng-container>
                     </div>
                 </ng-template>
             </tui-accordion-item>
@@ -76,11 +60,9 @@
         <div class="t-items-container">
             <ng-container
                 *ngFor="let item of itemsWithoutSections; let index = index"
-            >
-                <ng-container
-                    *ngTemplateOutlet="pages; context: {item: item, index: items.length - 1 + index}"
-                ></ng-container>
-            </ng-container>
+                [ngTemplateOutlet]="pages"
+                [ngTemplateOutletContext]="{item: item, index: items.length - 1 + index}"
+            ></ng-container>
         </div>
 
         <ng-template
@@ -91,10 +73,10 @@
             <a
                 *ngIf="!item.subPages; else subPages"
                 tuiLink
-                routerLinkActive="sublink_active"
+                routerLinkActive="t-sublink_active"
                 class="t-sublink"
                 [routerLink]="item.route"
-                [scrollIntoView]="isActive(item.route)"
+                [tuiScrollIntoViewLink]="isActive(item.route)"
                 (click)="closeMenu()"
             >
                 {{ item.title }}
@@ -127,10 +109,10 @@
                             <a
                                 *ngFor="let subPage of item.subPages"
                                 tuiLink
-                                routerLinkActive="sublink_active"
+                                routerLinkActive="t-sublink_active"
                                 class="t-sublink t-sublink_small"
                                 [routerLink]="subPage.route"
-                                [scrollIntoView]="isActive(subPage.route)"
+                                [tuiScrollIntoViewLink]="isActive(subPage.route)"
                                 (click)="closeMenu()"
                             >
                                 {{ subPage.title }}

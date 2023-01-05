@@ -1,5 +1,7 @@
+import {SafeHtml} from '@angular/platform-browser';
+
 /**
- * @note(splincode):
+ * @description:
  * Any ‘linearGradient’ attributes which are defined on the referenced
  * element which are not defined on this element are inherited by this element.
  * If this element has no defined gradient stops, and the referenced element does
@@ -12,17 +14,24 @@
  * Documentation: https://www.w3.org/TR/SVG11/pservers.html
  *
  */
-export function svgLinearGradientProcessor(svg: string, salt?: number | string): string {
-    const uniqueIds = extractLinearGradientIdsFromSvg(svg);
+export function tuiSvgLinearGradientProcessor(
+    svg: SafeHtml | string,
+    salt?: number | string,
+): SafeHtml | string {
+    if (typeof svg === `string`) {
+        const uniqueIds = extractLinearGradientIdsFromSvg(svg);
 
-    return uniqueIds.reduce(
-        (processed, previousId) =>
-            processed.replace(
-                new RegExp(previousId, 'g'),
-                `${previousId}_${salt || makeRandomSalt()}`,
-            ),
-        svg,
-    );
+        return uniqueIds.reduce(
+            (processed, previousId) =>
+                processed.replace(
+                    new RegExp(previousId, `g`),
+                    `${previousId}_${salt || makeRandomSalt()}`,
+                ),
+            svg,
+        );
+    }
+
+    return svg;
 }
 
 function makeRandomSalt(): number {

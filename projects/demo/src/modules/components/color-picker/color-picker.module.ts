@@ -2,16 +2,17 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {
     TuiColorPickerModule,
     TuiColorSelectorModule,
     TuiInputColorModule,
+    TuiPaletteModule,
 } from '@taiga-ui/addon-editor';
 import {TuiActiveZoneModule} from '@taiga-ui/cdk';
 import {
     TuiButtonModule,
-    TuiDropdownControllerModule,
+    TuiDropdownModule,
     TuiHostedDropdownModule,
     TuiTextfieldControllerModule,
 } from '@taiga-ui/core';
@@ -19,6 +20,7 @@ import {
 import {ExampleTuiColorPickerComponent} from './color-picker.component';
 import {TuiColorPickerExample1} from './examples/1';
 import {TuiColorPickerExample2} from './examples/2';
+import {TuiColorPickerExample3} from './examples/3';
 
 @NgModule({
     imports: [
@@ -27,11 +29,12 @@ import {TuiColorPickerExample2} from './examples/2';
         TuiHostedDropdownModule,
         TuiColorSelectorModule,
         TuiActiveZoneModule,
-        TuiDropdownControllerModule,
+        TuiDropdownModule,
         TuiInputColorModule,
         TuiTextfieldControllerModule,
         TuiAddonDocModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiColorPickerComponent)),
+        TuiPaletteModule,
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTuiColorPickerComponent)),
         FormsModule,
         TuiColorPickerModule,
     ],
@@ -39,6 +42,7 @@ import {TuiColorPickerExample2} from './examples/2';
         ExampleTuiColorPickerComponent,
         TuiColorPickerExample1,
         TuiColorPickerExample2,
+        TuiColorPickerExample3,
     ],
     exports: [ExampleTuiColorPickerComponent],
 })

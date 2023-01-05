@@ -6,13 +6,14 @@ import {
     Inject,
     Input,
     QueryList,
+    Self,
 } from '@angular/core';
 import {
     EMPTY_QUERY,
-    isPresent,
-    itemsQueryListObservable,
     tuiDefaultProp,
     TuiDestroyService,
+    tuiIsPresent,
+    tuiItemsQueryListObservable,
 } from '@taiga-ui/cdk';
 import {identity, merge} from 'rxjs';
 import {filter, map, mapTo, pairwise, switchMap, takeUntil} from 'rxjs/operators';
@@ -39,19 +40,20 @@ export class TuiAccordionComponent implements AfterContentInit {
     readonly accordionItems: QueryList<TuiAccordionItemComponent> = EMPTY_QUERY;
 
     constructor(
+        @Self()
         @Inject(TuiDestroyService)
         private readonly destroy$: TuiDestroyService,
     ) {}
 
     ngAfterContentInit(): void {
         const {accordionItems} = this;
-        const rows$ = itemsQueryListObservable(accordionItems);
+        const rows$ = tuiItemsQueryListObservable(accordionItems);
         const newOpenRow$ = rows$.pipe(
             pairwise(),
             map(([previous, current]) =>
                 current.find(item => !previous.includes(item) && item.open),
             ),
-            filter(isPresent),
+            filter(tuiIsPresent),
         );
         const rowsOpen$ = merge(
             rows$.pipe(

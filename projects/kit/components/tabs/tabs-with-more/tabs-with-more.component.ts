@@ -16,32 +16,31 @@ import {
 } from '@angular/core';
 import {
     EMPTY_QUERY,
-    getClosestFocusable,
-    isNativeFocused,
-    setNativeFocused,
-    toInt,
     TuiActiveZoneDirective,
-    tuiAssertIsHTMLElement,
+    tuiClamp,
     TuiContextWithImplicit,
     tuiDefaultProp,
+    tuiGetClosestFocusable,
+    tuiIsElement,
+    tuiIsNativeFocused,
+    TuiItemDirective,
+    tuiToInt,
 } from '@taiga-ui/cdk';
 import {TUI_MORE_WORD, TUI_TAB_MARGIN} from '@taiga-ui/kit/tokens';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 
-import {TuiTabDirective} from '../tab.directive';
 import {TuiTabComponent} from '../tab/tab.component';
 import {TUI_TABS_OPTIONS, TuiTabsOptions} from '../tabs-options';
-import {TABS_PROVIDERS, TABS_REFRESH} from './tabs-with-more.providers';
+import {TUI_TABS_PROVIDERS, TUI_TABS_REFRESH} from './tabs-with-more.providers';
 
-// @dynamic
 @Component({
     selector: 'tui-tabs-with-more, nav[tuiTabsWithMore]',
     templateUrl: './tabs-with-more.template.html',
     styleUrls: ['./tabs-with-more.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: TABS_PROVIDERS,
+    providers: TUI_TABS_PROVIDERS,
 })
 export class TuiTabsWithMoreComponent implements AfterViewInit {
     @ViewChild(TuiTabComponent, {read: ElementRef})
@@ -74,7 +73,7 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
     @Output()
     readonly activeItemIndexChange = new EventEmitter<number>();
 
-    @ContentChildren(TuiTabDirective, {read: TemplateRef})
+    @ContentChildren(TuiItemDirective, {read: TemplateRef})
     readonly items: QueryList<TemplateRef<Record<string, unknown>>> = EMPTY_QUERY;
 
     open = false;
@@ -82,7 +81,7 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
     constructor(
         @Inject(TUI_TABS_OPTIONS) private readonly options: TuiTabsOptions,
         @Inject(TUI_TAB_MARGIN) private readonly margin: number,
-        @Inject(TABS_REFRESH) private readonly refresh$: Observable<unknown>,
+        @Inject(TUI_TABS_REFRESH) private readonly refresh$: Observable<unknown>,
         @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
         @Inject(ChangeDetectorRef) private readonly changeDetectorRef: ChangeDetectorRef,
         @Inject(TUI_MORE_WORD) readonly moreWord$: Observable<string>,
@@ -96,9 +95,16 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
     }
 
     get activeElement(): HTMLElement | null {
-        return this.options.exposeActive || this.lastVisibleIndex >= this.activeItemIndex
-            ? this.tabs[this.activeItemIndex] || null
+        const {tabs} = this;
+        const safeActiveIndex = tuiClamp(this.activeItemIndex || 0, 0, tabs.length - 2);
+
+        return this.options.exposeActive || this.lastVisibleIndex >= safeActiveIndex
+            ? tabs[safeActiveIndex] || null
             : this.moreButton?.nativeElement || null;
+    }
+
+    get isMoreAlone(): boolean {
+        return this.lastVisibleIndex < 0 && !this.options.exposeActive;
     }
 
     get isMoreVisible(): boolean {
@@ -106,7 +112,7 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
     }
 
     get isMoreFocusable(): boolean {
-        return !!this.moreButton && isNativeFocused(this.moreButton.nativeElement);
+        return !!this.moreButton && tuiIsNativeFocused(this.moreButton.nativeElement);
     }
 
     get isMoreActive(): boolean {
@@ -152,9 +158,7 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
     }
 
     onArrowRight(event: Event): void {
-        tuiAssertIsHTMLElement(event.target);
-
-        if (isNativeFocused(event.target)) {
+        if (tuiIsElement(event.target) && tuiIsNativeFocused(event.target)) {
             this.focusMore();
         }
     }
@@ -164,9 +168,9 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
         let index = tabs.length - 2;
 
         while (index >= 0) {
-            setNativeFocused(tabs[index]);
+            tabs[index].focus();
 
-            if (isNativeFocused(tabs[index])) {
+            if (tuiIsNativeFocused(tabs[index])) {
                 return;
             }
 
@@ -174,12 +178,12 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
         }
     }
 
-    onWrapperArrow(event: Event, wrapper: HTMLElement, prev: boolean): void {
+    onWrapperArrow(event: Event, wrapper: HTMLElement, previous: boolean): void {
         const button: HTMLButtonElement = event.target as HTMLButtonElement;
-        const target = getClosestFocusable(button, prev, wrapper);
+        const target = tuiGetClosestFocusable({initial: button, root: wrapper, previous});
 
         if (target) {
-            setNativeFocused(target);
+            target.focus();
         }
     }
 
@@ -193,7 +197,7 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
 
     private focusMore(): void {
         if (this.moreButton) {
-            setNativeFocused(this.moreButton.nativeElement);
+            this.moreButton.nativeElement.focus();
         }
     }
 
@@ -226,14 +230,14 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
             const activeOffset = activeDisplaced ? activeWidth + margin : 0;
             const currentWidth = total + activeOffset + moreWidth + margin;
             // Needed for different rounding of visible and hidden elements scrollWidth
-            const safetyOffset = toInt(this.maxIndex === maxIndex - 1);
+            const safetyOffset = tuiToInt(this.maxIndex === maxIndex - 1);
 
             if (currentWidth + safetyOffset < clientWidth) {
                 return maxIndex;
             }
         }
 
-        return 0;
+        return -1;
     }
 
     private updateActiveItemIndex(activeItemIndex: number): void {

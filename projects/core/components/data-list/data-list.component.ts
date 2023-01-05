@@ -8,31 +8,38 @@ import {
     HostListener,
     Inject,
     Input,
+    Optional,
     QueryList,
     ViewEncapsulation,
 } from '@angular/core';
 import {
     EMPTY_QUERY,
-    isNativeFocusedIn,
-    isPresent,
-    itemsQueryListObservable,
-    moveFocus,
-    setNativeMouseFocused,
-    tuiAssertIsHTMLElement,
     tuiDefaultProp,
+    tuiIsElement,
+    tuiIsNativeFocusedIn,
+    tuiIsPresent,
+    tuiItemsQueryListObservable,
+    tuiMoveFocus,
     tuiPure,
+    tuiSetNativeMouseFocused,
 } from '@taiga-ui/cdk';
+import {
+    TEXTFIELD_CONTROLLER_PROVIDER,
+    TUI_TEXTFIELD_WATCHED_CONTROLLER,
+    TuiTextfieldController,
+} from '@taiga-ui/core/directives';
 import {TuiDataListAccessor} from '@taiga-ui/core/interfaces';
-import {TUI_DATA_LIST_ACCESSOR, TUI_NOTHING_FOUND_MESSAGE} from '@taiga-ui/core/tokens';
+import {TUI_NOTHING_FOUND_MESSAGE, tuiAsDataListAccessor} from '@taiga-ui/core/tokens';
 import {TuiDataListRole} from '@taiga-ui/core/types';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
+// TODO: find the best way for prevent cycle
+// eslint-disable-next-line import/no-cycle
 import {TuiOptionComponent} from './option/option.component';
 
 // TODO: Consider aria-activedescendant for proper accessibility implementation
-// @dynamic
 @Component({
     selector: 'tui-data-list',
     templateUrl: './data-list.template.html',
@@ -40,10 +47,8 @@ import {TuiOptionComponent} from './option/option.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.None,
     providers: [
-        {
-            provide: TUI_DATA_LIST_ACCESSOR,
-            useExisting: forwardRef(() => TuiDataListComponent),
-        },
+        tuiAsDataListAccessor(TuiDataListComponent),
+        TEXTFIELD_CONTROLLER_PROVIDER,
     ],
 })
 export class TuiDataListComponent<T> implements TuiDataListAccessor<T> {
@@ -61,7 +66,15 @@ export class TuiDataListComponent<T> implements TuiDataListAccessor<T> {
     @tuiDefaultProp()
     emptyContent: PolymorpheusContent = '';
 
+    @Input()
+    @HostBinding('attr.data-list-size')
+    @tuiDefaultProp()
+    size = this.controller?.size || 'm';
+
     constructor(
+        @Optional()
+        @Inject(TUI_TEXTFIELD_WATCHED_CONTROLLER)
+        private readonly controller: TuiTextfieldController | null,
         @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
         @Inject(TUI_NOTHING_FOUND_MESSAGE)
         readonly defaultEmptyContent$: Observable<string>,
@@ -69,7 +82,7 @@ export class TuiDataListComponent<T> implements TuiDataListAccessor<T> {
 
     @tuiPure
     get empty$(): Observable<boolean> {
-        return itemsQueryListObservable(this.options).pipe(map(({length}) => !length));
+        return tuiItemsQueryListObservable(this.options).pipe(map(({length}) => !length));
     }
 
     @HostListener('focusin', ['$event.relatedTarget', '$event.currentTarget'])
@@ -87,32 +100,33 @@ export class TuiDataListComponent<T> implements TuiDataListAccessor<T> {
     onKeyDownArrow(current: HTMLElement, step: number): void {
         const {elements} = this;
 
-        moveFocus(elements.indexOf(current), elements, step);
+        tuiMoveFocus(elements.indexOf(current), elements, step);
     }
 
     // TODO: Consider aria-activedescendant for proper accessibility implementation
-    @HostListener('wheel.silent.passive', ['$event.currentTarget'])
+    @HostListener('wheel.silent.passive')
     @HostListener('mouseleave', ['$event.target'])
-    handleFocusLossIfNecessary(element: HTMLElement): void {
-        if (this.origin && isNativeFocusedIn(element)) {
-            setNativeMouseFocused(this.origin, true, true);
+    handleFocusLossIfNecessary(element: Element = this.elementRef.nativeElement): void {
+        if (this.origin && tuiIsNativeFocusedIn(element)) {
+            tuiSetNativeMouseFocused(this.origin, true, true);
         }
     }
 
     getOptions(includeDisabled: boolean = false): readonly T[] {
         return this.options
-            .toArray()
             .filter(({disabled}) => includeDisabled || !disabled)
             .map(({value}) => value)
-            .filter(isPresent);
+            .filter(tuiIsPresent);
     }
 
     onFocus({target}: Event, top: boolean): void {
-        tuiAssertIsHTMLElement(target);
+        if (!tuiIsElement(target)) {
+            return;
+        }
 
         const {elements} = this;
 
-        moveFocus(top ? -1 : elements.length, elements, top ? 1 : -1);
+        tuiMoveFocus(top ? -1 : elements.length, elements, top ? 1 : -1);
         this.handleFocusLossIfNecessary(target);
     }
 

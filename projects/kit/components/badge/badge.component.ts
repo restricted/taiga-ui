@@ -5,9 +5,15 @@ import {
     Inject,
     Input,
 } from '@angular/core';
-import {isNumber, tuiDefaultProp} from '@taiga-ui/cdk';
-import {MODE_PROVIDER, TUI_MODE, TuiBrightness, TuiSizeL, TuiSizeS} from '@taiga-ui/core';
-import {TuiStatusT} from '@taiga-ui/kit/types';
+import {tuiDefaultProp, tuiIsNumber} from '@taiga-ui/cdk';
+import {
+    MODE_PROVIDER,
+    TUI_MODE,
+    TuiBrightness,
+    TuiSizeL,
+    TuiSizeXS,
+} from '@taiga-ui/core';
+import {TuiStatus} from '@taiga-ui/kit/types';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
 
@@ -29,12 +35,12 @@ export class TuiBadgeComponent {
     @Input()
     @HostBinding('attr.data-size')
     @tuiDefaultProp()
-    size: TuiSizeS | TuiSizeL = 'm';
+    size: TuiSizeL | TuiSizeXS = 'm';
 
     @Input()
     @HostBinding('attr.data-tui-host-status')
     @tuiDefaultProp()
-    status: TuiStatusT = 'default';
+    status: TuiStatus = 'default';
 
     @Input()
     @HostBinding('class._hoverable')
@@ -49,19 +55,25 @@ export class TuiBadgeComponent {
             return 'none';
         }
 
-        return isNumber(this.value.valueOf()) ? 'm' : 'l';
+        return tuiIsNumber(this.value?.valueOf()) ? 'm' : 'l';
     }
 
     get outputValue(): string {
-        if (isNumber(this.value.valueOf()) && this.value.valueOf() > 99) {
+        const value = this.value?.valueOf();
+
+        if (tuiIsNumber(value) && value > 99) {
             return '99+';
-        } else {
-            return String(this.value);
         }
+
+        return String(this.value);
     }
 
     @HostBinding('class._empty-value')
     get isEmpty(): boolean {
         return this.value === '';
+    }
+
+    titleText({offsetWidth, scrollWidth}: HTMLElement): string {
+        return offsetWidth < scrollWidth ? this.outputValue : '';
     }
 }

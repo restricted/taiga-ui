@@ -6,18 +6,22 @@ import {DemoTuiIconsTabs, TUI_DEMO_ICONS} from './icons.tokens';
 
 @Component({
     selector: 'icons',
-    templateUrl: 'icons.template.html',
+    templateUrl: './icons.template.html',
+    styleUrls: ['./icons.style.less'],
     changeDetection,
 })
 export class IconsComponent {
     readonly keys = Object.keys(this.icons);
 
     readonly example1: TuiDocExample = {
-        TypeScript: import(
-            '!!raw-loader!./customization/customization-icons.component.ts'
-        ),
-        HTML: import('!!raw-loader!./customization/customization-icons.template.html'),
-        LESS: import('!!raw-loader!./customization/customization-icons.style.less'),
+        TypeScript: import('./customization/customization-icons.component.ts?raw'),
+        HTML: import('./customization/customization-icons.template.html?raw'),
+        LESS: import('./customization/customization-icons.style.less?raw'),
+    };
+
+    readonly example2: TuiDocExample = {
+        TypeScript: import('./inline-svg/inline-svg.component.ts?raw'),
+        LESS: import('./inline-svg/inline-svg.style.less?raw'),
     };
 
     constructor(@Inject(TUI_DEMO_ICONS) readonly icons: DemoTuiIconsTabs) {}

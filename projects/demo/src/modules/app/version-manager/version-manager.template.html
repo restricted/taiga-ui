@@ -1,14 +1,17 @@
 <tui-select
-    tuiTextfieldSize="s"
+    *ngIf="versions.length"
     class="select"
     [ngModel]="initialVersion"
     [valueContent]="'label' | tuiStringify | tuiStringifyContent"
 >
-    <tui-data-list *tuiDataList>
+    <ng-content></ng-content>
+    <tui-data-list
+        *tuiDataList
+        size="s"
+    >
         <a
             *ngFor="let version of versions"
             tuiOption
-            size="s"
             [value]="version"
             [href]="getVersionHref(version)"
         >

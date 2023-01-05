@@ -1,38 +1,32 @@
-import {JsonArray, workspaces} from '@angular-devkit/core';
+import {JsonArray} from '@angular-devkit/core';
 import {Rule, Tree} from '@angular-devkit/schematics';
 import {updateWorkspace} from '@schematics/angular/utility/workspace';
-import {getWorkspace} from '@schematics/angular/utility/workspace';
-import {getProject} from '../../utils/get-project';
+
 import {getProjectTargetOptions} from '../../utils/get-project-target-options';
-import {Schema} from '../schema';
+import {getProjects} from '../../utils/get-projects';
+import {TuiSchema} from '../schema';
 
 const ICON_ASSETS = {
-    glob: '**/*',
-    input: 'node_modules/@taiga-ui/icons/src',
-    output: 'assets/taiga-ui/icons',
+    glob: `**/*`,
+    input: `node_modules/@taiga-ui/icons/src`,
+    output: `assets/taiga-ui/icons`,
 };
 
-export function addTaigaIcons(options: Schema): Rule {
-    return async (tree: Tree) => {
-        const workspace = await getWorkspace(tree);
-        const project = getProject(options, workspace);
-
-        return addTaigaStylesToAngularJson(workspace, project);
+export function addTaigaIcons(options: TuiSchema): Rule {
+    return (_: Tree) => {
+        return addTaigaAssetsToAngularJson(options);
     };
 }
 
-export function addTaigaStylesToAngularJson(
-    workspace: workspaces.WorkspaceDefinition,
-    project: workspaces.ProjectDefinition,
-): Rule {
-    const targetOptions = getProjectTargetOptions(project, 'build');
-    const assets = targetOptions.assets as JsonArray | undefined;
+export function addTaigaAssetsToAngularJson(options: TuiSchema): Rule {
+    return updateWorkspace(workspace => {
+        const project = getProjects(options, workspace)[0];
 
-    if (!assets) {
-        targetOptions.assets = [ICON_ASSETS];
-    } else {
-        targetOptions.assets = [...assets, ICON_ASSETS];
-    }
+        if (project) {
+            const targetOptions = getProjectTargetOptions(project, `build`);
+            const assets = targetOptions.assets as JsonArray | undefined;
 
-    return updateWorkspace(workspace);
+            targetOptions.assets = assets ? [...assets, ICON_ASSETS] : [ICON_ASSETS];
+        }
+    });
 }

@@ -1,19 +1,14 @@
-import {Directive, forwardRef} from '@angular/core';
-import {TUI_TEXTFIELD_HOST, TuiAbstractTextfieldHost} from '@taiga-ui/core';
+import {Directive} from '@angular/core';
+import {AbstractTuiTextfieldHost, tuiAsTextfieldHost} from '@taiga-ui/core';
 
 import {TuiInputDateTimeComponent} from './input-date-time.component';
 
 @Directive({
     selector: 'tui-input-date-time',
-    providers: [
-        {
-            provide: TUI_TEXTFIELD_HOST,
-            useExisting: forwardRef(() => TuiInputDateTimeDirective),
-        },
-    ],
+    providers: [tuiAsTextfieldHost(TuiInputDateTimeDirective)],
 })
-export class TuiInputDateTimeDirective extends TuiAbstractTextfieldHost<TuiInputDateTimeComponent> {
-    get value(): string {
+export class TuiInputDateTimeDirective extends AbstractTuiTextfieldHost<TuiInputDateTimeComponent> {
+    override get value(): string {
         return this.host.computedValue;
     }
 
@@ -21,7 +16,7 @@ export class TuiInputDateTimeDirective extends TuiAbstractTextfieldHost<TuiInput
         this.host.onValueChange(value);
     }
 
-    process(input: HTMLInputElement): void {
+    override process(input: HTMLInputElement): void {
         input.inputMode = 'numeric';
     }
 }

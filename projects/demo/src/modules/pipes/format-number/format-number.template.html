@@ -11,6 +11,7 @@
             <a
                 tuiLink
                 routerLink="/utils/tokens"
+                fragment="number-format"
             >
                 TUI_NUMBER_FORMAT
             </a>
@@ -31,11 +32,11 @@
             i18n
             class="text b-full-width"
         >
-            Formatted number: {{ value | tuiFormatNumber:
-            decimalLimit:decimalSeparator }}
+            Formatted number:
+            {{ value | tuiFormatNumber : {decimalLimit, decimalSeparator} }}
         </p>
         <tui-input-slider
-            size="m"
+            tuiTextfieldSize="m"
             class="slider"
             [max]="10000000"
             [quantum]="0.111"
@@ -45,18 +46,18 @@
             <ng-template
                 i18n
                 documentationPropertyName="decimalLimit"
-                documentationPropertyType="number | null"
+                documentationPropertyType="number"
                 [documentationPropertyValues]="decimalLimitVariants"
                 [(documentationPropertyValue)]="decimalLimit"
             >
                 Digits after comma (use
-                <code>null</code>
+                <code>Infinity</code>
                 not to change)
             </ng-template>
             <ng-template
                 i18n
                 documentationPropertyName="decimalSeparator"
-                documentationPropertyType="string"
+                documentationPropertyType="TuiDecimalSymbol"
                 [documentationPropertyValues]="decimalSeparatorVariants"
                 [(documentationPropertyValue)]="decimalSeparator"
             >
@@ -70,8 +71,8 @@
             <li>
                 <p i18n>
                     Import
-                    <code>TuiFormatNumberPipe</code>
-                    into a module where you want to use our component
+                    <code>TuiFormatNumberPipeModule</code>
+                    into a module where you want to use the pipe
                 </p>
 
                 <tui-doc-code
@@ -81,9 +82,7 @@
             </li>
 
             <li>
-                <p i18n>
-                    Use pipe in template with function and its arguments:
-                </p>
+                <p i18n>Use pipe in template with function and its arguments:</p>
 
                 <tui-doc-code
                     filename="myComponent.template.html"

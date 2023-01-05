@@ -1,17 +1,35 @@
-import {getNamedImportReferences} from '../../utils/get-named-import-references';
 import {Node} from 'ng-morph';
-import {removeImport} from '../../utils/remove-import';
-import {addUniqueImport} from '../../utils/add-unique-import';
-import {CONSTS_TO_REPLACE, ReplacementConst} from '../constants/consts';
 
-export function replaceConsts(): void {
-    CONSTS_TO_REPLACE.forEach(constToReplace => replaceConst(constToReplace));
+import {TuiSchema} from '../../ng-add/schema';
+import {addUniqueImport} from '../../utils/add-unique-import';
+import {
+    infoLog,
+    REPLACE_SYMBOL,
+    SMALL_TAB_SYMBOL,
+    SUCCESS_SYMBOL,
+    successLog,
+} from '../../utils/colored-log';
+import {getNamedImportReferences} from '../../utils/get-named-import-references';
+import {removeImport} from '../../utils/import-manipulations';
+import {ReplacementConst} from '../interfaces/replacement-const';
+
+export function replaceConstants(
+    options: TuiSchema,
+    consts: readonly ReplacementConst[],
+): void {
+    !options[`skip-logs`] &&
+        infoLog(`${SMALL_TAB_SYMBOL}${REPLACE_SYMBOL} replacing constants...`);
+
+    consts.forEach(constToReplace => replaceConst(constToReplace));
+
+    !options[`skip-logs`] &&
+        successLog(`${SMALL_TAB_SYMBOL}${SUCCESS_SYMBOL} constants replaced \n`);
 }
 
 export function replaceConst({from, to}: ReplacementConst): void {
     const references = getNamedImportReferences(from.name, from.moduleSpecifier);
 
-    for (let ref of references) {
+    references.forEach(ref => {
         const parent = ref.getParent();
 
         if (Node.isImportSpecifier(parent)) {
@@ -24,5 +42,5 @@ export function replaceConst({from, to}: ReplacementConst): void {
         } else {
             ref?.replaceWithText(to.name);
         }
-    }
+    });
 }

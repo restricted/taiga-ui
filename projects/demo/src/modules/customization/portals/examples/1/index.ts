@@ -4,9 +4,9 @@ import {changeDetection} from '@demo/emulate/change-detection';
 import {CustomPortalService} from './portal/custom-portal.service';
 
 @Component({
-    selector: 'tui-portals-example-1',
-    templateUrl: './index.html',
-    styleUrls: ['./index.less'],
+    selector: `tui-portals-example-1`,
+    templateUrl: `./index.html`,
+    styleUrls: [`./index.less`],
     changeDetection,
 })
 export class TuiPortalsExample1 {
@@ -17,7 +17,7 @@ export class TuiPortalsExample1 {
         private readonly customPortalService: CustomPortalService,
     ) {}
 
-    addTemplate(template: TemplateRef<any>): void {
+    addTemplate(template: TemplateRef<unknown>): void {
         this.templates.push(this.customPortalService.addTemplate(template));
     }
 

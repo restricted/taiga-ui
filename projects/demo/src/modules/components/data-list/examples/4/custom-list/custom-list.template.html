@@ -1,7 +1,6 @@
 <tui-primitive-textfield
     #input
-    iconContent="tuiIconSearchLarge"
-    iconAlign="left"
+    tuiTextfieldIconLeft="tuiIconSearchLarge"
     class="tui-space_all-2"
     [tuiTextfieldLabelOutside]="true"
     [(value)]="value"
@@ -32,7 +31,7 @@
     </tui-opt-group>
     <ng-container *ngFor="let item of items">
         <tui-opt-group
-            *tuiLet="item.items | tuiFilter: filter:value as filtered"
+            *tuiLet="item.items | tuiFilter : filter : value as filtered"
             [label]="item.name"
         >
             <tui-opt-group

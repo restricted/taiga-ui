@@ -3,19 +3,20 @@ import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {TuiCurrencyPipeModule, TuiMoneyModule} from '@taiga-ui/addon-commerce';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {
     TuiButtonModule,
     TuiDataListModule,
+    TuiErrorModule,
     TuiGroupModule,
-    TuiHintControllerModule,
+    TuiHintModule,
     TuiLabelModule,
     TuiTextfieldControllerModule,
 } from '@taiga-ui/core';
 import {
     TuiCheckboxLabeledModule,
     TuiDataListWrapperModule,
-    TuiFieldErrorModule,
+    TuiFieldErrorPipeModule,
     TuiInputCountModule,
     TuiInputDateModule,
     TuiInputModule,
@@ -33,6 +34,7 @@ import {
     TuiTextAreaModule,
 } from '@taiga-ui/kit';
 
+import {StylesInfoModule} from '../../app/styles-info/styles-info.module';
 import {TuiExample} from './example';
 import {FormComponent} from './form.component';
 
@@ -41,6 +43,7 @@ import {FormComponent} from './form.component';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
+        StylesInfoModule,
         TuiMoneyModule,
         TuiStepperModule,
         TuiInputDateModule,
@@ -51,7 +54,8 @@ import {FormComponent} from './form.component';
         TuiCheckboxLabeledModule,
         TuiRadioListModule,
         TuiButtonModule,
-        TuiFieldErrorModule,
+        TuiErrorModule,
+        TuiFieldErrorPipeModule,
         TuiInputPasswordModule,
         TuiInputPhoneModule,
         TuiInputModule,
@@ -63,12 +67,12 @@ import {FormComponent} from './form.component';
         TuiGroupModule,
         TuiRadioBlockModule,
         TuiTextfieldControllerModule,
-        TuiHintControllerModule,
+        TuiHintModule,
         TuiDataListModule,
         TuiDataListWrapperModule,
         TuiLabelModule,
         TuiAddonDocModule,
-        RouterModule.forChild(generateRoutes(FormComponent)),
+        RouterModule.forChild(tuiGenerateRoutes(FormComponent)),
     ],
     declarations: [FormComponent, TuiExample],
     exports: [FormComponent],

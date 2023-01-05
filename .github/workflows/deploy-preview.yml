@@ -12,11 +12,14 @@ jobs:
     name: Firebase
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node.js and Cache
         uses: ./.github/actions/nodejs
 
-      - run: npm run build:demo
+      - run: npx nx build --base-href='/'
+
+      - name: Debug output
+        run: tree dist/demo/browser -P '*.html'
 
       - name: Deploy preview
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -28,5 +31,5 @@ jobs:
           expires: 1d
 
 concurrency:
-  group: firebase-${{ github.head_ref }}
+  group: firebase-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

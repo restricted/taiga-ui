@@ -10,14 +10,14 @@ import {
     MODE_PROVIDER,
     TUI_MODE,
     TuiBrightness,
-    TuiSizeXL,
-    TuiSizeXS,
+    TuiSizeXXL,
+    TuiSizeXXS,
 } from '@taiga-ui/core';
-import {TuiMarkerIconModeT} from '@taiga-ui/kit/types';
+import {TuiMarkerIconMode} from '@taiga-ui/kit/types';
 import {Observable} from 'rxjs';
 
 @Component({
-    selector: 'tui-marker-icon',
+    selector: 'tui-marker-icon, a[tuiMarkerIcon], button[tuiMarkerIcon]',
     templateUrl: './marker-icon.template.html',
     styleUrls: ['./marker-icon.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,12 +30,12 @@ export class TuiMarkerIconComponent {
     @Input()
     @HostBinding('attr.data-marker-mode')
     @tuiDefaultProp()
-    mode: TuiMarkerIconModeT | null = null;
+    mode: TuiMarkerIconMode | null = null;
 
     @Input()
     @HostBinding('attr.data-size')
     @tuiDefaultProp()
-    size: TuiSizeXS | TuiSizeXL = 'm';
+    size: TuiSizeXXL | TuiSizeXXS = 'm';
 
     @Input()
     @tuiDefaultProp()

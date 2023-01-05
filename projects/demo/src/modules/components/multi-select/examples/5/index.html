@@ -9,24 +9,23 @@
     <tui-data-list *tuiDataList>
         <tui-opt-group
             tuiMultiSelectGroup
-            label="Jedi"
+            label="Jedi, may the force be with them blah blah blah"
         >
             <button
                 *ngFor="let item of jedi"
                 tuiOption
                 [value]="item"
             >
-                {{item}}
+                {{ item }}
             </button>
         </tui-opt-group>
         <tui-opt-group label="Sith">
-            <!-- passing component to tuiHideSelected is not needed in Ivy -->
             <button
-                *ngFor="let item of sith | tuiHideSelected : component"
+                *ngFor="let item of sith | tuiHideSelected"
                 tuiOption
                 [value]="item"
             >
-                {{item}}
+                {{ item }}
             </button>
         </tui-opt-group>
     </tui-data-list>

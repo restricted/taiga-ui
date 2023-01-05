@@ -1,7 +1,7 @@
 import {Component, forwardRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {changeDetection} from '@demo/emulate/change-detection';
-import {TuiDocExample} from '@taiga-ui/addon-doc';
+import {TuiDocExample, tuiDocExcludeProperties} from '@taiga-ui/addon-doc';
 import {
     ALWAYS_FALSE_HANDLER,
     TUI_DEFAULT_STRINGIFY,
@@ -10,15 +10,7 @@ import {
     TuiIdentityMatcher,
     TuiStringHandler,
 } from '@taiga-ui/cdk';
-import {
-    DEFAULT_MAX_HEIGHT,
-    DEFAULT_MIN_HEIGHT,
-    TuiDropdownWidthT,
-    TuiHorizontalDirection,
-    TuiSizeL,
-    TuiSizeS,
-    TuiVerticalDirection,
-} from '@taiga-ui/core';
+import {TuiSizeL, TuiSizeS} from '@taiga-ui/core';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
 import {AbstractExampleTuiControl} from '../abstract/control';
@@ -42,66 +34,68 @@ class Account {
             provide: ABSTRACT_PROPS_ACCESSOR,
             useExisting: forwardRef(() => ExampleTuiMultiSelectComponent),
         },
+        tuiDocExcludeProperties([
+            'tuiTextfieldPrefix',
+            'tuiTextfieldPostfix',
+            'tuiTextfieldFiller',
+            'tuiTextfieldCustomContent',
+        ]),
     ],
 })
 export class ExampleTuiMultiSelectComponent extends AbstractExampleTuiControl {
-    readonly exampleModule = import('!!raw-loader!./examples/import/import-module.txt');
-    readonly exampleHtml = import('!!raw-loader!./examples/import/insert-template.txt');
-    readonly exampleForm = import('!!raw-loader!./examples/import/declare-form.txt');
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
+    readonly exampleForm = import('./examples/import/declare-form.md?raw');
 
     readonly example1: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/1/index.ts'),
-        HTML: import('!!raw-loader!./examples/1/index.html'),
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
     };
 
     readonly example2: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/2/index.ts'),
-        HTML: import('!!raw-loader!./examples/2/index.html'),
-        LESS: import('!!raw-loader!./examples/2/index.less'),
+        TypeScript: import('./examples/2/index.ts?raw'),
+        HTML: import('./examples/2/index.html?raw'),
+        LESS: import('./examples/2/index.less?raw'),
     };
 
     readonly example3: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/3/index.ts'),
-        HTML: import('!!raw-loader!./examples/3/index.html'),
+        TypeScript: import('./examples/3/index.ts?raw'),
+        HTML: import('./examples/3/index.html?raw'),
     };
 
     readonly example4: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/4/index.ts'),
-        HTML: import('!!raw-loader!./examples/4/index.html'),
+        TypeScript: import('./examples/4/index.ts?raw'),
+        HTML: import('./examples/4/index.html?raw'),
     };
 
     readonly example5: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/5/index.ts'),
-        HTML: import('!!raw-loader!./examples/5/index.html'),
+        TypeScript: import('./examples/5/index.ts?raw'),
+        HTML: import('./examples/5/index.html?raw'),
     };
 
     readonly example6: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/6/index.ts'),
-        HTML: import('!!raw-loader!./examples/6/index.html'),
-        LESS: import('!!raw-loader!./examples/6/index.less'),
+        TypeScript: import('./examples/6/index.ts?raw'),
+        HTML: import('./examples/6/index.html?raw'),
+        LESS: import('./examples/6/index.less?raw'),
     };
 
     readonly example7: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/7/index.ts'),
-        HTML: import('!!raw-loader!./examples/7/index.html'),
-        LESS: import('!!raw-loader!./examples/7/index.less'),
+        TypeScript: import('./examples/7/index.ts?raw'),
+        HTML: import('./examples/7/index.html?raw'),
+        LESS: import('./examples/7/index.less?raw'),
     };
 
     readonly example8: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/8/index.ts'),
-        HTML: import('!!raw-loader!./examples/8/index.html'),
+        TypeScript: import('./examples/8/index.ts?raw'),
+        HTML: import('./examples/8/index.html?raw'),
     };
 
     readonly example9: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/9/index.ts'),
-        HTML: import('!!raw-loader!./examples/9/index.html'),
+        TypeScript: import('./examples/9/index.ts?raw'),
+        HTML: import('./examples/9/index.html?raw'),
     };
 
-    labelOutside = true;
-
-    dropdownMinHeight = DEFAULT_MIN_HEIGHT;
-
-    dropdownMaxHeight = DEFAULT_MAX_HEIGHT;
+    override labelOutside = true;
 
     readonly items = [
         new Account('Ruble', 500),
@@ -115,15 +109,20 @@ export class ExampleTuiMultiSelectComponent extends AbstractExampleTuiControl {
 
     editable = true;
 
-    readonly dropdownLimitWidthVariants: readonly TuiDropdownWidthT[] = ['fixed', 'min'];
-
-    dropdownLimitWidth: TuiDropdownWidthT = this.dropdownLimitWidthVariants[0];
-
     search: string | null = '';
 
-    readonly sizeVariants: ReadonlyArray<TuiSizeL | TuiSizeS> = ['s', 'm', 'l'];
+    override readonly sizeVariants: ReadonlyArray<TuiSizeL | TuiSizeS> = ['s', 'm', 'l'];
 
-    size: TuiSizeS | TuiSizeL = this.sizeVariants[this.sizeVariants.length - 1];
+    readonly iconVariants = [
+        '',
+        'tuiIconSearchLarge',
+        'tuiIconPiechartLarge',
+        'tuiIconCardsLarge',
+    ];
+
+    override iconLeft = '';
+
+    override size: TuiSizeL | TuiSizeS = this.sizeVariants[this.sizeVariants.length - 1];
 
     stringifyVariants: Array<TuiStringHandler<Account | string>> = [
         TUI_DEFAULT_STRINGIFY,
@@ -139,30 +138,15 @@ export class ExampleTuiMultiSelectComponent extends AbstractExampleTuiControl {
 
     identityMatcher = this.identityMatcherVariants[0];
 
-    readonly maxLengthVariants: readonly number[] = [10];
+    override readonly maxLengthVariants: readonly number[] = [10];
 
-    maxLength = null;
-
-    readonly dropdownAlignVariants: readonly TuiHorizontalDirection[] = ['left', 'right'];
-
-    dropdownAlign: TuiHorizontalDirection = this.dropdownAlignVariants[0];
+    override maxLength = null;
 
     readonly valueContentVariants: ReadonlyArray<
         PolymorpheusContent<TuiContextWithImplicit<readonly Account[]>>
     > = ['', ({$implicit: {length}}) => `Selected: ${length}`];
 
     valueContent = this.valueContentVariants[0];
-
-    readonly dropdownDirectionVariants: readonly TuiVerticalDirection[] = [
-        'top',
-        'bottom',
-    ];
-
-    dropdownDirection: TuiVerticalDirection | null = null;
-
-    itemContentSelected = null;
-
-    itemContentVariants = ['template'];
 
     control = new FormControl();
 

@@ -5,15 +5,13 @@ import {TuiFormatCardModule} from '@taiga-ui/addon-commerce/pipes';
 import {
     TuiActiveZoneModule,
     TuiFocusableModule,
-    TuiHoveredModule,
-    TuiInputModeModule,
     TuiLetModule,
     TuiMapperPipeModule,
     TuiPreventDefaultModule,
 } from '@taiga-ui/cdk';
 import {TuiDropdownModule, TuiSvgModule, TuiWrapperModule} from '@taiga-ui/core';
+import {TextMaskModule} from '@taiga-ui/kit';
 import {PolymorpheusModule} from '@tinkoff/ng-polymorpheus';
-import {TextMaskModule} from 'angular2-text-mask';
 
 import {TuiInputCardGroupedComponent} from './input-card-grouped.component';
 
@@ -25,9 +23,7 @@ import {TuiInputCardGroupedComponent} from './input-card-grouped.component';
         TuiFocusableModule,
         TuiSvgModule,
         TuiWrapperModule,
-        TuiHoveredModule,
         TuiActiveZoneModule,
-        TuiInputModeModule,
         TuiMapperPipeModule,
         TuiDropdownModule,
         TuiPreventDefaultModule,

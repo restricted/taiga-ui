@@ -2,7 +2,7 @@
 // https://github.com/jaredpalmer/cypress-image-snapshot/pull/250
 import {tuiAddSnapshotPlugin} from '@taiga-ui/testing/cypress/snapshot/plugin';
 
-import {viewportHeight, viewportWidth} from './../../cypress.json';
+import {viewportHeight, viewportWidth} from '../../cypress.config';
 
 export default async (
     on: Cypress.PluginEvents,
@@ -10,20 +10,21 @@ export default async (
 ): Promise<void> => {
     await tuiAddSnapshotPlugin(on, config, {
         newSnapshotMarkFn: oldFileName => `==new==${oldFileName}`,
-        newSnapshotMarkEnabled: config.baseUrl === 'https://taiga-ui.dev/next/',
+        newSnapshotMarkEnabled: config.baseUrl === `http://localhost:3333/`,
     });
 
-    on('before:browser:launch', (browser, launchOptions) => {
-        if (browser.name === 'chrome') {
-            launchOptions.args.push(`--window-size=${viewportWidth},${viewportHeight}`);
-            launchOptions.args.push('--force-device-scale-factor=2');
-            launchOptions.args.push('--high-dpi-support=1');
-            launchOptions.args.push('--disable-dev-shm-usage');
-            launchOptions.args.push('--incognito');
-        }
-
-        if (browser.isHeadless) {
-            launchOptions.args.push('--disable-gpu');
+    on(`before:browser:launch`, (browser, launchOptions) => {
+        if (browser.name === `chrome`) {
+            launchOptions.args.push(
+                `--font-render-hinting=none`, // prevent inconsistent text rendering in headless mode
+                `--window-size=${viewportWidth},${viewportHeight}`,
+                `--force-device-scale-factor=2`,
+                `--high-dpi-support=1`,
+                `--force-color-profile=srgb`,
+                `--disable-dev-shm-usage`,
+                `--disable-gpu`,
+                `--incognito`,
+            );
         }
 
         return launchOptions;

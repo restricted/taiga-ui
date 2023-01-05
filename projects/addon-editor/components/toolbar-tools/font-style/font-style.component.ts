@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, Inject, Input} from '@angular/core';
-import {TuiEditor} from '@taiga-ui/addon-editor/abstract';
+import {AbstractTuiEditor} from '@taiga-ui/addon-editor/abstract';
 import {defaultEditorTools} from '@taiga-ui/addon-editor/constants';
 import {TuiTiptapEditorService} from '@taiga-ui/addon-editor/directives';
 import {TuiEditorTool} from '@taiga-ui/addon-editor/enums';
 import {TUI_EDITOR_TOOLBAR_TEXTS} from '@taiga-ui/addon-editor/tokens';
-import {LanguageEditor} from '@taiga-ui/i18n';
+import {TuiLanguageEditor} from '@taiga-ui/i18n';
 import {combineLatest, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
@@ -18,7 +18,7 @@ export class TuiFontStyleComponent {
     private toolsSet: Set<TuiEditorTool> = new Set(defaultEditorTools);
 
     @Input()
-    set enabledTools(value: readonly TuiEditorTool[] | Set<TuiEditorTool>) {
+    set enabledTools(value: Set<TuiEditorTool> | readonly TuiEditorTool[]) {
         this.toolsSet = new Set(value);
     }
 
@@ -39,9 +39,9 @@ export class TuiFontStyleComponent {
     );
 
     constructor(
-        @Inject(TuiTiptapEditorService) readonly editor: TuiEditor,
+        @Inject(TuiTiptapEditorService) readonly editor: AbstractTuiEditor,
         @Inject(TUI_EDITOR_TOOLBAR_TEXTS)
-        readonly texts$: Observable<LanguageEditor['toolbarTools']>,
+        readonly texts$: Observable<TuiLanguageEditor['toolbarTools']>,
     ) {}
 
     isEnabled(tool: TuiEditorTool): boolean {

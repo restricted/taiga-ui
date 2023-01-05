@@ -1,11 +1,9 @@
 import {Component, ViewChild} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TuiBarChartComponent, TuiBarChartModule} from '@taiga-ui/addon-charts';
 import {configureTestSuite} from '@taiga-ui/testing';
 
-import {TuiBarChartComponent} from '../bar-chart.component';
-import {TuiBarChartModule} from '../bar-chart.module';
-
-describe('BarChart', () => {
+describe(`BarChart`, () => {
     @Component({
         template: `
             <tui-bar-chart
@@ -42,7 +40,7 @@ describe('BarChart', () => {
         fixture.detectChanges();
     });
 
-    it('Transposes correctly', () => {
+    it(`Transposes correctly`, () => {
         expect(testComponent.component.transposed).toEqual([
             [1, 4],
             [2, 5],
@@ -50,7 +48,7 @@ describe('BarChart', () => {
         ]);
     });
 
-    it('Computes percent correctly', () => {
+    it(`Computes percent correctly`, () => {
         expect(
             testComponent.component.percentMapper(
                 [1, 3],
@@ -60,7 +58,7 @@ describe('BarChart', () => {
         ).toBe(50);
     });
 
-    it('Computes percent correctly in collapsed mode', () => {
+    it(`Computes percent correctly in collapsed mode`, () => {
         testComponent.component.collapsed = true;
         expect(
             testComponent.component.percentMapper(

@@ -7,31 +7,33 @@ import {
     TuiSizeS,
     TuiTextfieldControllerModule,
 } from '@taiga-ui/core';
-import {TUI_TAG_STATUS, TuiInputTagComponent, TuiInputTagModule} from '@taiga-ui/kit';
+import {
+    TuiInputTagComponent,
+    TuiInputTagModule,
+    tuiInputTagOptionsProvider,
+} from '@taiga-ui/kit';
 
-describe('InputTag [TUI_TAG_STATUS=neutral]', () => {
+describe(`InputTag [TUI_TAG_STATUS=neutral]`, () => {
     @Component({
         template: `
             <tui-root>
                 <tui-input-tag
                     [ngModel]="tags"
-                    [tuiTextfieldExampleText]="exampleText"
                     [tuiTextfieldLabelOutside]="labelOutside"
                     [tuiTextfieldSize]="size"
                 ></tui-input-tag>
             </tui-root>
         `,
-        providers: [{provide: TUI_TAG_STATUS, useValue: 'neutral'}],
+        providers: [tuiInputTagOptionsProvider({tagStatus: `neutral`})],
     })
     class TestComponent {
         @ViewChild(TuiInputTagComponent)
         component!: TuiInputTagComponent;
 
-        tags = ['Tag1', 'Tag2'];
+        tags = [`Tag1`, `Tag2`];
 
         labelOutside = true;
-        exampleText = 'Example';
-        size: TuiSizeS | TuiSizeL = 's';
+        size: TuiSizeL | TuiSizeS = `s`;
     }
 
     let fixture: ComponentFixture<TestComponent>;
@@ -52,8 +54,8 @@ describe('InputTag [TUI_TAG_STATUS=neutral]', () => {
 
         expect(
             fixture.nativeElement
-                .querySelector('[data-tui-host-status]')
-                ?.getAttribute('data-tui-host-status'),
-        ).toEqual('neutral');
+                .querySelector(`[data-tui-host-status]`)
+                ?.getAttribute(`data-tui-host-status`),
+        ).toEqual(`neutral`);
     });
 });

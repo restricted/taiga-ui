@@ -1,53 +1,54 @@
 <div
-    #focusableElement
     automation-id="tui-accordion__item-wrapper"
-    class="wrapper"
-    [tuiFocusable]="computedFocusable"
-    (tuiFocusVisibleChange)="onFocusVisible($event)"
-    (tuiFocusedChange)="onFocused($event)"
-    (keydown.space)="onItemKeyDownSpace($event)"
-    (keydown.enter)="onItemKeyDownSpace($event)"
-    (keydown.esc)="onItemKeyDownEsc($event)"
+    class="t-wrapper"
 >
-    <div
+    <button
+        #focusableElement
         automation-id="tui-accordion__item-header"
-        class="header"
-        [class.header_open]="open"
-        (tuiHoveredChange)="onHovered($event)"
+        class="t-header"
+        [disabled]="computedDisabled"
+        [class.t-header_open]="open"
+        [class.t-header_hoverable]="!disableHover"
+        [tuiFocusable]="computedFocusable"
+        (tuiFocusVisibleChange)="onFocusVisible($event)"
+        (tuiFocusedChange)="onFocused($event)"
+        (keydown.esc)="onItemKeyDownEsc($event)"
         (click)="onRowToggle()"
     >
-        <div
+        <span
             automation-id="tui-accordion__item-title"
-            class="title"
+            class="t-title"
         >
             <ng-content></ng-content>
-        </div>
+        </span>
         <tui-svg
             *ngIf="showArrow"
             automation-id="tui-accordion__item-arrow"
             src="tuiIconChevronDownLarge"
-            class="icon"
-            [class.icon_open]="open"
+            class="t-icon"
+            [class.t-icon_open]="open"
         ></tui-svg>
-    </div>
+    </button>
     <tui-expand
         [async]="async"
         [expanded]="open"
     >
-        <div
-            *ngIf="eagerContent"
-            class="content"
-        >
-            <ng-content select="[tuiAccordionItemContent]"></ng-content>
-        </div>
         <ng-template tuiExpandContent>
             <div
                 *ngIf="lazyContent"
-                polymorpheus-outlet
                 automation-id="tui-accordion__item-content"
-                class="content"
-                [content]="lazyContent"
-            ></div>
+                class="t-content"
+            >
+                <ng-container *polymorpheusOutlet="lazyContent as text">
+                    {{ text }}
+                </ng-container>
+            </div>
         </ng-template>
+        <div
+            *ngIf="eagerContent"
+            class="t-content"
+        >
+            <ng-content select="[tuiAccordionItemContent]"></ng-content>
+        </div>
     </tui-expand>
 </div>

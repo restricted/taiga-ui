@@ -2,7 +2,7 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {RouterModule} from '@angular/router';
 import {TuiMoneyModule} from '@taiga-ui/addon-commerce';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {TuiRepeatTimesModule} from '@taiga-ui/cdk';
 import {
     TuiButtonModule,
@@ -24,6 +24,7 @@ import {TuiCarouselExample1} from './examples/1';
 import {TuiCarouselExample2} from './examples/2';
 import {TuiCarouselExample3} from './examples/3';
 import {TuiCarouselExample4} from './examples/4';
+import {TuiCarouselExample5} from './examples/5';
 
 @NgModule({
     imports: [
@@ -41,7 +42,7 @@ import {TuiCarouselExample4} from './examples/4';
         TuiModeModule,
         TuiRepeatTimesModule,
         TuiAddonDocModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiCarouselComponent)),
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTuiCarouselComponent)),
     ],
     declarations: [
         ExampleTuiCarouselComponent,
@@ -49,6 +50,7 @@ import {TuiCarouselExample4} from './examples/4';
         TuiCarouselExample2,
         TuiCarouselExample3,
         TuiCarouselExample4,
+        TuiCarouselExample5,
     ],
     exports: [ExampleTuiCarouselComponent],
 })

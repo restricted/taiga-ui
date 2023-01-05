@@ -1,7 +1,7 @@
 import {Component, forwardRef, ViewChild} from '@angular/core';
 import {FormControl, Validators} from '@angular/forms';
 import {changeDetection} from '@demo/emulate/change-detection';
-import {TuiDocExample} from '@taiga-ui/addon-doc';
+import {TuiDocExample, tuiDocExcludeProperties} from '@taiga-ui/addon-doc';
 import {TuiAutofillFieldName} from '@taiga-ui/cdk';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
@@ -17,6 +17,7 @@ import {ABSTRACT_PROPS_ACCESSOR} from '../abstract/inherited-documentation/abstr
             provide: ABSTRACT_PROPS_ACCESSOR,
             useExisting: forwardRef(() => ExampleTuiInputCopyComponent),
         },
+        tuiDocExcludeProperties(['tuiTextfieldPrefix', 'tuiTextfieldPostfix']),
     ],
 })
 export class ExampleTuiInputCopyComponent extends AbstractExampleTuiControl {
@@ -24,19 +25,19 @@ export class ExampleTuiInputCopyComponent extends AbstractExampleTuiControl {
     customTemplate: PolymorpheusContent = '';
 
     readonly example1: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/1/index.ts'),
-        HTML: import('!!raw-loader!./examples/1/index.html'),
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
     };
 
-    readonly exampleModule = import('!!raw-loader!./examples/import/import-module.txt');
-    readonly exampleHtml = import('!!raw-loader!./examples/import/insert-template.txt');
-    readonly exampleForm = import('!!raw-loader!./examples/import/declare-form.txt');
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
+    readonly exampleForm = import('./examples/import/declare-form.md?raw');
 
     readonly control = new FormControl('', Validators.required);
 
-    readonly maxLengthVariants: readonly number[] = [10];
+    override readonly maxLengthVariants: readonly number[] = [10];
 
-    readonly autocompleteVariants: TuiAutofillFieldName[] = [
+    override readonly autocompleteVariants: TuiAutofillFieldName[] = [
         'off',
         'cc-name',
         'cc-number',
@@ -53,16 +54,16 @@ export class ExampleTuiInputCopyComponent extends AbstractExampleTuiControl {
         'country-name',
     ];
 
-    readonly autocomplete: TuiAutofillFieldName | '' = '';
+    override readonly autocomplete: TuiAutofillFieldName | '' = '';
 
-    readonly maxLength = null;
+    override readonly maxLength = null;
 
     readonly successMessageVariants = ['Copied', 'Template'];
 
     successMessage = this.successMessageVariants[0];
 
     messageDirection = this.hintDirectionVariants[0];
-    messageMode = this.hintModeVariants[0];
+    messageMode = this.hintAppearanceVariants[0];
 
     get notificationTemplate(): PolymorpheusContent {
         return this.successMessage === 'Template'

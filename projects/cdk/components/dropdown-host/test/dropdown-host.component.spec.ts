@@ -1,13 +1,11 @@
 import {Component, ViewChild} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {TuiDropdownHostComponent, TuiDropdownHostModule} from '@taiga-ui/cdk';
 import {configureTestSuite} from '@taiga-ui/testing';
 import {PolymorpheusModule} from '@tinkoff/ng-polymorpheus';
 
-import {TuiDropdownHostComponent} from '../dropdown-host.component';
-import {TuiDropdownHostModule} from '../dropdown-host.module';
-
-describe('DropdownHost', () => {
+describe(`DropdownHost`, () => {
     @Component({
         template: `
             <tui-dropdown-host>
@@ -36,13 +34,13 @@ describe('DropdownHost', () => {
         fixture.detectChanges();
     });
 
-    it('calculates clientRect', () => {
-        expect(testComponent.dropdownHost!.clientRect.top).toBeGreaterThanOrEqual(0);
+    it(`calculates clientRect`, () => {
+        expect(testComponent.dropdownHost?.clientRect.top).toBeGreaterThanOrEqual(0);
     });
 
-    it('calculates fixedPositionOffset', () => {
+    it(`calculates fixedPositionOffset`, () => {
         expect(
-            testComponent.dropdownHost!.fixedPositionOffset().top,
+            testComponent.dropdownHost?.fixedPositionOffset().top,
         ).toBeGreaterThanOrEqual(0);
     });
 });

@@ -1,7 +1,12 @@
 import {DOCUMENT} from '@angular/common';
-import {ChangeDetectionStrategy, Component, ElementRef, Inject} from '@angular/core';
-import {TUI_DIALOGS, TUI_IS_MOBILE, tuiAssert} from '@taiga-ui/cdk';
-import {VERSION} from '@taiga-ui/core/constants';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    Inject,
+    ViewEncapsulation,
+} from '@angular/core';
+import {TUI_DIALOGS, TUI_IS_MOBILE, TUI_VERSION, tuiAssert} from '@taiga-ui/cdk';
 import {TUI_IS_MOBILE_RES_PROVIDER} from '@taiga-ui/core/providers';
 import {
     TUI_ANIMATIONS_DURATION,
@@ -12,16 +17,17 @@ import {
 import {merge, Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 
-// @dynamic
 @Component({
     selector: 'tui-root',
     templateUrl: 'root.template.html',
     styleUrls: ['./root.style.less'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    // So that we do not force OnPush on custom dialogs
+    changeDetection: ChangeDetectionStrategy.Default,
     providers: [TUI_IS_MOBILE_RES_PROVIDER],
+    encapsulation: ViewEncapsulation.None,
     host: {
-        'data-tui-version': VERSION,
-        '[style.--tui-duration]': 'duration + "ms"',
+        'data-tui-version': TUI_VERSION,
+        '[style.--tui-duration.ms]': 'duration',
         '($.class._mobile)': 'isMobileRes$',
     },
 })

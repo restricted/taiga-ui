@@ -10,17 +10,17 @@ import {TuiDocExample} from '@taiga-ui/addon-doc';
 })
 export class WrapperComponent {
     readonly example1: TuiDocExample = {
-        HTML: import('!!raw-loader!./examples/1/index.html'),
-        LESS: import('!!raw-loader!./examples/1/index.less'),
-        TypeScript: import('!!raw-loader!./examples/1/index.ts'),
+        HTML: import('./examples/1/index.html?raw'),
+        LESS: import('./examples/1/index.less?raw'),
+        TypeScript: import('./examples/1/index.ts?raw'),
     };
 
     readonly mixins = [
-        `.wrapper-hover(@ruleset)`,
-        `.wrapper-active(@ruleset)`,
-        `.wrapper-readonly(@ruleset)`,
-        `.wrapper-disabled(@ruleset)`,
-        `.wrapper-focus(@ruleset)`,
-        `.wrapper-invalid(@ruleset)`,
+        '.wrapper-hover(@ruleset)',
+        '.wrapper-active(@ruleset)',
+        '.wrapper-readonly(@ruleset)',
+        '.wrapper-disabled(@ruleset)',
+        '.wrapper-focus(@ruleset)',
+        '.wrapper-invalid(@ruleset)',
     ];
 }

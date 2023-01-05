@@ -1,11 +1,14 @@
 <div class="t-row t-row_weekday">
     <div
-        *ngFor="let day of weekDays$ | async"
+        *ngFor="let day of unorderedWeekDays$ | tuiOrderWeekDays | async"
         class="t-cell"
-        [innerText]="day"
+        [textContent]="day"
     ></div>
 </div>
-<div *tuiLet="month | tuiCalendarSheet: true as sheet">
+<div
+    *tuiLet="month | tuiCalendarSheet : true as sheet"
+    id="date-rows"
+>
     <div
         *tuiRepeatTimes="let rowIndex of sheet.length"
         automation-id="tui-primitive-calendar__row"
@@ -17,9 +20,9 @@
                     *ngIf="!itemIsUnavailable(item) || showAdjacent"
                     automation-id="tui-primitive-calendar__cell"
                     class="t-cell"
-                    [class.t-cell_weekend]="item.isWeekend"
                     [class.t-cell_today]="itemIsToday(item)"
                     [class.t-cell_interval]="itemIsInterval(item)"
+                    [class.t-cell_unavailable]="itemIsUnavailable(item)"
                     [attr.data-range]="getItemRange(item)"
                     [attr.data-state]="getItemState(item)"
                     (tuiHoveredChange)="onItemHovered($event && item)"
@@ -29,21 +32,22 @@
                     <div
                         automation-id="tui-primitive-calendar__item"
                         class="t-item"
+                        [attr.data-type]="item | tuiMapper : dayTypeHandler"
                         [class.t-item_unavailable]="itemIsUnavailable(item)"
                     >
                         {{ item.day }}
                         <div
-                            *ngIf="item | tuiMapper: toMarkers:itemIsToday(item):!!getItemRange(item) as markers"
+                            *ngIf="item | tuiMapper : toMarkers : itemIsToday(item) : !!getItemRange(item) as markers"
                             class="t-dots"
                         >
                             <div
                                 class="t-dot"
-                                [tuiBackground]="markers[0]"
+                                [style.backgroundColor]="markers[0]"
                             ></div>
                             <div
                                 *ngIf="markers.length > 1"
                                 class="t-dot"
-                                [tuiBackground]="markers[1] || ''"
+                                [style.backgroundColor]="markers[1] || ''"
                             ></div>
                         </div>
                     </div>

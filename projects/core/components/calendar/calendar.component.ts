@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import {
     ALWAYS_FALSE_HANDLER,
-    nullableSame,
     TUI_FIRST_DAY,
     TUI_LAST_DAY,
     TuiBooleanHandler,
@@ -16,13 +15,13 @@ import {
     tuiDefaultProp,
     TuiMapper,
     TuiMonth,
+    tuiNullableSame,
     TuiYear,
 } from '@taiga-ui/cdk';
 import {TUI_DEFAULT_MARKER_HANDLER} from '@taiga-ui/core/constants';
 import {TuiWithOptionalMinMax} from '@taiga-ui/core/interfaces';
 import {TuiMarkerHandler} from '@taiga-ui/core/types';
 
-// @dynamic
 @Component({
     selector: 'tui-calendar',
     templateUrl: './calendar.template.html',
@@ -30,13 +29,11 @@ import {TuiMarkerHandler} from '@taiga-ui/core/types';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TuiCalendarComponent implements TuiWithOptionalMinMax<TuiDay> {
-    @Input()
-    @tuiDefaultProp()
-    month: TuiMonth = TuiMonth.currentLocal();
+    private _value: TuiDay | TuiDayRange | null = null;
 
     @Input()
     @tuiDefaultProp()
-    value: TuiDayRange | TuiDay | null = null;
+    month: TuiMonth = TuiMonth.currentLocal();
 
     @Input()
     @tuiDefaultProp()
@@ -69,6 +66,20 @@ export class TuiCalendarComponent implements TuiWithOptionalMinMax<TuiDay> {
     @Input()
     @tuiDefaultProp()
     markerHandler: TuiMarkerHandler = TUI_DEFAULT_MARKER_HANDLER;
+
+    @Input()
+    @tuiDefaultProp()
+    set value(value: TuiDay | TuiDayRange | null) {
+        this._value = value;
+
+        if (this.showAdjacent && value instanceof TuiDay) {
+            this.month = value;
+        }
+    }
+
+    get value(): TuiDay | TuiDayRange | null {
+        return this._value;
+    }
 
     @Output()
     readonly dayClick = new EventEmitter<TuiDay>();
@@ -130,7 +141,7 @@ export class TuiCalendarComponent implements TuiWithOptionalMinMax<TuiDay> {
     }
 
     private updateHoveredDay(day: TuiDay | null): void {
-        if (nullableSame(this.hoveredItem, day, (a, b) => a.daySame(b))) {
+        if (tuiNullableSame(this.hoveredItem, day, (a, b) => a.daySame(b))) {
             return;
         }
 

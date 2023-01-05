@@ -32,6 +32,15 @@
         >
             <tui-radio-block-example-3></tui-radio-block-example-3>
         </tui-doc-example>
+
+        <tui-doc-example
+            id="reset"
+            i18n-heading
+            heading="Reset"
+            [content]="example4"
+        >
+            <tui-radio-block-example-4></tui-radio-block-example-4>
+        </tui-doc-example>
     </ng-template>
 
     <ng-template pageTab>
@@ -48,9 +57,9 @@
                         [contentAlign]="contentAlign"
                         [hideRadio]="hideRadio"
                         [pseudoInvalid]="pseudoInvalid"
-                        [pseudoFocused]="pseudoFocused"
-                        [pseudoHovered]="pseudoHovered"
-                        [pseudoPressed]="pseudoPressed"
+                        [pseudoFocus]="pseudoFocused"
+                        [pseudoHover]="pseudoHovered"
+                        [pseudoActive]="pseudoPressed"
                         [pseudoDisabled]="pseudoDisabled"
                         [size]="size"
                         [focusable]="focusable"
@@ -64,9 +73,9 @@
                         [contentAlign]="contentAlign"
                         [hideRadio]="hideRadio"
                         [pseudoInvalid]="pseudoInvalid"
-                        [pseudoFocused]="pseudoFocused"
-                        [pseudoHovered]="pseudoHovered"
-                        [pseudoPressed]="pseudoPressed"
+                        [pseudoFocus]="pseudoFocused"
+                        [pseudoHover]="pseudoHovered"
+                        [pseudoActive]="pseudoPressed"
                         [pseudoDisabled]="pseudoDisabled"
                         [size]="size"
                         [focusable]="focusable"
@@ -80,9 +89,9 @@
                         [contentAlign]="contentAlign"
                         [hideRadio]="hideRadio"
                         [pseudoInvalid]="pseudoInvalid"
-                        [pseudoFocused]="pseudoFocused"
-                        [pseudoHovered]="pseudoHovered"
-                        [pseudoPressed]="pseudoPressed"
+                        [pseudoFocus]="pseudoFocused"
+                        [pseudoHover]="pseudoHovered"
+                        [pseudoActive]="pseudoPressed"
                         [pseudoDisabled]="pseudoDisabled"
                         [size]="size"
                         [focusable]="focusable"
@@ -129,8 +138,7 @@
                 documentationPropertyMode="input"
                 documentationPropertyType="TuiIdentityMatcher"
             >
-                Function that matches value and items, e.g. if objects are
-                copied. Uses
+                Function that matches value and items, e.g. if objects are copied. Uses
                 <code>===</code>
                 by default.
 

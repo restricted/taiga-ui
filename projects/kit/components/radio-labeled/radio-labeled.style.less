@@ -11,7 +11,7 @@
     }
 }
 
-.wrapper {
+.t-wrapper {
     display: inline-flex;
     max-width: 100%;
     cursor: pointer;
@@ -26,9 +26,13 @@
     }
 }
 
-.content {
+.t-content {
     word-wrap: break-word;
     min-width: 0;
+
+    &_disabled {
+        opacity: var(--tui-disabled-opacity);
+    }
 
     :host[data-size='m'] & {
         margin-left: 0.5rem;

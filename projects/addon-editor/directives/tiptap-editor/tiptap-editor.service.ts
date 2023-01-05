@@ -1,21 +1,21 @@
 import './tiptap-editor.types';
 
 import {Inject, Injectable} from '@angular/core';
-import {TuiEditor} from '@taiga-ui/addon-editor/abstract';
+import {AbstractTuiEditor} from '@taiga-ui/addon-editor/abstract';
+import {TuiEditorAttachedFile} from '@taiga-ui/addon-editor/interfaces';
 import {TIPTAP_EDITOR} from '@taiga-ui/addon-editor/tokens';
-import {getMarkRange} from '@taiga-ui/addon-editor/utils';
+import {tuiGetMarkRange, tuiParseStyle} from '@taiga-ui/addon-editor/utils';
 import type {Editor, Range} from '@tiptap/core';
 import type {EditorState} from 'prosemirror-state';
 import {Observable} from 'rxjs';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
 
-import {isEmptyParagraph} from './utils/is-empty-paragraph';
+import {tuiIsEmptyParagraph} from './utils/is-empty-paragraph';
 
 type Level = 1 | 2 | 3 | 4 | 5 | 6;
 
-// @dynamic
 @Injectable()
-export class TuiTiptapEditorService extends TuiEditor {
+export class TuiTiptapEditorService extends AbstractTuiEditor {
     get isFocused(): boolean {
         return this.editor.isFocused;
     }
@@ -44,14 +44,14 @@ export class TuiTiptapEditorService extends TuiEditor {
         this.editorRef.subscribe(editor => {
             this.editor = editor;
 
-            editor.on('transaction', () => {
+            editor.on(`transaction`, () => {
                 this.stateChange$.next();
             });
 
-            editor.on('update', () => {
+            editor.on(`update`, () => {
                 const content = editor.getHTML();
                 const json = editor.getJSON().content;
-                const value: string = isEmptyParagraph(json) ? '' : content;
+                const value: string = tuiIsEmptyParagraph(json) ? `` : content;
 
                 this.valueChange$.next(value);
             });
@@ -71,20 +71,31 @@ export class TuiTiptapEditorService extends TuiEditor {
     }
 
     getFontColor(): string {
-        return this.editor.getAttributes('textStyle').fontColor || 'rgb(51, 51, 51)';
+        return this.editor.getAttributes(`textStyle`).fontColor || `rgb(51, 51, 51)`;
     }
 
     getBackgroundColor(): string {
         return (
-            this.editor?.getAttributes('textStyle').backgroundColor || 'rgb(51, 51, 51)'
+            this.editor?.getAttributes(`textStyle`).backgroundColor || `rgb(51, 51, 51)`
         );
     }
 
     getCellColor(): string {
         return (
-            this.editor.getAttributes('tableCell').background ||
-            this.editor.getAttributes('tableHeader').background
+            this.editor.getAttributes(`tableCell`).background ||
+            this.editor.getAttributes(`tableHeader`).background
         );
+    }
+
+    getGroupColor(): string {
+        if (this.editor.isActive(`group`)) {
+            const style = this.editor.getAttributes(`group`)?.style ?? ``;
+            const styles = tuiParseStyle(style);
+
+            return styles[`background-color`] ?? styles[`background`] ?? ``;
+        }
+
+        return ``;
     }
 
     onAlign(align: string): void {
@@ -145,6 +156,14 @@ export class TuiTiptapEditorService extends TuiEditor {
 
     togglePre(): void {
         this.editor.chain().focus().toggleCodeBlock().run();
+    }
+
+    sinkListItem(): void {
+        this.editor.chain().focus().sinkListItem(`listItem`).run();
+    }
+
+    liftListItem(): void {
+        this.editor.chain().focus().liftListItem(`listItem`).run();
     }
 
     isActive(nameOrAttributes: Record<string, string> | string): boolean {
@@ -235,15 +254,19 @@ export class TuiTiptapEditorService extends TuiEditor {
         this.editor.chain().focus().setHeading({level}).run();
     }
 
-    setParagraph(): void {
+    setParagraph(options?: {fontSize: string}): void {
         this.editor.chain().focus().setParagraph().run();
+
+        if (options) {
+            this.editor.chain().setMark(`textStyle`, options).run();
+        }
     }
 
     setHardBreak(): void {
         this.editor.chain().setHardBreak().run();
     }
 
-    setTextSelection(value: number | Range): void {
+    setTextSelection(value: Range | number): void {
         this.editor.commands.setTextSelection(value);
     }
 
@@ -257,14 +280,6 @@ export class TuiTiptapEditorService extends TuiEditor {
 
     unsetLink(): void {
         this.editor.chain().focus().unsetLink().run();
-    }
-
-    indent(): void {
-        this.editor.commands.indent();
-    }
-
-    outdent(): void {
-        this.editor.commands.outdent();
     }
 
     focus(): void {
@@ -286,7 +301,7 @@ export class TuiTiptapEditorService extends TuiEditor {
     selectClosest(): void {
         const pos = this.editor.state.selection.anchor;
         const {schema, doc} = this.editor.state;
-        const range = getMarkRange(doc.resolve(pos), schema.marks.link);
+        const range = tuiGetMarkRange(doc.resolve(pos), schema.marks.link);
 
         if (range) {
             this.editor.chain().setTextSelection(range).run();
@@ -295,5 +310,37 @@ export class TuiTiptapEditorService extends TuiEditor {
 
     enter(): void {
         this.editor.commands.enter();
+    }
+
+    setDetails(): void {
+        this.editor.commands.setDetails();
+    }
+
+    removeDetails(): void {
+        this.editor.commands.removeDetails();
+    }
+
+    setGroup(): void {
+        this.editor.commands.setGroup();
+    }
+
+    removeGroup(): void {
+        this.editor.commands.removeGroup();
+    }
+
+    setGroupHilite(color: string): void {
+        this.editor.commands.setGroupHilite(color);
+    }
+
+    setAnchor(anchor: string): void {
+        this.editor.commands.setAnchor(anchor.replace(`#`, ``));
+    }
+
+    removeAnchor(): void {
+        this.editor.commands.removeAnchor();
+    }
+
+    setFileLink(preview: TuiEditorAttachedFile): void {
+        this.editor.commands.setFileLink(preview);
     }
 }

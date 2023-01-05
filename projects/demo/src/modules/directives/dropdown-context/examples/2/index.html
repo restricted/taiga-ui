@@ -7,38 +7,35 @@
                 *ngFor="let column of tableColumns"
                 class="tui-table__th"
             >
-                {{column}}
+                {{ column }}
             </th>
         </tr>
         <tr
             *ngFor="let rowInfo of tableData"
+            #dropdown="tuiDropdown"
+            tuiDropdownContext
             class="tui-table__tr"
-            [tuiDropdownContext]="contextMenu"
+            [tuiDropdown]="contextMenu"
         >
             <td
                 *ngFor="let value of getObjectValues(rowInfo)"
                 class="tui-table__td"
             >
-                {{value}}
+                {{ value }}
             </td>
 
-            <ng-template
-                #contextMenu
-                let-close="close"
-                let-activeZone="activeZone"
-            >
+            <ng-template #contextMenu>
                 <tui-data-list
                     role="menu"
                     tuiDataListDropdownManager
                     class="context-menu"
-                    [tuiActiveZoneParent]="activeZone"
                 >
                     <button
                         *ngFor="let item of menuItems"
                         tuiOption
-                        (click)="printToConsole(item.title, rowInfo); close()"
+                        (click)="printToConsole(item.title, rowInfo); dropdown.toggle(false)"
                     >
-                        {{item.title}}
+                        {{ item.title }}
                         <tui-svg
                             class="icon"
                             [src]="item.iconName"
@@ -47,25 +44,21 @@
 
                     <button
                         tuiOption
+                        tuiDropdownSided
                         tuiDropdownAlign="right"
-                        [tuiDropdown]="false"
-                        [tuiDropdownContent]="nestedMenu"
-                        [tuiDropdownSided]="true"
+                        [tuiDropdown]="nestedMenu"
                     >
                         More
                     </button>
                 </tui-data-list>
 
                 <ng-template #nestedMenu>
-                    <tui-data-list
-                        tuiDataListDropdownManager
-                        [tuiActiveZoneParent]="activeZone"
-                    >
+                    <tui-data-list>
                         <button
                             *ngFor="let option of moreOptions"
                             tuiOption
                         >
-                            {{option}}
+                            {{ option }}
                         </button>
                     </tui-data-list>
                 </ng-template>

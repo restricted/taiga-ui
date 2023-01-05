@@ -10,11 +10,15 @@
     }
 }
 
-.wrapper {
+.t-wrapper {
     /* stylelint-disable-next-line */
     display: -webkit-box;
 
     /* autoprefixer: ignore next */
     -webkit-box-orient: vertical;
     overflow: hidden;
+
+    ::ng-deep > * {
+        white-space: initial;
+    }
 }

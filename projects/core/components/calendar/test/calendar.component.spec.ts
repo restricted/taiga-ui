@@ -1,20 +1,28 @@
+import {HarnessLoader} from '@angular/cdk/testing';
+import {TestbedHarnessEnvironment} from '@angular/cdk/testing/testbed';
 import {Component, ViewChild} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {TuiDay, TuiMonth, TuiYear} from '@taiga-ui/cdk';
-import {configureTestSuite, PageObject} from '@taiga-ui/testing';
+import {TuiDay, TuiMonth} from '@taiga-ui/cdk';
+import {TuiCalendarComponent, TuiCalendarModule} from '@taiga-ui/core';
+import {configureTestSuite, TuiCalendarHarness} from '@taiga-ui/testing';
 
-import {TuiCalendarComponent} from '../calendar.component';
-import {TuiCalendarModule} from '../calendar.module';
-
-describe('Calendar', () => {
+describe(`Calendar`, () => {
     @Component({
         template: `
             <tui-calendar
                 [value]="value"
-                [disabledItemHandler]="disabledItemHandler"
+                (dayClick)="dayClick($event)"
+                (hoveredItemChange)="hoveredItemChange($event)"
+            ></tui-calendar>
+            <tui-calendar
+                id="min-case"
                 [min]="min"
-                [max]="max"
                 [minViewedMonth]="minViewedMonth"
+                [(month)]="month"
+            ></tui-calendar>
+            <tui-calendar
+                id="max-case"
+                [max]="max"
                 [maxViewedMonth]="maxViewedMonth"
                 [(month)]="month"
             ></tui-calendar>
@@ -24,24 +32,23 @@ describe('Calendar', () => {
         @ViewChild(TuiCalendarComponent, {static: true})
         component!: TuiCalendarComponent;
 
-        min = TuiDay.currentLocal().append({month: -2});
-        max = TuiDay.currentLocal().append({month: 2});
-        minViewedMonth: TuiMonth | null = TuiMonth.currentLocal().append({month: -1});
-        maxViewedMonth: TuiMonth | null = TuiMonth.currentLocal().append({month: 1});
         value = TuiDay.currentLocal();
-        month = TuiMonth.currentLocal();
-        disabledItemHandler = (item: TuiDay): boolean => item.day === 10;
+        month = new TuiMonth(2019, 2);
+
+        min = new TuiDay(2019, 2, 1);
+        minViewedMonth = new TuiDay(2019, 1, 1);
+
+        max = new TuiDay(2019, 2, 1);
+        maxViewedMonth = new TuiDay(2019, 3, 1);
+
+        dayClick = jest.fn();
+        hoveredItemChange = jest.fn();
     }
 
     let fixture: ComponentFixture<TestComponent>;
+    let loader: HarnessLoader;
     let testComponent: TestComponent;
     let component: TuiCalendarComponent;
-    let pageObject: PageObject<TestComponent>;
-    const testContext = {
-        get prefix(): string {
-            return 'tui-calendar__';
-        },
-    };
 
     configureTestSuite(() => {
         TestBed.configureTestingModule({
@@ -52,43 +59,48 @@ describe('Calendar', () => {
 
     beforeEach(() => {
         fixture = TestBed.createComponent(TestComponent);
+        loader = TestbedHarnessEnvironment.loader(fixture);
         testComponent = fixture.componentInstance;
         component = testComponent.component;
-        pageObject = new PageObject(fixture);
         fixture.detectChanges();
     });
 
-    it('Year selection is not initially visible', () => {
-        expect(pageObject.getByAutomationId(`${testContext.prefix}year`)).toBeNull();
+    it(`Year selection is not initially visible`, async () => {
+        const calendar = await loader.getHarness(TuiCalendarHarness);
+
+        expect(await calendar.yearPickerShown()).toBe(false);
     });
 
-    it('Month selection is initially visible', () => {
-        expect(
-            pageObject.getByAutomationId(`${testContext.prefix}pagination`),
-        ).not.toBeNull();
+    it(`Month selection is initially visible`, async () => {
+        const calendar = await loader.getHarness(TuiCalendarHarness);
+
+        expect(await calendar.yearMonthPaginationShown()).toBe(true);
     });
 
-    it('Day selection is initially visible', () => {
-        expect(
-            pageObject.getByAutomationId(`${testContext.prefix}calendar`),
-        ).not.toBeNull();
+    it(`Day selection is initially visible`, async () => {
+        const calendar = await loader.getHarness(TuiCalendarHarness);
+
+        expect(await calendar.primitiveCalendarShown()).toBe(true);
     });
 
-    it('onPaginationYearClick changes year correctly', () => {
-        component.onPaginationYearClick(new TuiYear(2002));
+    it(`onPaginationYearClick shows primtive year picker component`, async () => {
+        const calendar = await loader.getHarness(TuiCalendarHarness);
 
-        expect(component.year!.formattedYear).toBe('2002');
+        await calendar.clickPaginationYear();
+        expect(await calendar.yearPickerShown()).toBe(true);
     });
 
-    it('onPickerYearClick sets year as null', () => {
-        const year = new TuiYear(2002);
+    it(`onPickerYearClick sets year as null`, async () => {
+        const calendar = await loader.getHarness(TuiCalendarHarness);
 
-        component.onPickerYearClick(year);
+        await calendar.clickPaginationYear();
 
-        expect(component.year).toBe(null);
+        await calendar.clickPickerYear(`2022`);
+
+        expect(await calendar.yearPickerShown()).toBe(false);
     });
 
-    it('onPaginationValueChange does not update month if it is the same with current', () => {
+    it(`onPaginationValueChange does not update month if it is the same with current`, () => {
         const date = new Date();
         const savedMonth = new TuiMonth(date.getFullYear(), date.getMonth());
         const sameMonth = new TuiMonth(date.getFullYear(), date.getMonth());
@@ -100,51 +112,73 @@ describe('Calendar', () => {
         expect(component.month).toBe(savedMonth);
     });
 
-    it('click on day calls emitter', done => {
-        const savedDay = new TuiDay(2019, 2, 1);
+    it(`click on day calls emitter`, async () => {
+        const day = TuiDay.fromUtcNativeDate(new Date());
+        const calendar = await loader.getHarness(TuiCalendarHarness);
 
-        component.dayClick.subscribe((day: TuiDay) => {
-            expect(day).toBe(savedDay);
-            done();
-        });
-
-        component.onDayClick(savedDay);
+        await calendar.clickDay(day.day);
+        expect(testComponent.dayClick).toHaveBeenCalledWith(day);
     });
 
-    it('monitors hover on a certain day', () => {
-        const hoveredDay = new TuiDay(2019, 2, 1);
+    it(`right button should not toggle after max value`, async () => {
+        const calendar = await loader.getHarness(
+            TuiCalendarHarness.with({selector: `#max-case`}),
+        );
 
-        component.onHoveredItemChange(hoveredDay);
+        expect(await calendar.getContentText()).toEqual(`March  2019`);
 
-        expect(component.hoveredItem).toBe(hoveredDay);
+        await calendar.clickMonthLeft(); // Feb
+        await calendar.clickMonthLeft(); // Jan
+
+        expect(await calendar.getContentText()).toEqual(`January  2019`);
+
+        await calendar.clickMonthRight(); // Feb
+
+        expect(await calendar.getContentText()).toEqual(`February  2019`);
+
+        await calendar.clickMonthRight(); // Mar
+
+        // max month is March
+        await calendar.clickMonthRight(); // Mar
+        await calendar.clickMonthRight(); // Mar
+        await calendar.clickMonthRight(); // Mar
+        await calendar.clickMonthRight(); // Mar
+
+        expect(await calendar.getContentText()).toEqual(`March  2019`);
     });
 
-    it('does not monitor hover on the day secondly and more', () => {
-        const hoveredDay = new TuiDay(2019, 2, 1);
+    it(`monitors hover on a certain day`, async () => {
+        const day = TuiDay.fromUtcNativeDate(new Date());
+        const calendar = await loader.getHarness(TuiCalendarHarness);
 
-        component.hoveredItem = hoveredDay;
-        component.onHoveredItemChange(hoveredDay);
-
-        expect(component.hoveredItem).toBe(hoveredDay);
+        await calendar.hoverDay(day.day);
+        expect(testComponent.hoveredItemChange).toHaveBeenCalledWith(day);
     });
 
-    it('if minViewedMonth is less than set min, it will be computed as min', () => {
-        const minDay = new TuiDay(2019, 2, 3);
-        const beforeMinDay = minDay.append({month: -1});
+    it(`does not monitor hover on the day secondly and more`, async () => {
+        const day = TuiDay.fromUtcNativeDate(new Date());
+        const calendar = await loader.getHarness(TuiCalendarHarness);
 
-        component.min = minDay;
-        component.minViewedMonth = beforeMinDay;
-
-        expect(component.computedMinViewedMonth).toBe(minDay);
+        await calendar.hoverDay(day.day);
+        await calendar.hoverDay(day.day);
+        expect(testComponent.hoveredItemChange).toHaveBeenCalledTimes(1);
     });
 
-    it('if maxViewedMonth is more than set max, it will be computed as max', () => {
-        const maxDay = new TuiDay(2019, 2, 3);
-        const afterMaxDay = maxDay.append({month: 1});
+    it(`if minViewedMonth is less than set min, it will be computed as min`, async () => {
+        const calendar = await loader.getHarness(
+            TuiCalendarHarness.with({selector: `#min-case`}),
+        );
+        const res = await calendar.isPaginationLeftDisabled();
 
-        component.max = maxDay;
-        component.maxViewedMonth = afterMaxDay;
+        expect(res).toBe(true);
+    });
 
-        expect(component.computedMaxViewedMonth).toBe(maxDay);
+    it(`if maxViewedMonth is more than set max, it will be computed as max`, async () => {
+        const calendar = await loader.getHarness(
+            TuiCalendarHarness.with({selector: `#max-case`}),
+        );
+        const res = await calendar.isPaginationRightDisabled();
+
+        expect(res).toBe(true);
     });
 });

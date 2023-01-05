@@ -7,9 +7,9 @@ import {switchMap} from 'rxjs/operators';
 import {PromptService} from './prompt/prompt.service';
 
 @Component({
-    selector: 'tui-dialogs-example-1',
-    templateUrl: './index.html',
-    styleUrls: ['./index.less'],
+    selector: `tui-dialogs-example-1`,
+    templateUrl: `./index.html`,
+    styleUrls: [`./index.less`],
     changeDetection,
 })
 export class TuiDialogsExample1 {
@@ -20,14 +20,14 @@ export class TuiDialogsExample1 {
     ) {}
 
     onClick(
-        choose: PolymorpheusContent<any>,
-        poorly: PolymorpheusContent<any>,
-        wisely: PolymorpheusContent<any>,
+        choose: PolymorpheusContent,
+        poorly: PolymorpheusContent,
+        wisely: PolymorpheusContent,
     ): void {
         this.promptService
-            .open<unknown>(choose, {
-                heading: 'Taiga UI is the best',
-                buttons: ['Absolutely!', 'No way!'],
+            .open(choose, {
+                heading: `Taiga UI is the best`,
+                buttons: [`Absolutely!`, `No way!`],
             })
             .pipe(
                 switchMap(response =>

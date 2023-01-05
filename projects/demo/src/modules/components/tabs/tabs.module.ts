@@ -2,7 +2,7 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {TuiMobileTabsModule, TuiRippleModule} from '@taiga-ui/addon-mobile';
 import {
     TuiButtonModule,
@@ -21,6 +21,7 @@ import {TuiTabsExample4} from './examples/4';
 import {TuiTabsExample5} from './examples/5';
 import {TuiTabsExample6} from './examples/6';
 import {TuiTabsExample7} from './examples/7';
+import {TuiTabsExample8} from './examples/8';
 import {ExampleTuiTabsComponent} from './tabs.component';
 
 @NgModule({
@@ -38,7 +39,7 @@ import {ExampleTuiTabsComponent} from './tabs.component';
         TuiDataListModule,
         TuiAddonDocModule,
         TuiMobileTabsModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiTabsComponent)),
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTuiTabsComponent)),
     ],
     declarations: [
         ExampleTuiTabsComponent,
@@ -49,6 +50,7 @@ import {ExampleTuiTabsComponent} from './tabs.component';
         TuiTabsExample5,
         TuiTabsExample6,
         TuiTabsExample7,
+        TuiTabsExample8,
     ],
     exports: [ExampleTuiTabsComponent],
 })

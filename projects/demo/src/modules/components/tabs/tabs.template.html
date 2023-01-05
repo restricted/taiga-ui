@@ -6,8 +6,7 @@
 >
     <ng-template pageTab>
         <p i18n>
-            Component for creating tabs. It emulates appearance and behaviour of
-            native iOS and Android components with
+            Component for creating tabs. It emulates appearance and behaviour of native iOS and Android components with
             <code>tuiMobileTabs</code>
             directive from
             <code>TuiMobileTabsModule</code>
@@ -69,6 +68,14 @@
         </tui-doc-example>
 
         <tui-doc-example
+            id="vertical"
+            heading="Vertical"
+            [content]="example8"
+        >
+            <tui-tabs-example-8></tui-tabs-example-8>
+        </tui-doc-example>
+
+        <tui-doc-example
             id="android"
             heading="Android"
             [content]="example1"
@@ -95,7 +102,7 @@
             >
                 <ng-container *ngFor="let button of buttons">
                     <button
-                        *tuiTab
+                        *tuiItem
                         tuiTab
                     >
                         {{ button }}

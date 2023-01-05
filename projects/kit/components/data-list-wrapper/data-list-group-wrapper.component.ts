@@ -1,29 +1,18 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    forwardRef,
-    Inject,
-    Input,
-} from '@angular/core';
-import {tuiDefaultProp} from '@taiga-ui/cdk/decorators';
-import {TUI_DATA_LIST_ACCESSOR} from '@taiga-ui/core/tokens';
+import {ChangeDetectionStrategy, Component, Inject, Input, Optional} from '@angular/core';
+import {tuiDefaultProp} from '@taiga-ui/cdk';
+import {tuiAsDataListAccessor, TuiTextfieldSizeDirective} from '@taiga-ui/core';
 import {TUI_ITEMS_HANDLERS, TuiItemsHandlers} from '@taiga-ui/kit/tokens';
 
-import {AbstractDataListWrapper} from './data-list-wrapper';
+import {AbstractTuiDataListWrapper} from './data-list-wrapper';
 
 @Component({
     selector: 'tui-data-list-wrapper[labels]',
     templateUrl: './data-list-group-wrapper.template.html',
     styleUrls: ['./data-list-wrapper.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [
-        {
-            provide: TUI_DATA_LIST_ACCESSOR,
-            useExisting: forwardRef(() => TuiDataListGroupWrapperComponent),
-        },
-    ],
+    providers: [tuiAsDataListAccessor(TuiDataListGroupWrapperComponent)],
 })
-export class TuiDataListGroupWrapperComponent<T> extends AbstractDataListWrapper<T> {
+export class TuiDataListGroupWrapperComponent<T> extends AbstractTuiDataListWrapper<T> {
     @Input()
     @tuiDefaultProp()
     items: readonly T[][] | null = [];
@@ -32,7 +21,12 @@ export class TuiDataListGroupWrapperComponent<T> extends AbstractDataListWrapper
     @tuiDefaultProp()
     labels: readonly string[] = [];
 
-    constructor(@Inject(TUI_ITEMS_HANDLERS) itemsHandlers: TuiItemsHandlers<T>) {
-        super(itemsHandlers);
+    constructor(
+        @Inject(TUI_ITEMS_HANDLERS) itemsHandlers: TuiItemsHandlers<T>,
+        @Optional()
+        @Inject(TuiTextfieldSizeDirective)
+        controller: TuiTextfieldSizeDirective | null,
+    ) {
+        super(itemsHandlers, controller?.size || 'm');
     }
 }

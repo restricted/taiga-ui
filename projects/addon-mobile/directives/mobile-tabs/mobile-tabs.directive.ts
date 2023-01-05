@@ -4,7 +4,6 @@ import {TUI_TAB_MARGIN} from '@taiga-ui/kit';
 
 import {TuiMobileTabsComponent} from './mobile-tabs.component';
 
-// @dynamic
 @Directive({
     selector: '[tuiMobileTabs]',
     providers: [
@@ -24,7 +23,7 @@ export class TuiMobileTabsDirective {
     }
 
     @HostBinding('attr.data-platform')
-    get platform(): 'ios' | 'android' | null {
+    get platform(): 'android' | 'ios' | null {
         if (this.isIos) {
             return 'ios';
         }

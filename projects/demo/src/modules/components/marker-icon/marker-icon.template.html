@@ -11,8 +11,7 @@
             param to choose appearance or set it with custom styles
         </p>
         <tui-notification i18n>
-            Marker icons should be 48x48px or smaller. If icon is smaller, it
-            will be cantered.
+            Marker icons should be 48x48px or smaller. If icon is smaller, it will be cantered.
 
             <strong>s</strong>
             size shows an icon as it and other sizes scale it
@@ -42,6 +41,18 @@
             heading="sizes"
             [content]="example3"
         >
+            <tui-notification class="tui-space_bottom-4">
+                Sizes were updated and synced with
+                <a
+                    tuiLink
+                    routerLink="/components/avatar"
+                >
+                    <code>Avatar</code>
+                </a>
+                . To prevent breaking changes
+                <code>new</code>
+                attribute has to be added to enable new sizes.
+            </tui-notification>
             <tui-marker-icon-example-3></tui-marker-icon-example-3>
         </tui-doc-example>
     </ng-template>
@@ -49,6 +60,7 @@
     <ng-template pageTab>
         <tui-doc-demo>
             <tui-marker-icon
+                new
                 [mode]="mode"
                 [src]="selectedIcon"
                 [size]="size"
@@ -69,7 +81,7 @@
                 i18n
                 documentationPropertyName="size"
                 documentationPropertyMode="input"
-                documentationPropertyType="TuiSizeXS | TuiSizeXL"
+                documentationPropertyType="TuiSizeXXS | TuiSizeXXL"
                 [documentationPropertyValues]="sizeVariants"
                 [(documentationPropertyValue)]="size"
             >
@@ -83,8 +95,7 @@
                 [documentationPropertyValues]="icons"
                 [(documentationPropertyValue)]="selectedIcon"
             >
-                An icon. It can be stringified svg or a name of icon registered
-                in
+                An icon. It can be stringified svg or a name of icon registered in
                 <a
                     tuiLink
                     routerLink="/services/svg-service"

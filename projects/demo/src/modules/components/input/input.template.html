@@ -8,9 +8,8 @@
             i18n
             class="tui-space_bottom-3"
         >
-            Input&nbsp;&mdash; is a single-line textfield. It's not recommended
-            to use it with numbers, because the value type of this component is
-            a string
+            Input&nbsp;&mdash; is a single-line textfield. It's not recommended to use it with numbers, because the
+            value type of this component is a string
         </div>
 
         <p i18n>Inputs for other types of data:</p>
@@ -155,6 +154,19 @@
             heading="Mask"
             [content]="example3"
         >
+            <tui-notification
+                i18n
+                class="b-form"
+            >
+                Taiga UI input is compatible with
+                <a
+                    tuiLink
+                    href="https://www.npmjs.com/package/angular2-text-mask"
+                    target="_blank"
+                >
+                    angular2-text-mask
+                </a>
+            </tui-notification>
             <tui-input-example-3></tui-input-example-3>
         </tui-doc-example>
 
@@ -219,31 +231,35 @@
                     [formControl]="control"
                     [focusable]="focusable"
                     [pseudoInvalid]="pseudoInvalid"
-                    [pseudoFocused]="pseudoFocused"
-                    [pseudoHovered]="pseudoHovered"
-                    [icon]="icon"
-                    [iconAlign]="iconAlign"
+                    [pseudoFocus]="pseudoFocused"
+                    [pseudoHover]="pseudoHovered"
                     [readOnly]="readOnly"
-                    [tuiTextfieldType]="type"
-                    [tuiTextfieldExampleText]="exampleText"
+                    [tuiTextfieldIcon]="icon"
+                    [tuiTextfieldIconLeft]="iconLeft"
                     [tuiTextfieldLabelOutside]="labelOutside"
                     [tuiTextfieldCustomContent]="customContent"
-                    [tuiTextfieldAutocomplete]="autocomplete"
-                    [tuiTextfieldInputMode]="inputMode"
                     [tuiTextfieldSize]="size"
+                    [tuiTextfieldPrefix]="prefix"
+                    [tuiTextfieldPostfix]="postfix"
+                    [tuiTextfieldFiller]="filler"
                     [tuiTextfieldCleaner]="cleaner"
-                    [tuiTextfieldMaxLength]="maxLength"
                     [tuiDropdownAlign]="dropdownAlign"
                     [tuiDropdownDirection]="dropdownDirection"
                     [tuiDropdownLimitWidth]="dropdownLimitWidth"
                     [tuiDropdownMinHeight]="dropdownMinHeight"
                     [tuiDropdownMaxHeight]="dropdownMaxHeight"
+                    [tuiDropdownOffset]="dropdownOffset"
                     [tuiHintContent]="hintContent"
                     [tuiHintDirection]="hintDirection"
-                    [tuiHintMode]="hintMode"
+                    [tuiHintAppearance]="hintAppearance"
+                    [style.text-align]="textAlign"
                 >
-                    placeholder
+                    Label
                     <strong>strong text</strong>
+                    <input
+                        tuiTextfield
+                        [placeholder]="placeholder"
+                    />
                 </tui-input>
             </ng-template>
         </tui-doc-demo>
@@ -269,14 +285,13 @@
             </ng-template>
             <ng-template
                 i18n
-                documentationPropertyName="icon"
+                documentationPropertyName="tuiTextfieldIcon"
                 documentationPropertyMode="input"
-                documentationPropertyType="string | null"
+                documentationPropertyType="PolymorpheusContent"
                 [documentationPropertyValues]="iconVariants"
                 [(documentationPropertyValue)]="icon"
             >
-                An icon. It can be stringified svg or a name of icon registered
-                in
+                Icon content. If content is a string, it is used as stringified svg or a name of icon registered in
                 <a
                     tuiLink
                     routerLink="/services/svg-service"
@@ -286,16 +301,29 @@
             </ng-template>
             <ng-template
                 i18n
-                documentationPropertyName="iconAlign"
+                documentationPropertyName="placeholder"
                 documentationPropertyMode="input"
-                documentationPropertyType="TuiHorizontalDirection"
-                [documentationPropertyValues]="iconAlignVariants"
-                [(documentationPropertyValue)]="iconAlign"
+                documentationPropertyType="string"
+                [(documentationPropertyValue)]="placeholder"
             >
-                Icon align
+                Placeholder (use external
+                <code>&lt;input tuiTextfield/&gt;</code>
+                to set it)
             </ng-template>
         </tui-doc-documentation>
         <inherited-documentation [dropdown]="true"></inherited-documentation>
+        <tui-doc-documentation heading="CSS customization">
+            <ng-template
+                i18n
+                documentationPropertyMode="input"
+                documentationPropertyType="string"
+                documentationPropertyName="style.text-align"
+                [documentationPropertyValues]="textAlignVariants"
+                [(documentationPropertyValue)]="textAlign"
+            >
+                Custom align content by text-align
+            </ng-template>
+        </tui-doc-documentation>
     </ng-template>
 
     <ng-template pageTab>

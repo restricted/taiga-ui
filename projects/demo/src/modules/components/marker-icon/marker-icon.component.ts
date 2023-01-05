@@ -1,19 +1,8 @@
 import {Component} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
-import {TuiSizeXL, TuiSizeXS} from '@taiga-ui/core';
-import {TuiMarkerIconModeT} from '@taiga-ui/kit';
-
-import {default as example1Html} from '!!raw-loader!./examples/1/index.html';
-import {default as example1Ts} from '!!raw-loader!./examples/1/index.ts';
-import {default as example2Html} from '!!raw-loader!./examples/2/index.html';
-import {default as example2Less} from '!!raw-loader!./examples/2/index.less';
-import {default as example2Ts} from '!!raw-loader!./examples/2/index.ts';
-import {default as example3Html} from '!!raw-loader!./examples/3/index.html';
-import {default as example3Ts} from '!!raw-loader!./examples/3/index.ts';
-import {default as exampleModule} from '!!raw-loader!./examples/import/import-module.txt';
-import {default as exampleHtml} from '!!raw-loader!./examples/import/insert-template.txt';
-
-import {FrontEndExample} from '../../interfaces/front-end-example';
+import {TuiDocExample} from '@taiga-ui/addon-doc';
+import {TuiSizeXXL, TuiSizeXXS} from '@taiga-ui/core';
+import {TuiMarkerIconMode} from '@taiga-ui/kit';
 
 @Component({
     selector: 'example-tui-marker-icon',
@@ -22,40 +11,42 @@ import {FrontEndExample} from '../../interfaces/front-end-example';
     styleUrls: ['./marker-icon.style.less'],
 })
 export class ExampleTuiMarkerIconComponent {
-    readonly exampleModule = exampleModule;
-    readonly exampleHtml = exampleHtml;
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
 
-    readonly example1: FrontEndExample = {
-        TypeScript: example1Ts,
-        HTML: example1Html,
+    readonly example1: TuiDocExample = {
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
     };
 
-    readonly example2: FrontEndExample = {
-        TypeScript: example2Ts,
-        HTML: example2Html,
-        LESS: example2Less,
+    readonly example2: TuiDocExample = {
+        TypeScript: import('./examples/2/index.ts?raw'),
+        HTML: import('./examples/2/index.html?raw'),
+        LESS: import('./examples/2/index.less?raw'),
     };
 
-    readonly example3: FrontEndExample = {
-        TypeScript: example3Ts,
-        HTML: example3Html,
+    readonly example3: TuiDocExample = {
+        TypeScript: import('./examples/3/index.ts?raw'),
+        HTML: import('./examples/3/index.html?raw'),
     };
 
     readonly icons = ['tuiIconAttachLarge', 'tuiIconCallLarge', 'tuiIconStarLarge'];
 
     selectedIcon = this.icons[0];
 
-    readonly sizeVariants: ReadonlyArray<TuiSizeXS | TuiSizeXL> = [
+    readonly sizeVariants: ReadonlyArray<TuiSizeXXL | TuiSizeXXS> = [
+        'xxs',
         'xs',
         's',
         'm',
         'l',
         'xl',
+        'xxl',
     ];
 
-    size: TuiSizeXS | TuiSizeXL = this.sizeVariants[2];
+    size = this.sizeVariants[2];
 
-    readonly modeVariants: readonly TuiMarkerIconModeT[] = [
+    readonly modeVariants: readonly TuiMarkerIconMode[] = [
         'link',
         'primary',
         'warning',
@@ -65,5 +56,5 @@ export class ExampleTuiMarkerIconComponent {
         'error',
     ];
 
-    mode: TuiMarkerIconModeT | null = null;
+    mode: TuiMarkerIconMode | null = null;
 }

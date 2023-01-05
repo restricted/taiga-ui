@@ -17,18 +17,13 @@ export class TuiProjectClassDirective implements AfterViewChecked {
     ) {}
 
     ngAfterViewChecked(): void {
-        if (!this.classNames.length) {
-            return;
-        }
-
         this.classNames.forEach(className => {
             const hostElement = this.elementRef.nativeElement;
 
-            if (hostElement.querySelector(`.${className}`)) {
-                hostElement.classList.add(className);
-            } else {
-                hostElement.classList.remove(className);
-            }
+            hostElement.classList.toggle(
+                className,
+                !!hostElement.querySelector(`.${className}`),
+            );
         });
     }
 }

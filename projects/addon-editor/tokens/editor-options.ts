@@ -1,18 +1,24 @@
 import {InjectionToken, ValueProvider} from '@angular/core';
-import {defaultEditorColors, EDITOR_BLANK_COLOR} from '@taiga-ui/addon-editor/constants';
+import {
+    defaultEditorColors,
+    EDITOR_BLANK_COLOR,
+    tuiDefaultFontOptionsHandler,
+} from '@taiga-ui/addon-editor/constants';
 
 export interface TuiEditorOptions {
-    readonly colors: ReadonlyMap<string, string>;
     readonly blankColor: string;
+    readonly colors: ReadonlyMap<string, string>;
+    readonly fontOptions: typeof tuiDefaultFontOptionsHandler;
 }
 
 export const TUI_EDITOR_DEFAULT_OPTIONS: TuiEditorOptions = {
     colors: defaultEditorColors,
     blankColor: EDITOR_BLANK_COLOR,
+    fontOptions: tuiDefaultFontOptionsHandler,
 };
 
 export const TUI_EDITOR_OPTIONS = new InjectionToken<TuiEditorOptions>(
-    'Default Editor colors',
+    `[TUI_EDITOR_OPTIONS]: Default Editor colors`,
     {
         factory: () => TUI_EDITOR_DEFAULT_OPTIONS,
     },

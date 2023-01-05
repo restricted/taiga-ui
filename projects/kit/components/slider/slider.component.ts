@@ -5,6 +5,7 @@ import {
     ElementRef,
     HostBinding,
     Inject,
+    Injector,
     Input,
     Optional,
     Self,
@@ -13,13 +14,17 @@ import {NgControl, NgModel} from '@angular/forms';
 import {USER_AGENT} from '@ng-web-apis/common';
 import {
     CHROMIUM_EDGE_START_VERSION,
-    isEdgeOlderThan,
     tuiDefaultProp,
-    watch,
+    tuiIsEdgeOlderThan,
+    tuiPure,
+    tuiWatch,
 } from '@taiga-ui/cdk';
 import {TuiSizeS} from '@taiga-ui/core';
 import {take} from 'rxjs/operators';
 
+// TODO: find the best way for prevent cycle
+// eslint-disable-next-line import/no-cycle
+import {TuiSliderKeyStepsDirective} from './helpers/slider-key-steps.directive';
 import {TUI_SLIDER_OPTIONS, TuiSliderOptions} from './slider-options';
 
 @Component({
@@ -30,7 +35,7 @@ import {TUI_SLIDER_OPTIONS, TuiSliderOptions} from './slider-options';
      * cannot be matched by its CSS selector.
      */
     selector: 'input[type=range][tuiSlider]',
-    template: ``,
+    template: '',
     styleUrls: ['./slider.style.less'],
     host: {
         /**
@@ -67,7 +72,17 @@ export class TuiSliderComponent {
     }
 
     get value(): number {
-        return Number(this.elementRef.nativeElement.value) || 0;
+        const {elementRef, control, hasKeySteps} = this;
+
+        if (!hasKeySteps && control instanceof NgModel) {
+            /**
+             * If developer uses `[(ngModel)]` and programmatically change value,
+             * the `elementRef.nativeElement.value` is equal to the previous value at this moment.
+             */
+            return control.viewModel;
+        }
+
+        return Number(elementRef.nativeElement.value) || 0;
     }
 
     set value(newValue: number) {
@@ -84,20 +99,27 @@ export class TuiSliderComponent {
         return 100 / Math.max(1, this.segments);
     }
 
+    // TODO: drop support of legacy Edge (EdgeHTML) in v4.x
     @HostBinding('class._old-edge')
     get isOldEdge(): boolean {
-        return isEdgeOlderThan(CHROMIUM_EDGE_START_VERSION, this.userAgent);
+        return tuiIsEdgeOlderThan(CHROMIUM_EDGE_START_VERSION, this.userAgent);
+    }
+
+    @tuiPure
+    get hasKeySteps(): boolean {
+        return Boolean(this.injector.get(TuiSliderKeyStepsDirective, null));
     }
 
     constructor(
         @Optional()
         @Self()
         @Inject(NgControl)
-        control: NgControl | null,
+        private readonly control: NgControl | null,
         @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
         @Inject(TUI_SLIDER_OPTIONS) readonly options: TuiSliderOptions,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLInputElement>,
+        @Inject(ElementRef) readonly elementRef: ElementRef<HTMLInputElement>,
         @Inject(USER_AGENT) private readonly userAgent: string,
+        @Inject(Injector) private readonly injector: Injector,
     ) {
         if (control instanceof NgModel) {
             /**
@@ -107,7 +129,7 @@ export class TuiSliderComponent {
              * ___
              * See this {@link https://github.com/angular/angular/issues/14988 issue}
              */
-            control.valueChanges?.pipe(watch(changeDetectorRef), take(1)).subscribe();
+            control.valueChanges?.pipe(tuiWatch(changeDetectorRef), take(1)).subscribe();
         }
     }
 }

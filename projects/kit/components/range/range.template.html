@@ -1,11 +1,15 @@
-<div class="track">
+<div
+    class="t-track"
+    [style.--segment-width.%]="segmentWidthRatio * 100"
+    [style.--bg-size-ratio]="1 - segmentWidthRatio"
+>
     <input
         tuiSlider
         readonly
         type="range"
         step="any"
         automation-id="tui-range__left"
-        class="thumb"
+        class="t-thumb"
         [min]="min"
         [max]="max"
         [ngModel]="value[0]"
@@ -20,7 +24,7 @@
         type="range"
         step="any"
         automation-id="tui-range__right"
-        class="thumb"
+        class="t-thumb"
         [min]="min"
         [max]="max"
         [ngModel]="value[1]"
@@ -29,31 +33,4 @@
         [tuiFocusable]="focusable"
         [attr.disabled]="computedDisabled || null"
     />
-</div>
-
-<!-- TODO backward compatibility only (remove in v3.0) -->
-<div
-    *ngIf="segments > 0"
-    class="segments"
->
-    <span
-        *tuiRepeatTimes="let tickIndex of segments + 1"
-        automation-id="tui-slider__segment"
-        class="segment"
-    >
-        <ng-container *ngIf="fromToTexts$ | async as fromToText">
-            <span
-                *ngIf="!isNew"
-                class="number"
-            >
-                {{ getSegmentPrefix(tickIndex, fromToText) }} {{ tickIndex |
-                tuiSliderTickLabel:segments:computedKeySteps | tuiFormatNumber
-                }}
-                <span *ngIf="pluralizeMap">
-                    {{ tickIndex | tuiSliderTickLabel:segments:computedKeySteps
-                    | i18nPlural: pluralizeMap }}
-                </span>
-            </span>
-        </ng-container>
-    </span>
 </div>

@@ -21,15 +21,23 @@ export async function convertAllCompileFileToAllFile(config: Options): Promise<v
 
     const inputOptions: RollupOptions = {
         input: from,
-        output: {preferConst: true},
+        output: {
+            generatedCode: {
+                constBindings: true,
+            },
+        },
         plugins: [
-            typescript(prt2Options ?? {cacheRoot: 'node_modules/.cache/.rpt2_cache'}),
+            typescript(
+                prt2Options ?? {
+                    cacheRoot: `node_modules/.cache/.rpt2_cache`,
+                },
+            ),
             rollupSvgo({
-                include: '**/*.svg',
+                include: `**/*.svg`,
                 options: {
                     plugins: [
                         {
-                            name: 'preset-default',
+                            name: `preset-default`,
                             params: {
                                 overrides: {
                                     removeViewBox: false,
@@ -50,8 +58,10 @@ export async function convertAllCompileFileToAllFile(config: Options): Promise<v
     await bundle.write({
         banner,
         file: to,
-        format: 'es',
-        preferConst: true,
+        format: `es`,
+        generatedCode: {
+            constBindings: true,
+        },
     });
 
     /**

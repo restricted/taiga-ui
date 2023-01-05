@@ -1,22 +1,22 @@
 import {InjectionToken, ValueProvider} from '@angular/core';
-import {TuiSizeL, TuiSizeS} from '@taiga-ui/core/types';
-import {TuiStatusT} from '@taiga-ui/kit/types';
+import {TuiSizeL, TuiSizeS} from '@taiga-ui/core';
+import {TuiStatus} from '@taiga-ui/kit/types';
 
 export interface TuiTagOptions {
-    readonly size: TuiSizeS | TuiSizeL;
-    readonly status: TuiStatusT;
+    readonly size: TuiSizeL | TuiSizeS;
+    readonly status: TuiStatus;
     readonly autoColor: boolean;
 }
 
 /** Default values for the tag options. */
 export const TUI_TAG_DEFAULT_OPTIONS: TuiTagOptions = {
-    size: 'm',
-    status: 'default',
+    size: `m`,
+    status: `default`,
     autoColor: false,
 };
 
 export const TUI_TAG_OPTIONS = new InjectionToken<TuiTagOptions>(
-    'Default parameters for tag component',
+    `[TUI_TAG_OPTIONS]: Default parameters for tag component`,
     {
         factory: () => TUI_TAG_DEFAULT_OPTIONS,
     },

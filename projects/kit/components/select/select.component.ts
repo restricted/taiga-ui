@@ -13,15 +13,19 @@ import {
 import {NgControl} from '@angular/forms';
 import {
     AbstractTuiNullableControl,
-    isNativeFocused,
-    setNativeFocused,
+    TUI_IS_MOBILE,
     TuiActiveZoneDirective,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
     TuiContextWithImplicit,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
+    tuiIsNativeFocused,
 } from '@taiga-ui/cdk';
 import {
     TUI_TEXTFIELD_CLEANER,
+    tuiAsDataListHost,
+    tuiAsOptionContent,
     TuiDataListDirective,
     TuiDataListHost,
     TuiHostedDropdownComponent,
@@ -33,10 +37,12 @@ import {
     TuiValueContentContext,
 } from '@taiga-ui/core';
 import {TUI_ARROW_MODE, TuiArrowMode} from '@taiga-ui/kit/components/arrow';
+import {TUI_SELECT_OPTION} from '@taiga-ui/kit/components/select-option';
+import {FIXED_DROPDOWN_CONTROLLER_PROVIDER} from '@taiga-ui/kit/providers';
 import {TUI_ITEMS_HANDLERS, TuiItemsHandlers} from '@taiga-ui/kit/tokens';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
-import {TUI_SELECT_PROVIDERS} from './select.providers';
+import {AbstractTuiNativeSelect} from './native-select/native-select';
 import {TUI_SELECT_OPTIONS, TuiSelectOptions} from './select-options';
 
 @Component({
@@ -44,7 +50,13 @@ import {TUI_SELECT_OPTIONS, TuiSelectOptions} from './select-options';
     templateUrl: './select.template.html',
     styleUrls: ['./select.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: TUI_SELECT_PROVIDERS,
+    providers: [
+        tuiAsFocusableItemAccessor(TuiSelectComponent),
+        tuiAsControl(TuiSelectComponent),
+        tuiAsDataListHost(TuiSelectComponent),
+        tuiAsOptionContent(TUI_SELECT_OPTION),
+    ],
+    viewProviders: [FIXED_DROPDOWN_CONTROLLER_PROVIDER],
 })
 export class TuiSelectComponent<T>
     extends AbstractTuiNullableControl<T>
@@ -55,6 +67,9 @@ export class TuiSelectComponent<T>
 
     @ViewChild(TuiHostedDropdownComponent)
     private readonly hostedDropdown?: TuiHostedDropdownComponent;
+
+    @ContentChild(AbstractTuiNativeSelect, {static: true})
+    private readonly nativeSelect?: AbstractTuiNativeSelect;
 
     @Input()
     @tuiDefaultProp()
@@ -88,12 +103,14 @@ export class TuiSelectComponent<T>
         private readonly itemsHandlers: TuiItemsHandlers<T>,
         @Inject(TUI_SELECT_OPTIONS)
         private readonly options: TuiSelectOptions<T>,
+        @Inject(TUI_IS_MOBILE)
+        readonly isMobile: boolean,
     ) {
         super(control, changeDetectorRef);
     }
 
     get arrow(): PolymorpheusContent<
-        TuiContextWithImplicit<TuiSizeS | TuiSizeM | TuiSizeL>
+        TuiContextWithImplicit<TuiSizeL | TuiSizeM | TuiSizeS>
     > {
         return !this.interactive ? this.arrowMode.disabled : this.arrowMode.interactive;
     }
@@ -104,9 +121,13 @@ export class TuiSelectComponent<T>
 
     get focused(): boolean {
         return (
-            isNativeFocused(this.nativeFocusableElement) ||
+            tuiIsNativeFocused(this.nativeFocusableElement) ||
             (!!this.hostedDropdown && this.hostedDropdown.focused)
         );
+    }
+
+    get nativeDropdownMode(): boolean {
+        return !!this.nativeSelect && this.isMobile;
     }
 
     get computedValue(): string {
@@ -117,18 +138,16 @@ export class TuiSelectComponent<T>
         return this.valueContent || this.computedValue;
     }
 
-    onValueChange(value: string): void {
+    onValueChange(value: T): void {
         if (!value) {
             this.updateValue(null);
+        } else {
+            this.updateValue(value || null);
         }
     }
 
     onActiveZone(active: boolean): void {
         this.updateFocused(active);
-    }
-
-    onHovered(hovered: boolean): void {
-        this.updateHovered(hovered);
     }
 
     onKeyDownDelete(): void {
@@ -145,7 +164,7 @@ export class TuiSelectComponent<T>
 
     private focusInput(preventScroll: boolean = false): void {
         if (this.nativeFocusableElement) {
-            setNativeFocused(this.nativeFocusableElement, true, preventScroll);
+            this.nativeFocusableElement.focus({preventScroll});
         }
     }
 }

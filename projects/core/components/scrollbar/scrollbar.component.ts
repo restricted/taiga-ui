@@ -7,18 +7,17 @@ import {
     Inject,
     Input,
 } from '@angular/core';
-import {CSS, USER_AGENT} from '@ng-web-apis/common';
-import {getElementOffset, isFirefox, TUI_IS_IOS, tuiDefaultProp} from '@taiga-ui/cdk';
+import {CSS as CSS_TOKEN, USER_AGENT} from '@ng-web-apis/common';
+import {
+    TUI_IS_IOS,
+    tuiDefaultProp,
+    tuiGetElementOffset,
+    TuiInjectionTokenType,
+    tuiIsFirefox,
+} from '@taiga-ui/cdk';
 import {TUI_SCROLL_INTO_VIEW, TUI_SCROLLABLE} from '@taiga-ui/core/constants';
 import {TUI_SCROLL_REF} from '@taiga-ui/core/tokens';
 
-export function scrollRefFactory({
-    browserScrollRef,
-}: TuiScrollbarComponent): ElementRef<HTMLElement> {
-    return browserScrollRef;
-}
-
-// @dynamic
 @Component({
     selector: 'tui-scrollbar',
     templateUrl: './scrollbar.template.html',
@@ -28,7 +27,9 @@ export function scrollRefFactory({
         {
             provide: TUI_SCROLL_REF,
             deps: [TuiScrollbarComponent],
-            useFactory: scrollRefFactory,
+            useFactory: ({
+                browserScrollRef,
+            }: TuiScrollbarComponent): ElementRef<HTMLElement> => browserScrollRef,
         },
     ],
 })
@@ -37,7 +38,8 @@ export class TuiScrollbarComponent {
 
     private readonly isLegacy: boolean =
         !this.cssRef.supports('position', 'sticky') ||
-        (isFirefox(this.userAgent) && !this.cssRef.supports('scrollbar-width', 'none'));
+        (tuiIsFirefox(this.userAgent) &&
+            !this.cssRef.supports('scrollbar-width', 'none'));
 
     @Input()
     @tuiDefaultProp()
@@ -46,10 +48,8 @@ export class TuiScrollbarComponent {
     readonly browserScrollRef = new ElementRef(this.elementRef.nativeElement);
 
     constructor(
-        /**
-         * TODO: 3.0 remove "any" in new TS version; https://github.com/ng-web-apis/common/pull/6
-         */
-        @Inject(CSS) private readonly cssRef: any,
+        @Inject(CSS_TOKEN)
+        private readonly cssRef: TuiInjectionTokenType<typeof CSS_TOKEN>,
         @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
         @Inject(USER_AGENT) private readonly userAgent: string,
         @Inject(TUI_IS_IOS) private readonly isIos: boolean,
@@ -77,11 +77,13 @@ export class TuiScrollbarComponent {
         }
 
         const {nativeElement} = this.browserScrollRef;
-        const {offsetTop, offsetLeft} = getElementOffset(nativeElement, detail);
+        const {offsetTop, offsetLeft} = tuiGetElementOffset(nativeElement, detail);
+        const {clientHeight, clientWidth} = nativeElement;
+        const {offsetHeight, offsetWidth} = detail;
+        const scrollTop = offsetTop + offsetHeight / 2 - clientHeight / 2;
+        const scrollLeft = offsetLeft + offsetWidth / 2 - clientWidth / 2;
 
-        nativeElement.scrollTop =
-            offsetTop + detail.offsetHeight / 2 - nativeElement.clientHeight / 2;
-        nativeElement.scrollLeft =
-            offsetLeft + detail.offsetWidth / 2 - nativeElement.clientWidth / 2;
+        // ?. for our clients on Windows XP and Chrome 49
+        nativeElement.scrollTo?.(scrollLeft, scrollTop);
     }
 }

@@ -2,11 +2,11 @@ import {DebugElement} from '@angular/core';
 import {ComponentFixture} from '@angular/core/testing';
 import {FormControl} from '@angular/forms';
 
-import {PageObject} from '../page-object';
+import {TuiPageObject} from '../page-object';
 
 interface TestParams {
-    pageObject: PageObject<any>;
-    fixture: ComponentFixture<any>;
+    pageObject: TuiPageObject<unknown>;
+    fixture: ComponentFixture<unknown>;
     testComponent: TestComponent;
     prefix: string;
 }
@@ -15,41 +15,41 @@ interface TestComponent {
     control?: FormControl;
     value?: unknown;
     labelOutside: boolean;
-    size: 's' | 'm' | 'l';
+    size: 'l' | 'm' | 's';
 }
 
-export function testPlaceholder(
+export function tuiTestPlaceholder(
     context: TestParams,
-    setValue: unknown = 'value',
-    clearValue: unknown = '',
+    setValue: unknown = `value`,
+    clearValue: unknown = ``,
 ): void {
-    let pageObject: PageObject<any>;
-    let fixture: ComponentFixture<any>;
+    let pageObject: TuiPageObject<unknown>;
+    let fixture: ComponentFixture<unknown>;
     let testComponent: TestComponent;
 
-    describe('Placeholder', () => {
+    describe(`Placeholder`, () => {
         beforeEach(() => {
             pageObject = context.pageObject;
             fixture = context.fixture;
             testComponent = context.testComponent;
 
-            fixture.detectChanges();
+            fixture.autoDetectChanges();
         });
 
-        describe('in size S', () => {
+        describe(`in size S`, () => {
             beforeEach(() => {
-                testComponent.size = 's';
+                testComponent.size = `s`;
                 fixture.detectChanges();
             });
 
-            it('if no value, then shown', () => {
+            it(`if no value, then shown`, () => {
                 updateValue(clearValue);
                 fixture.detectChanges();
 
                 expect(getPlaceholder()).not.toBeNull();
             });
 
-            it('if specified, not shown', () => {
+            it(`if specified, not shown`, () => {
                 updateValue(setValue);
                 fixture.detectChanges();
 
@@ -57,20 +57,20 @@ export function testPlaceholder(
             });
         });
 
-        describe('in size M', () => {
+        describe(`in size M`, () => {
             beforeEach(() => {
-                testComponent.size = 'm';
+                testComponent.size = `m`;
                 fixture.detectChanges();
             });
 
-            it('if no value, then shown', () => {
+            it(`if no value, then shown`, () => {
                 updateValue(clearValue);
                 fixture.detectChanges();
 
                 expect(getPlaceholder()).not.toBeNull();
             });
 
-            it('if a value is given, then', () => {
+            it(`if a value is given, then`, () => {
                 updateValue(setValue);
                 testComponent.labelOutside = false;
                 fixture.detectChanges();
@@ -78,7 +78,7 @@ export function testPlaceholder(
                 expect(getPlaceholder()).not.toBeNull();
             });
 
-            it('if value is given but label is outside, then not shown', () => {
+            it(`if value is given but label is outside, then not shown`, () => {
                 updateValue(setValue);
                 testComponent.labelOutside = true;
                 fixture.detectChanges();
@@ -87,20 +87,20 @@ export function testPlaceholder(
             });
         });
 
-        describe('in size L', () => {
+        describe(`in size L`, () => {
             beforeEach(() => {
-                testComponent.size = 'l';
+                testComponent.size = `l`;
                 fixture.detectChanges();
             });
 
-            it('if no value, then shown', () => {
+            it(`if no value, then shown`, () => {
                 updateValue(clearValue);
                 fixture.detectChanges();
 
                 expect(getPlaceholder()).not.toBeNull();
             });
 
-            it('if a value is given, then', () => {
+            it(`if a value is given, then`, () => {
                 updateValue(setValue);
                 testComponent.labelOutside = false;
                 fixture.detectChanges();
@@ -108,7 +108,7 @@ export function testPlaceholder(
                 expect(getPlaceholder()).not.toBeNull();
             });
 
-            it('if value is given but label is outside, then not shown', () => {
+            it(`if value is given but label is outside, then not shown`, () => {
                 updateValue(setValue);
                 testComponent.labelOutside = true;
                 fixture.detectChanges();

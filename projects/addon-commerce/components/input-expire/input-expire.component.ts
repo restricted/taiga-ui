@@ -2,7 +2,6 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    forwardRef,
     Inject,
     Input,
     Optional,
@@ -13,8 +12,9 @@ import {NgControl} from '@angular/forms';
 import {tuiCreateAutoCorrectedExpirePipe} from '@taiga-ui/addon-commerce/utils';
 import {
     AbstractTuiControl,
-    TUI_FOCUSABLE_ITEM_ACCESSOR,
-    TuiCreditCardAutofillName,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
+    TuiAutofillFieldName,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
 } from '@taiga-ui/cdk';
@@ -23,7 +23,6 @@ import {
     TuiPrimitiveTextfieldComponent,
     TuiTextMaskOptions,
 } from '@taiga-ui/core';
-import {TextMaskConfig} from 'angular2-text-mask';
 
 @Component({
     selector: 'tui-input-expire',
@@ -31,10 +30,8 @@ import {TextMaskConfig} from 'angular2-text-mask';
     styleUrls: ['./input-expire.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
-        {
-            provide: TUI_FOCUSABLE_ITEM_ACCESSOR,
-            useExisting: forwardRef(() => TuiInputExpireComponent),
-        },
+        tuiAsFocusableItemAccessor(TuiInputExpireComponent),
+        tuiAsControl(TuiInputExpireComponent),
     ],
 })
 export class TuiInputExpireComponent
@@ -48,7 +45,7 @@ export class TuiInputExpireComponent
     @tuiDefaultProp()
     autocompleteEnabled = false;
 
-    readonly textMaskOptions: TextMaskConfig = {
+    readonly textMaskOptions: TuiTextMaskOptions = {
         mask: [
             TUI_DIGIT_REGEXP,
             TUI_DIGIT_REGEXP,
@@ -58,7 +55,7 @@ export class TuiInputExpireComponent
         ],
         pipe: tuiCreateAutoCorrectedExpirePipe(),
         guide: false,
-    } as TuiTextMaskOptions as unknown as TextMaskConfig;
+    };
 
     constructor(
         @Optional()
@@ -78,16 +75,14 @@ export class TuiInputExpireComponent
         return !!this.input && this.input.focused;
     }
 
-    get autocomplete(): TuiCreditCardAutofillName {
-        return this.autocompleteEnabled
-            ? TuiCreditCardAutofillName.CcExp
-            : TuiCreditCardAutofillName.Off;
+    get autocomplete(): TuiAutofillFieldName {
+        return this.autocompleteEnabled ? 'cc-exp' : 'off';
     }
 
     onValueChange(value: string): void {
         // @bad TODO: Workaround until mask pipe can replace chars and keep caret position
         // @bad TODO: Think about a solution without mask at all
-        if (!this.input || !this.input.nativeFocusableElement) {
+        if (!this.input?.nativeFocusableElement) {
             return;
         }
 
@@ -108,10 +103,6 @@ export class TuiInputExpireComponent
 
     onFocused(focused: boolean): void {
         this.updateFocused(focused);
-    }
-
-    onHovered(hovered: boolean): void {
-        this.updateHovered(hovered);
     }
 
     protected getFallbackValue(): string {

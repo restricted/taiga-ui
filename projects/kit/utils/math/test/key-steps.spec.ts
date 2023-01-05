@@ -4,7 +4,7 @@ import {
     tuiPercentageToKeyStepValue,
 } from '@taiga-ui/kit';
 
-describe('KeySteps utils', () => {
+describe(`KeySteps utils`, () => {
     const keySteps: TuiKeySteps = [
         [0, -100],
         [50, 0],
@@ -24,16 +24,18 @@ describe('KeySteps utils', () => {
         {percentage: 100, value: 10},
     ] as const;
 
-    describe('tuiPercentageToKeyStepValue', () => {
+    describe(`tuiPercentageToKeyStepValue`, () => {
         for (const {percentage, value} of testContexts) {
+            // eslint-disable-next-line no-loop-func
             it(`${percentage}% => ${value}`, () => {
                 expect(tuiPercentageToKeyStepValue(percentage, keySteps)).toBe(value);
             });
         }
     });
 
-    describe('tuiKeyStepValueToPercentage', () => {
+    describe(`tuiKeyStepValueToPercentage`, () => {
         for (const {value, percentage} of testContexts) {
+            // eslint-disable-next-line no-loop-func
             it(`${value} => ${percentage}%`, () => {
                 expect(tuiKeyStepValueToPercentage(value, keySteps)).toBe(percentage);
             });

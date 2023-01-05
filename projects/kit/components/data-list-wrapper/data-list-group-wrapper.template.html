@@ -1,6 +1,8 @@
+<!-- TODO: remove $any in 4.0 -->
 <tui-data-list
     *ngIf="items; else loading"
     [emptyContent]="emptyContent"
+    [size]="$any(size)"
 >
     <tui-opt-group
         *ngFor="let group of items; let index = index"
@@ -12,16 +14,12 @@
             tuiElement
             tuiOption
             automation-id="tui-data-list-wrapper__option"
-            [size]="size"
             [value]="item"
             [disabled]="disabledItemHandler(item)"
         >
-            <span
-                polymorpheus-outlet
-                class="t-content"
-                [content]="itemContent"
-                [context]="getContext(item, elementRef)"
-            ></span>
+            <ng-container *polymorpheusOutlet="itemContent as text; context: getContext(item, elementRef)">
+                {{ text }}
+            </ng-container>
         </button>
     </tui-opt-group>
 </tui-data-list>

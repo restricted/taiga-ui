@@ -2,13 +2,13 @@ import {Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {changeDetection} from '@demo/emulate/change-detection';
 import {encapsulation} from '@demo/emulate/encapsulation';
-import {defaultSort, TuiComparator} from '@taiga-ui/addon-table';
+import {TuiComparator, tuiDefaultSort} from '@taiga-ui/addon-table';
 import {
-    isPresent,
-    toInt,
     TUI_DEFAULT_MATCHER,
+    tuiControlValue,
     TuiDay,
-    tuiReplayedValueChangesFrom,
+    tuiIsPresent,
+    tuiToInt,
 } from '@taiga-ui/cdk';
 import {TUI_ARROW} from '@taiga-ui/kit';
 import {BehaviorSubject, combineLatest, Observable, timer} from 'rxjs';
@@ -29,32 +29,32 @@ interface User {
 
 const TODAY = TuiDay.currentLocal();
 const FIRST = [
-    'John',
-    'Jane',
-    'Jack',
-    'Jill',
-    'James',
-    'Joan',
-    'Jim',
-    'Julia',
-    'Joe',
-    'Julia',
+    `John`,
+    `Jane`,
+    `Jack`,
+    `Jill`,
+    `James`,
+    `Joan`,
+    `Jim`,
+    `Julia`,
+    `Joe`,
+    `Julia`,
 ];
 
 const LAST = [
-    'Smith',
-    'West',
-    'Brown',
-    'Jones',
-    'Davis',
-    'Miller',
-    'Johnson',
-    'Jackson',
-    'Williams',
-    'Wilson',
+    `Smith`,
+    `West`,
+    `Brown`,
+    `Jones`,
+    `Davis`,
+    `Miller`,
+    `Johnson`,
+    `Jackson`,
+    `Williams`,
+    `Wilson`,
 ];
 
-type Key = 'name' | 'dob' | 'age';
+type Key = 'age' | 'dob' | 'name';
 
 const DATA: readonly User[] = Array.from({length: 300}, () => ({
     name: `${LAST[Math.floor(Math.random() * 10)]}, ${
@@ -63,15 +63,15 @@ const DATA: readonly User[] = Array.from({length: 300}, () => ({
     dob: TODAY.append({day: -Math.floor(Math.random() * 4000) - 7500}),
 }));
 const KEYS: Record<string, Key> = {
-    Name: 'name',
-    Age: 'age',
-    'Date of Birth': 'dob',
+    Name: `name`,
+    Age: `age`,
+    'Date of Birth': `dob`,
 };
 
 @Component({
-    selector: 'tui-table-example-4',
-    templateUrl: './index.html',
-    styleUrls: ['./index.less'],
+    selector: `tui-table-example-4`,
+    templateUrl: `./index.html`,
+    styleUrls: [`./index.less`],
     changeDetection,
     encapsulation,
 })
@@ -79,8 +79,8 @@ export class TuiTableExample4 {
     private readonly size$ = new BehaviorSubject(10);
     private readonly page$ = new BehaviorSubject(0);
 
-    readonly direction$ = new BehaviorSubject<-1 | 1>(1);
-    readonly sorter$ = new BehaviorSubject<Key>('name');
+    readonly direction$ = new BehaviorSubject<-1 | 1>(-1);
+    readonly sorter$ = new BehaviorSubject<Key>(`name`);
 
     readonly minAge = new FormControl(21);
 
@@ -89,7 +89,7 @@ export class TuiTableExample4 {
         this.direction$,
         this.page$,
         this.size$,
-        tuiReplayedValueChangesFrom<number>(this.minAge),
+        tuiControlValue<number>(this.minAge),
     ]).pipe(
         // zero time debounce for a case when both key and direction change
         debounceTime(0),
@@ -97,27 +97,27 @@ export class TuiTableExample4 {
         share(),
     );
 
-    initial: readonly string[] = ['Name', 'Date of Birth', 'Age'];
+    initial: readonly string[] = [`Name`, `Date of Birth`, `Age`];
 
     enabled = this.initial;
 
-    columns = ['name', 'dob', 'age'];
+    columns = [`name`, `dob`, `age`];
 
-    search = '';
+    search = ``;
 
     readonly arrow = TUI_ARROW;
 
     readonly loading$ = this.request$.pipe(map(value => !value));
 
     readonly total$ = this.request$.pipe(
-        filter(isPresent),
+        filter(tuiIsPresent),
         map(({length}) => length),
         startWith(1),
     );
 
     readonly data$: Observable<readonly User[]> = this.request$.pipe(
-        filter(isPresent),
-        map(users => users.filter(isPresent)),
+        filter(tuiIsPresent),
+        map(users => users.filter(tuiIsPresent)),
         startWith([]),
     );
 
@@ -149,13 +149,13 @@ export class TuiTableExample4 {
     }
 
     private getData(
-        key: 'name' | 'dob' | 'age',
+        key: 'age' | 'dob' | 'name',
         direction: -1 | 1,
         page: number,
         size: number,
         minAge: number,
     ): Observable<ReadonlyArray<User | null>> {
-        console.info('Making a request');
+        console.info(`Making a request`);
 
         const start = page * size;
         const end = start + size;
@@ -169,18 +169,18 @@ export class TuiTableExample4 {
     }
 }
 
-function sortBy(key: 'name' | 'dob' | 'age', direction: -1 | 1): TuiComparator<User> {
+function sortBy(key: 'age' | 'dob' | 'name', direction: -1 | 1): TuiComparator<User> {
     return (a, b) =>
-        key === 'age'
-            ? direction * defaultSort(getAge(a), getAge(b))
-            : direction * defaultSort(a[key], b[key]);
+        key === `age`
+            ? direction * tuiDefaultSort(getAge(a), getAge(b))
+            : direction * tuiDefaultSort(a[key], b[key]);
 }
 
 function getAge({dob}: User): number {
     const years = TODAY.year - dob.year;
     const months = TODAY.month - dob.month;
     const days = TODAY.day - dob.day;
-    const offset = toInt(months > 0 || (!months && days > 9));
+    const offset = tuiToInt(months > 0 || (!months && days > 9));
 
     return years + offset;
 }

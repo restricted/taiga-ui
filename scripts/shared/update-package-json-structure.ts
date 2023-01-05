@@ -2,42 +2,58 @@ import {bumpTuiDeps} from './bump-tui-deps';
 import {bumpTuiVersionInPackageJson} from './bump-tui-version-in-package-json';
 import {isTuiPackageName} from './is-tui-package-name';
 
-export function updatePackageJsonStructure(
-    packageJson: Record<string, Record<string, any> | string>,
-    version: string,
-    isPackageLockFile: boolean,
-    ignores: string[] = [],
-): void {
+interface UpdatePackageJsonOptions {
+    packageJson: Record<string, Record<string, any> | string>;
+    prevVersion: string;
+    newVersion: string;
+    isPackageLockFile: boolean;
+    ignores: string[];
+}
+
+export function updatePackageJsonStructure({
+    packageJson,
+    isPackageLockFile,
+    ignores,
+    prevVersion,
+    newVersion,
+}: UpdatePackageJsonOptions): void {
     const {name, dependencies, peerDependencies, devDependencies, packages} = packageJson;
 
-    if (typeof name === 'string' && isTuiPackageName(name, ignores)) {
-        bumpTuiVersionInPackageJson(packageJson, version);
+    if (typeof name === `string` && isTuiPackageName(name, ignores)) {
+        bumpTuiVersionInPackageJson(packageJson, newVersion);
     }
 
-    if (typeof dependencies === 'object') {
-        bumpTuiDeps({deps: dependencies, version, ignores});
+    if (typeof dependencies === `object`) {
+        bumpTuiDeps({deps: dependencies, prevVersion, newVersion, ignores});
     }
 
-    if (typeof peerDependencies === 'object') {
+    if (typeof peerDependencies === `object`) {
         bumpTuiDeps({
             deps: peerDependencies,
-            version,
+            prevVersion,
+            newVersion,
             isPeerDependency: true,
             ignores,
         });
     }
 
-    if (typeof devDependencies === 'object') {
-        bumpTuiDeps({deps: devDependencies, version, ignores});
+    if (typeof devDependencies === `object`) {
+        bumpTuiDeps({deps: devDependencies, prevVersion, newVersion, ignores});
     }
 
-    if (isPackageLockFile && typeof packages === 'object') {
+    if (isPackageLockFile && typeof packages === `object`) {
         for (const packageLockJson of Object.values(packages)) {
             if (!isTuiPackageName(packageLockJson?.name, ignores)) {
                 continue;
             }
 
-            updatePackageJsonStructure(packageLockJson, version, true, ignores);
+            updatePackageJsonStructure({
+                packageJson: packageLockJson,
+                prevVersion,
+                newVersion,
+                isPackageLockFile: true,
+                ignores,
+            });
         }
     }
 }

@@ -2,7 +2,7 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {TuiButtonModule, TuiLinkModule, TuiModeModule} from '@taiga-ui/core';
 import {
     TuiCheckboxLabeledModule,
@@ -14,6 +14,7 @@ import {
     TuiToggleModule,
 } from '@taiga-ui/kit';
 
+import {StylesInfoModule} from '../../app/styles-info/styles-info.module';
 import {TuiSkeletonExample1} from './examples/1';
 import {TuiSkeletonExample2} from './examples/2';
 import {SkeletonComponent} from './skeleton.component';
@@ -23,6 +24,7 @@ import {SkeletonComponent} from './skeleton.component';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
+        StylesInfoModule,
         TuiModeModule,
         TuiInputTimeModule,
         TuiCheckboxLabeledModule,
@@ -34,7 +36,7 @@ import {SkeletonComponent} from './skeleton.component';
         TuiLinkModule,
         TuiToggleModule,
         TuiAddonDocModule,
-        RouterModule.forChild(generateRoutes(SkeletonComponent)),
+        RouterModule.forChild(tuiGenerateRoutes(SkeletonComponent)),
     ],
     declarations: [SkeletonComponent, TuiSkeletonExample1, TuiSkeletonExample2],
     exports: [SkeletonComponent],

@@ -11,37 +11,11 @@
             <a
                 tuiLink
                 routerLink="/utils/tokens"
+                fragment="number-format"
             >
                 TUI_NUMBER_FORMAT
             </a>
         </p>
-
-        <tui-notification status="warning">
-            <p
-                i18n
-                class="tui-space_top-0"
-            >
-                This component is being refactored.
-                Soon&nbsp;(next&nbsp;major&nbsp;release) you will see the fresh
-                version of it!
-            </p>
-            <p i18n>
-                Of course, we keep backward compatibility in mind (for 2.x.x).
-                You can still use old version of
-                <code>InputSlider</code>
-                .
-            </p>
-
-            <p i18n>
-                However, if you are going to use this component, we recommend to
-                use new version. To enable the "new version"-mode, add
-                <code>new</code>
-                directive. Example:&nbsp;
-                <code>
-                    &lt;tui&#8209;input&#8209;slider&nbsp;new&nbsp;...&gt;
-                </code>
-            </p>
-        </tui-notification>
 
         <tui-doc-example
             id="base"
@@ -52,8 +26,7 @@
         >
             <ng-template #stepQuantumDescription>
                 <p>
-                    Look into this example to understand difference between
-                    input-props
+                    Look into this example to understand difference between input-props
                     <code>[steps]</code>
                     and
                     <code>[quantum]</code>
@@ -91,10 +64,7 @@
                 class="tui-space_bottom-8 tui-space_top-0"
             >
                 <dt><strong>Key steps</strong></dt>
-                <dd>
-                    anchor points of non-uniform format between value and
-                    position
-                </dd>
+                <dd>anchor points of non-uniform format between value and position</dd>
             </dl>
             <tui-input-slider-example-3></tui-input-slider-example-3>
         </tui-doc-example>
@@ -113,7 +83,22 @@
             i18n-heading
             heading="With min and max labels"
             [content]="example5"
+            [description]="valueContentDescription"
         >
+            <ng-template #valueContentDescription>
+                <p>
+                    Pass
+                    <a
+                        tuiLink
+                        href="https://github.com/tinkoff/ng-polymorpheus"
+                    >
+                        PolymorpheusContent
+                    </a>
+                    into property
+                    <code>[valueContent]</code>
+                    to create custom label for selected value.
+                </p>
+            </ng-template>
             <tui-input-slider-example-5></tui-input-slider-example-5>
         </tui-doc-example>
     </ng-template>
@@ -122,7 +107,6 @@
         <tui-doc-demo [control]="control">
             <ng-template>
                 <tui-input-slider
-                    new
                     [formControl]="control"
                     [min]="min"
                     [max]="max"
@@ -136,23 +120,19 @@
                     [focusable]="focusable"
                     [readOnly]="readOnly"
                     [pseudoInvalid]="pseudoInvalid"
-                    [pseudoFocused]="pseudoFocused"
-                    [pseudoHovered]="pseudoHovered"
-                    [pseudoPressed]="pseudoPressed"
-                    [tuiTextfieldAutocomplete]="autocomplete"
+                    [pseudoFocus]="pseudoFocused"
+                    [pseudoHover]="pseudoHovered"
+                    [pseudoActive]="pseudoPressed"
+                    [tuiTextfieldPrefix]="prefix"
+                    [tuiTextfieldPostfix]="postfix"
                     [tuiTextfieldCleaner]="cleaner"
                     [tuiTextfieldCustomContent]="customContentSelected"
-                    [tuiTextfieldExampleText]="exampleText"
+                    [tuiTextfieldIconLeft]="iconLeft"
+                    [tuiTextfieldLabelOutside]="labelOutside"
                     [tuiTextfieldSize]="size"
                     [tuiHintContent]="hintContent"
                     [tuiHintDirection]="hintDirection"
-                    [tuiHintMode]="hintMode"
-                    [size]="size"
-                    [pluralize]="pluralize"
-                    [segmentsPluralize]="segmentsPluralize"
-                    [minLabel]="minLabel"
-                    [maxLabel]="maxLabel"
-                    [secondary]="secondary"
+                    [tuiHintAppearance]="hintAppearance"
                 >
                     Range
                 </tui-input-slider>
@@ -251,126 +231,24 @@
                 documentationPropertyName="prefix"
                 documentationPropertyMode="input"
                 documentationPropertyType="string"
+                [documentationPropertyDeprecated]="true"
                 [(documentationPropertyValue)]="prefix"
             >
-                A prefix symbol, like currency
+                A prefix symbol, like currency. Use
+                <code>tuiTextfieldPrefix</code>
+                instead
             </ng-template>
             <ng-template
                 i18n
                 documentationPropertyName="postfix"
                 documentationPropertyMode="input"
                 documentationPropertyType="string"
+                [documentationPropertyDeprecated]="true"
                 [(documentationPropertyValue)]="postfix"
             >
-                A postfix symbol, like currency
-            </ng-template>
-            <ng-template
-                i18n
-                documentationPropertyName="minLabel"
-                documentationPropertyMode="input"
-                documentationPropertyType="string"
-                [documentationPropertyDeprecated]="true"
-                [documentationPropertyValues]="minLabelVariants"
-                [(documentationPropertyValue)]="minLabel"
-            >
-                Label for min value.
-
-                <p>
-                    Use
-                    <code>valueContent</code>
-                    instead.
-                </p>
-            </ng-template>
-            <ng-template
-                i18n
-                documentationPropertyName="maxLabel"
-                documentationPropertyMode="input"
-                documentationPropertyType="string"
-                [documentationPropertyDeprecated]="true"
-                [documentationPropertyValues]="maxLabelVariants"
-                [(documentationPropertyValue)]="maxLabel"
-            >
-                Label for max value.
-
-                <p>
-                    Use
-                    <code>valueContent</code>
-                    instead.
-                </p>
-            </ng-template>
-            <ng-template
-                i18n
-                documentationPropertyName="size"
-                documentationPropertyMode="input"
-                documentationPropertyType="TuiSizeL"
-                [documentationPropertyDeprecated]="true"
-                [documentationPropertyValues]="sizeVariants"
-                [(documentationPropertyValue)]="size"
-            >
-                Size
-                <p>
-                    Use
-                    <code>tuiTextfieldSize</code>
-                    instead.
-                </p>
-            </ng-template>
-            <ng-template
-                i18n
-                documentationPropertyName="secondary"
-                documentationPropertyMode="input"
-                documentationPropertyType="string"
-                [documentationPropertyDeprecated]="true"
-                [documentationPropertyValues]="secondaryVariants"
-                [(documentationPropertyValue)]="secondarySelected"
-            >
-                Right label.
-                <p>
-                    Use
-                    <code>tuiTextfieldCustomContent</code>
-                    instead.
-                </p>
-            </ng-template>
-            <ng-template
-                i18n
-                documentationPropertyName="pluralize"
-                documentationPropertyMode="input"
-                documentationPropertyType="TuiPluralize | Record<string, string>"
-                [documentationPropertyDeprecated]="true"
-                [documentationPropertyValues]="pluralizeVariants"
-                [(documentationPropertyValue)]="pluralize"
-            >
-                Plural forms for labels. TuiPluralize array is deprecated. Use
-                object that mimics the
-                <a
-                    tuiLink
-                    href="https://unicode-org.github.io/icu/userguide/format_parse/messages/"
-                >
-                    ICU format
-                </a>
-                for i18nPlural.
-
-                <p>
-                    Use
-                    <code>postfix</code>
-                    instead.
-                </p>
-            </ng-template>
-            <ng-template
-                i18n
-                documentationPropertyName="segmentsPluralize"
-                documentationPropertyMode="input"
-                documentationPropertyType="TuiPluralize"
-                [documentationPropertyValues]="pluralizeVariants"
-                [documentationPropertyDeprecated]="true"
-                [(documentationPropertyValue)]="segmentsPluralize"
-            >
-                Plural forms for
-                <code>segments</code>
-
-                <p>
-                    See examples how create ticks without this property (outside
-                    of the component).
-                </p>
+                A postfix symbol, like currency. Use
+                <code>tuiTextfieldPostfix</code>
+                instead
             </ng-template>
         </tui-doc-documentation>
         <inherited-documentation></inherited-documentation>

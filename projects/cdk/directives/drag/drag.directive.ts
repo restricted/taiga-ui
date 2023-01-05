@@ -1,13 +1,16 @@
 import {Directive, ElementRef, Inject, Output} from '@angular/core';
-import {dragAndDropFrom, TuiDragStage} from '@taiga-ui/cdk/observables';
+import {tuiDragAndDropFrom, TuiDragStage} from '@taiga-ui/cdk/observables';
 import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 
+/**
+ * @deprecated not used anywhere
+ */
 @Directive({
     selector: '[tuiDragStart], [tuiDragContinues], [tuiDragEnd]',
 })
 export class TuiDragDirective {
-    private readonly dragAndDropFrom$ = dragAndDropFrom(this.elementRef.nativeElement);
+    private readonly dragAndDropFrom$ = tuiDragAndDropFrom(this.elementRef.nativeElement);
 
     @Output('tuiDragStart')
     readonly start: Observable<MouseEvent> = this.dragAndDropFrom$.pipe(

@@ -25,6 +25,7 @@
             <a
                 tuiLink
                 routerLink="/utils/tokens"
+                fragment="number-format"
             >
                 TUI_NUMBER_FORMAT
             </a>
@@ -78,8 +79,11 @@
                     [prefix]="prefix"
                     [postfix]="postfix"
                     [readOnly]="readOnly"
+                    [tuiTextfieldIconLeft]="iconLeft"
                     [tuiTextfieldLabelOutside]="labelOutside"
+                    [tuiTextfieldFiller]="filler"
                     [tuiTextfieldSize]="size"
+                    [style.text-align]="textAlign"
                 >
                     Number of accounts
                 </tui-input-count>
@@ -130,18 +134,24 @@
                 documentationPropertyName="prefix"
                 documentationPropertyMode="input"
                 documentationPropertyType="string"
+                [documentationPropertyDeprecated]="true"
                 [(documentationPropertyValue)]="prefix"
             >
-                A prefix symbol, like currency
+                A prefix symbol, like currency. Use
+                <code>tuiTextfieldPrefix</code>
+                instead
             </ng-template>
             <ng-template
                 i18n
                 documentationPropertyName="postfix"
                 documentationPropertyMode="input"
                 documentationPropertyType="string"
+                [documentationPropertyDeprecated]="true"
                 [(documentationPropertyValue)]="postfix"
             >
-                Some string after value
+                Some string after value. Use
+                <code>tuiTextfieldPostfix</code>
+                instead
             </ng-template>
             <ng-template
                 i18n
@@ -155,6 +165,18 @@
             </ng-template>
         </tui-doc-documentation>
         <inherited-documentation></inherited-documentation>
+        <tui-doc-documentation heading="CSS customization">
+            <ng-template
+                i18n
+                documentationPropertyMode="input"
+                documentationPropertyType="string"
+                documentationPropertyName="style.text-align"
+                [documentationPropertyValues]="textAlignVariants"
+                [(documentationPropertyValue)]="textAlign"
+            >
+                Custom align content by text-align
+            </ng-template>
+        </tui-doc-documentation>
     </ng-template>
 
     <ng-template pageTab>
@@ -200,8 +222,7 @@
                 <p i18n>
                     Optionally use the
                     <code>TUI_INPUT_COUNT_OPTIONS</code>
-                    injection token to override the default options for the
-                    component.
+                    injection token to override the default options for the component.
                 </p>
 
                 <tui-doc-code

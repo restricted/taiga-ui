@@ -1,25 +1,25 @@
 import {Inject, Optional, Pipe, PipeTransform, Self} from '@angular/core';
 import {
     AbstractControl,
+    ControlValueAccessor,
     FormArrayName,
     FormGroupDirective,
     FormGroupName,
     NgControl,
 } from '@angular/forms';
-import {tuiPure, TuiValidationError} from '@taiga-ui/cdk';
+import {tuiIsString, tuiPure, TuiValidationError} from '@taiga-ui/cdk';
 import {TUI_VALIDATION_ERRORS} from '@taiga-ui/kit/tokens';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
-import {EMPTY, isObservable, merge, Observable, of} from 'rxjs';
+import {isObservable, Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 const EMPTY_RECORD = {};
 
-// @dynamic
 @Pipe({
-    name: 'tuiFieldError',
+    name: `tuiFieldError`,
     pure: false,
 })
-export class TuiFieldErrorPipe implements PipeTransform {
+export class TuiFieldErrorPipe implements PipeTransform, ControlValueAccessor {
     private order: readonly string[] = [];
 
     constructor(
@@ -42,7 +42,7 @@ export class TuiFieldErrorPipe implements PipeTransform {
         @Inject(TUI_VALIDATION_ERRORS)
         private readonly validationErrors: Record<
             string,
-            PolymorpheusContent | Observable<PolymorpheusContent>
+            Observable<PolymorpheusContent> | PolymorpheusContent
         >,
     ) {
         if (this.ngControl && !this.ngControl.valueAccessor) {
@@ -54,14 +54,6 @@ export class TuiFieldErrorPipe implements PipeTransform {
         this.order = order;
 
         return this.computedError;
-    }
-
-    @tuiPure
-    get change$(): Observable<unknown> {
-        return merge(
-            this.control?.valueChanges || EMPTY,
-            this.control?.statusChanges || EMPTY,
-        );
     }
 
     get computedError(): Observable<TuiValidationError | null> {
@@ -111,40 +103,40 @@ export class TuiFieldErrorPipe implements PipeTransform {
         return this.getErrorId(this.order, this.controlErrors);
     }
 
-    private get controlErrors(): Record<string, any> {
+    private get controlErrors(): Record<string, unknown> {
         return this.control?.errors || EMPTY_RECORD;
     }
 
     @tuiPure
     private getErrorId(
         order: readonly string[],
-        controlErrors: Record<string, any>,
+        controlErrors: Record<string, unknown>,
     ): string {
         const id = order?.find(errorId => controlErrors[errorId]);
         const fallback = Object.keys(controlErrors)[0];
 
-        return id || fallback || '';
+        return id || fallback || ``;
     }
 
     @tuiPure
     private getError(
         firstError: any,
-        errorContent?: PolymorpheusContent | Observable<PolymorpheusContent>,
+        errorContent?: Observable<PolymorpheusContent> | PolymorpheusContent,
     ): Observable<TuiValidationError> {
         if (firstError instanceof TuiValidationError) {
             return of(firstError);
         }
 
-        if (errorContent === undefined && typeof firstError === 'string') {
+        if (errorContent === undefined && tuiIsString(firstError)) {
             return of(new TuiValidationError(firstError));
         }
 
         if (isObservable(errorContent)) {
             return errorContent.pipe(
-                map(error => new TuiValidationError(error || '', firstError)),
+                map(error => new TuiValidationError(error || ``, firstError)),
             );
         }
 
-        return of(new TuiValidationError(errorContent || '', firstError));
+        return of(new TuiValidationError(errorContent || ``, firstError));
     }
 }

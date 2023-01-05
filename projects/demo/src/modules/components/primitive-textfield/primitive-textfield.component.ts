@@ -1,15 +1,9 @@
 import {Component, forwardRef, ViewChild} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
 import {TuiDocExample} from '@taiga-ui/addon-doc';
+import {TuiContextWithImplicit, TuiInputMode, TuiInputType} from '@taiga-ui/cdk';
 import {
-    TuiAutofillFieldName,
-    TuiContextWithImplicit,
-    TuiInputModeT,
-    TuiInputTypeT,
-} from '@taiga-ui/cdk';
-import {
-    TuiDirection,
-    TuiHintModeT,
+    TUI_HINT_DIRECTIONS,
     TuiHorizontalDirection,
     TuiSizeL,
     TuiSizeS,
@@ -44,44 +38,44 @@ const CUSTOM_SVG_NAME = 'Bell';
 export class ExampleTuiPrimitiveTextfieldComponent extends AbstractExampleTuiInteractive {
     @ViewChild('interactiveContent')
     private readonly interactiveIcon: PolymorpheusContent<
-        TuiContextWithImplicit<TuiSizeS | TuiSizeL>
+        TuiContextWithImplicit<TuiSizeL | TuiSizeS>
     > = '';
 
     readonly example1: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/1/index.ts'),
-        HTML: import('!!raw-loader!./examples/1/index.html'),
-        LESS: import('!!raw-loader!./examples/1/index.less'),
+        TypeScript: import('./examples/1/index.ts?raw'),
+        HTML: import('./examples/1/index.html?raw'),
+        LESS: import('./examples/1/index.less?raw'),
     };
 
     readonly example2: TuiDocExample = {
-        TypeScript: import('!!raw-loader!./examples/2/index.ts'),
-        HTML: import('!!raw-loader!./examples/2/index.html'),
+        TypeScript: import('./examples/2/index.ts?raw'),
+        HTML: import('./examples/2/index.html?raw'),
     };
 
-    readonly exampleModule = import('!!raw-loader!./examples/import/import-module.md');
+    readonly exampleModule = import('./examples/import/import-module.md?raw');
 
-    readonly exampleHtml = import('!!raw-loader!./examples/import/insert-template.md');
+    readonly exampleHtml = import('./examples/import/insert-template.md?raw');
 
     readonly themes = ['Taiga UI', 'Bootstrap', 'Material'];
     theme = this.themes[0];
 
-    readonly iconVariants = ['', 'tuiIconSearch', 'Interactive content'];
-
+    readonly iconVariants = ['', 'tuiIconSearchLarge', 'Interactive content'];
     selectedIcon = this.iconVariants[0];
+
+    readonly iconLeftVariants = ['', 'tuiIconPiechartLarge', 'tuiIconCardsLarge'];
+    iconLeft = '';
 
     readonly iconAlignVariants: readonly TuiHorizontalDirection[] = ['left', 'right'];
 
     iconAlign: TuiHorizontalDirection = this.iconAlignVariants[1];
 
-    readonly typeVariants: readonly TuiInputTypeT[] = [
+    readonly typeVariants: readonly TuiInputType[] = [
         'text',
         'email',
         'password',
         'tel',
         'url',
     ];
-
-    type: TuiInputTypeT = 'text';
 
     cleaner = false;
 
@@ -97,30 +91,11 @@ export class ExampleTuiPrimitiveTextfieldComponent extends AbstractExampleTuiInt
 
     maxLength = null;
 
-    autocompleteVariants = [
-        'off',
-        'cc-name',
-        'cc-number',
-        'cc-exp-month',
-        'cc-exp-year',
-        'cc-type',
-        'given-name',
-        'additional-name',
-        'family-name',
-        'username',
-        'email',
-        'street-address',
-        'postal-code',
-        'country-name',
-    ];
-
-    autocomplete: TuiAutofillFieldName | '' = '';
-
-    readonly inputModeVariants: readonly TuiInputModeT[] = ['text', 'numeric'];
+    readonly inputModeVariants: readonly TuiInputMode[] = ['text', 'numeric'];
 
     inputMode = this.inputModeVariants[0];
 
-    readonly customContentVariants = [CUSTOM_SVG_NAME, `<span>LongTextContent</span>`];
+    readonly customContentVariants = [CUSTOM_SVG_NAME, '<span>LongTextContent</span>'];
 
     customContentSelected = null;
 
@@ -138,32 +113,23 @@ export class ExampleTuiPrimitiveTextfieldComponent extends AbstractExampleTuiInt
 
     labelOutside = false;
 
-    readonly sizeVariants: ReadonlyArray<TuiSizeS | TuiSizeL> = ['s', 'm', 'l'];
+    readonly sizeVariants: ReadonlyArray<TuiSizeL | TuiSizeS> = ['s', 'm', 'l'];
 
     size = this.sizeVariants[2];
 
-    readonly hintContentVariants: readonly string[] = ['Ivan Ivanov'];
+    readonly hintContentVariants: readonly string[] = ['', 'Ivan Ivanov'];
 
-    readonly hintDirectionVariants: readonly TuiDirection[] = [
-        'left',
-        'right',
-        'bottom-left',
-        'bottom-right',
-        'bottom-middle',
-        'top-left',
-        'top-right',
-        'top-middle',
-    ];
+    readonly hintDirectionVariants = TUI_HINT_DIRECTIONS;
 
-    readonly hintModeVariants: readonly TuiHintModeT[] = ['error', 'onDark'];
+    readonly hintAppearanceVariants = ['', 'error', 'onDark'];
 
     invalid = false;
 
-    hintContent = null;
+    hintContent = this.hintContentVariants[0];
 
-    hintDirection: TuiDirection = this.hintDirectionVariants[2];
+    hintDirection = this.hintDirectionVariants[0];
 
-    hintMode: TuiHintModeT | null = null;
+    hintAppearance = this.hintAppearanceVariants[0];
 
     get customContent(): string | null {
         return this.customContentSelected === CUSTOM_SVG_NAME
@@ -171,14 +137,14 @@ export class ExampleTuiPrimitiveTextfieldComponent extends AbstractExampleTuiInt
             : this.customContentSelected;
     }
 
-    get iconContent(): PolymorpheusContent<TuiContextWithImplicit<TuiSizeS | TuiSizeL>> {
+    get iconContent(): PolymorpheusContent<TuiContextWithImplicit<TuiSizeL | TuiSizeS>> {
         if (this.selectedIcon === '') {
             return '';
         }
 
-        return this.interactiveIcon && this.selectedIcon !== 'tuiIconSearch'
+        return this.interactiveIcon && this.selectedIcon !== 'tuiIconSearchLarge'
             ? this.interactiveIcon
-            : 'tuiIconSearch';
+            : 'tuiIconSearchLarge';
     }
 
     get isBootstrap(): boolean {
@@ -193,7 +159,7 @@ export class ExampleTuiPrimitiveTextfieldComponent extends AbstractExampleTuiInt
         return this.isBootstrap ? 'Type a value' : 'Theming sample';
     }
 
-    get customizationSize(): TuiSizeS | TuiSizeL {
+    get customizationSize(): TuiSizeL | TuiSizeS {
         return this.isBootstrap ? 's' : 'l';
     }
 

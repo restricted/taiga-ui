@@ -1,5 +1,6 @@
 <tui-hosted-dropdown
     #dropdown
+    [tuiDropdownMaxHeight]="500"
     [content]="content"
 >
     <button
@@ -7,22 +8,25 @@
         appearance="flat"
         type="button"
         [icon]="arrow"
-        [pseudoHovered]="dropdown.open || null"
+        [pseudoHover]="dropdown.open || null"
     ></button>
 </tui-hosted-dropdown>
 <ng-template #content>
-    <tui-data-list>
+    <tui-data-list
+        style="width: 12rem"
+        size="l"
+    >
         <tui-opt-group
             tuiMultiSelectGroup
             [(ngModel)]="value"
         >
-            <tui-opt-group label="Food">
+            <tui-opt-group label="Main dishes menu with long label">
                 <button
                     *ngFor="let burger of burgers"
                     tuiOption
                     [value]="burger"
                 >
-                    {{burger}}
+                    {{ burger }}
                 </button>
             </tui-opt-group>
             <tui-opt-group label="Drinks">
@@ -31,10 +35,10 @@
                     tuiOption
                     [value]="drink"
                 >
-                    {{drink}}
+                    {{ drink }}
                 </button>
             </tui-opt-group>
         </tui-opt-group>
     </tui-data-list>
 </ng-template>
-<p>{{value}}</p>
+<p>{{ value }}</p>

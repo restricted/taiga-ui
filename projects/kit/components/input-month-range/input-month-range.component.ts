@@ -12,35 +12,44 @@ import {NgControl} from '@angular/forms';
 import {
     AbstractTuiNullableControl,
     ALWAYS_FALSE_HANDLER,
-    TUI_FIRST_DAY,
-    TUI_LAST_DAY,
+    CHAR_EN_DASH,
+    tuiAsControl,
+    tuiAsFocusableItemAccessor,
+    tuiDateClamp,
+    TuiDay,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
     TuiHandler,
     TuiMonth,
     TuiMonthRange,
+    TuiYear,
 } from '@taiga-ui/cdk';
 import {
-    sizeBigger,
-    TUI_TEXTFIELD_SIZE,
+    TuiMonthPipe,
     TuiPrimitiveTextfieldComponent,
-    TuiTextfieldSizeDirective,
     TuiWithOptionalMinMax,
 } from '@taiga-ui/core';
 import {TuiMonthContext} from '@taiga-ui/kit/interfaces';
-import {TUI_MONTH_FORMATTER} from '@taiga-ui/kit/tokens';
+import {TUI_MONTH_FORMATTER_PROVIDER} from '@taiga-ui/kit/providers';
+import {
+    TUI_INPUT_DATE_OPTIONS,
+    TUI_MONTH_FORMATTER,
+    TuiInputDateOptions,
+} from '@taiga-ui/kit/tokens';
 import {TuiBooleanHandlerWithContext} from '@taiga-ui/kit/types';
 import {Observable} from 'rxjs';
 
-import {TUI_INPUT_MONTH_RANGE_PROVIDERS} from './input-month-range.providers';
-
-// @dynamic
 @Component({
     selector: 'tui-input-month-range',
     templateUrl: './input-month-range.template.html',
     styleUrls: ['./input-month-range.style.less'],
-    providers: TUI_INPUT_MONTH_RANGE_PROVIDERS,
     changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [
+        tuiAsFocusableItemAccessor(TuiInputMonthRangeComponent),
+        tuiAsControl(TuiInputMonthRangeComponent),
+        TUI_MONTH_FORMATTER_PROVIDER,
+        TuiMonthPipe,
+    ],
 })
 export class TuiInputMonthRangeComponent
     extends AbstractTuiNullableControl<TuiMonthRange>
@@ -51,16 +60,20 @@ export class TuiInputMonthRangeComponent
 
     @Input()
     @tuiDefaultProp()
-    min: TuiMonth = TUI_FIRST_DAY;
+    min: TuiMonth = this.options.min;
 
     @Input()
     @tuiDefaultProp()
-    max: TuiMonth = TUI_LAST_DAY;
+    max: TuiMonth = this.options.max;
 
     @Input()
     @tuiDefaultProp()
     disabledItemHandler: TuiBooleanHandlerWithContext<TuiMonth, TuiMonthContext> =
         ALWAYS_FALSE_HANDLER;
+
+    @Input()
+    @tuiDefaultProp()
+    defaultActiveYear: TuiYear = TuiDay.currentLocal();
 
     open = false;
 
@@ -72,8 +85,8 @@ export class TuiInputMonthRangeComponent
         @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
         @Inject(TUI_MONTH_FORMATTER)
         readonly formatter: TuiHandler<TuiMonth | null, Observable<string>>,
-        @Inject(TUI_TEXTFIELD_SIZE)
-        private readonly textfieldSize: TuiTextfieldSizeDirective,
+        @Inject(TUI_INPUT_DATE_OPTIONS)
+        private readonly options: TuiInputDateOptions,
     ) {
         super(control, changeDetectorRef);
     }
@@ -82,20 +95,24 @@ export class TuiInputMonthRangeComponent
         return this.textfield ? this.textfield.nativeFocusableElement : null;
     }
 
+    get computedDefaultActiveYear(): TuiYear {
+        return (
+            this.value?.from || tuiDateClamp(this.defaultActiveYear, this.min, this.max)
+        );
+    }
+
     get focused(): boolean {
         return !!this.textfield && this.textfield.focused;
     }
 
-    get calendarIcon(): string {
-        return sizeBigger(this.textfieldSize.size)
-            ? 'tuiIconCalendarLarge'
-            : 'tuiIconCalendar';
+    get calendarIcon(): TuiInputDateOptions['icon'] {
+        return this.options.icon;
     }
 
     computeValue(from: string | null, to: string | null): string {
         const formattedTo = from === to && this.focused && !this.readOnly ? '' : to;
 
-        return `${from} — ${formattedTo}`;
+        return `${from} ${CHAR_EN_DASH} ${formattedTo}`;
     }
 
     onValueChange(value: string): void {
@@ -118,10 +135,6 @@ export class TuiInputMonthRangeComponent
         this.close();
     }
 
-    onHovered(hovered: boolean): void {
-        this.updateHovered(hovered);
-    }
-
     onOpenChange(open: boolean): void {
         this.open = open;
     }
@@ -133,12 +146,12 @@ export class TuiInputMonthRangeComponent
             return;
         }
 
-        if (this.value && this.value.isSingleMonth) {
+        if (this.value?.isSingleMonth) {
             this.updateValue(new TuiMonthRange(this.value.from, this.value.from));
         }
     }
 
-    setDisabledState(): void {
+    override setDisabledState(): void {
         super.setDisabledState();
         this.close();
     }

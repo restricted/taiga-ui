@@ -1,10 +1,6 @@
 /**
  * Gets actual target from open Shadow DOM if event happened within it
  */
-export function getActualTarget(event: Event): Node {
-    if ('composedPath' in event) {
-        return (event as any).composedPath()[0];
-    }
-
-    return (event as any).target;
+export function tuiGetActualTarget(event: Event): Node {
+    return event.composedPath()[0] as Node;
 }

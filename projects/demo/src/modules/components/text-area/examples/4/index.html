@@ -5,36 +5,38 @@
     To highlight extra characters:
     <ul class="steps">
         <li>
-            Set
-            <code>tuiTextfieldMaxLength</code>
+            use
+            <code>maxLength</code>
+            input
         </li>
         <li class="steps_optional">
             (Optional) Dont forget to set form validator (for example,
             <code>Validators.maxLength</code>
-            ) if you want to make field invalid on exceeding the characters
-            limit
+            ) if you want to make field invalid on exceeding the characters limit
         </li>
     </ul>
 </div>
 
 <form
-    class="form tui-col_md-6"
+    class="form tui-row"
     [formGroup]="testForm"
 >
     <label
-        tuiLabel
-        label="Write a wise thought"
-        class="tui-row"
+        tuiLabel="Write a wise thought"
+        class="tui-col_md-6"
     >
         <tui-text-area
             formControlName="testValue1"
             tuiHintContent="it's just a joke"
             [expandable]="true"
-            [tuiTextfieldMaxLength]="maxLength"
+            [maxLength]="maxLength"
             [tuiTextfieldLabelOutside]="true"
         >
             Type it
         </tui-text-area>
-        <tui-field-error formControlName="testValue1"></tui-field-error>
+        <tui-error
+            formControlName="testValue1"
+            [error]="[] | tuiFieldError | async"
+        ></tui-error>
     </label>
 </form>

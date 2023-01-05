@@ -1,20 +1,16 @@
-const WIDTH_SEARCH = 'width="';
-const HEIGHT_SEARCH = 'height="';
-const START = '<svg';
+const WIDTH_SEARCH = `width="`;
+const HEIGHT_SEARCH = `height="`;
+const START = `<svg`;
 
-export function processIcon(source: string, name: string): string {
+export function tuiProcessIcon(source: string, name: string): string {
     if (source.includes(`id="${name}"`)) {
         return source;
     }
 
     const src = source.slice(Math.max(0, source.indexOf(START)));
-    const attributes = src.slice(0, Math.max(0, src.indexOf('>')));
+    const attributes = src.slice(0, Math.max(0, src.indexOf(`>`)));
 
-    if (
-        !attributes ||
-        !attributes.includes(WIDTH_SEARCH) ||
-        !attributes.includes(HEIGHT_SEARCH)
-    ) {
+    if (!attributes?.includes(WIDTH_SEARCH) || !attributes.includes(HEIGHT_SEARCH)) {
         return `${src.replace(
             START,
             `<svg xmlns="http://www.w3.org/2000/svg"><g id="${name}" xmlns="http://www.w3.org/2000/svg"><svg`,
@@ -27,20 +23,20 @@ export function processIcon(source: string, name: string): string {
     const heightOffset = indexOfHeight + HEIGHT_SEARCH.length;
     const widthString = attributes.slice(
         widthOffset,
-        attributes.indexOf('"', widthOffset),
+        attributes.indexOf(`"`, widthOffset),
     );
     const heightString = attributes.slice(
         heightOffset,
-        attributes.indexOf('"', heightOffset),
+        attributes.indexOf(`"`, heightOffset),
     );
 
     if (
         !heightString ||
         !widthString ||
-        widthString.includes('%') ||
-        heightString.includes('%') ||
-        widthString.includes('em') ||
-        heightString.includes('em')
+        widthString.includes(`%`) ||
+        heightString.includes(`%`) ||
+        widthString.includes(`em`) ||
+        heightString.includes(`em`)
     ) {
         return src.replace(START, `<svg id="${name}"`);
     }

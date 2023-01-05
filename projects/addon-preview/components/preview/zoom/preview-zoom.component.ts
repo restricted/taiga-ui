@@ -7,14 +7,12 @@ import {
     Output,
 } from '@angular/core';
 import {TUI_PREVIEW_ZOOM_TEXTS} from '@taiga-ui/addon-preview/tokens';
-import {clamp, tuiDefaultProp} from '@taiga-ui/cdk';
-import {LanguagePreview} from '@taiga-ui/i18n';
+import {tuiClamp, tuiDefaultProp} from '@taiga-ui/cdk';
+import {TuiLanguagePreview} from '@taiga-ui/i18n';
 import {merge, Observable, of, timer} from 'rxjs';
 import {mapTo, startWith, switchMap} from 'rxjs/operators';
 
 const STEP = 0.5;
-const SLIDER_SIZE = 104;
-const GHOST_OFFSET_PX = 36;
 
 @Component({
     selector: 'tui-preview-zoom',
@@ -48,15 +46,8 @@ export class TuiPreviewZoomComponent {
 
     constructor(
         @Inject(TUI_PREVIEW_ZOOM_TEXTS)
-        readonly zoomTexts$: Observable<LanguagePreview['zoomTexts']>,
+        readonly zoomTexts$: Observable<TuiLanguagePreview['zoomTexts']>,
     ) {}
-
-    get ghostLeft(): number {
-        const position = (this.value - this.min) * SLIDER_SIZE;
-        const range = this.max - this.min;
-
-        return GHOST_OFFSET_PX + Math.round(position / range);
-    }
 
     get leftButtonDisabled(): boolean {
         return this.value === this.min;
@@ -71,7 +62,7 @@ export class TuiPreviewZoomComponent {
     }
 
     onModelChange(value: number): void {
-        const clamped = clamp(value, this.min, this.max);
+        const clamped = tuiClamp(value, this.min, this.max);
 
         if (clamped === this.value) {
             return;

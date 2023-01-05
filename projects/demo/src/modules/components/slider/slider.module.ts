@@ -2,8 +2,14 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
-import {TuiLinkModule, TuiNotificationModule} from '@taiga-ui/core';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
+import {
+    TuiButtonModule,
+    TuiHintModule,
+    TuiLinkModule,
+    TuiModeModule,
+    TuiNotificationModule,
+} from '@taiga-ui/core';
 import {TuiSliderModule} from '@taiga-ui/kit';
 
 import {TuiSliderExample1} from './examples/1';
@@ -11,6 +17,7 @@ import {TuiSliderExample2} from './examples/2';
 import {TuiSliderExample3} from './examples/3';
 import {TuiSliderExample4} from './examples/4';
 import {TuiSliderExample5} from './examples/5';
+import {TuiSliderExample6} from './examples/6';
 import {ExampleTuiSliderComponent} from './slider.component';
 
 @NgModule({
@@ -22,7 +29,10 @@ import {ExampleTuiSliderComponent} from './slider.component';
         ReactiveFormsModule,
         TuiLinkModule,
         TuiNotificationModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiSliderComponent)),
+        TuiModeModule,
+        TuiButtonModule,
+        TuiHintModule,
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTuiSliderComponent)),
     ],
     declarations: [
         ExampleTuiSliderComponent,
@@ -31,6 +41,7 @@ import {ExampleTuiSliderComponent} from './slider.component';
         TuiSliderExample3,
         TuiSliderExample4,
         TuiSliderExample5,
+        TuiSliderExample6,
     ],
 })
 export class ExampleTuiSliderModule {}

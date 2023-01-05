@@ -7,12 +7,14 @@ import {
     Inject,
     Input,
     Output,
+    Self,
     ViewChild,
 } from '@angular/core';
 import {
     ALWAYS_FALSE_HANDLER,
     MONTHS_IN_YEAR,
     TUI_FIRST_DAY,
+    TUI_IS_CYPRESS,
     TUI_IS_IOS,
     TUI_LAST_DAY,
     TuiBooleanHandler,
@@ -20,11 +22,12 @@ import {
     TuiDayRange,
     tuiDefaultProp,
     TuiDestroyService,
+    TuiInjectionTokenType,
     TuiMapper,
     TuiMonth,
-    typedFromEvent,
+    tuiTypedFromEvent,
 } from '@taiga-ui/cdk';
-import {TUI_CLOSE_WORD, TUI_ORDERED_SHORT_WEEK_DAYS} from '@taiga-ui/core';
+import {TUI_CLOSE_WORD, TUI_SHORT_WEEK_DAYS} from '@taiga-ui/core';
 import {
     TUI_CANCEL_WORD,
     TUI_CHOOSE_DAY_OR_RANGE_TEXTS,
@@ -55,7 +58,6 @@ import {
     TUI_VALUE_STREAM,
 } from './mobile-calendar.providers';
 
-// @dynamic
 @Component({
     selector: 'tui-mobile-calendar',
     templateUrl: './mobile-calendar.template.html',
@@ -95,7 +97,7 @@ export class TuiMobileCalendarComponent {
     readonly cancel = new EventEmitter<void>();
 
     @Output()
-    readonly confirm = new EventEmitter<TuiDayRange | TuiDay>();
+    readonly confirm = new EventEmitter<TuiDay | TuiDayRange>();
 
     value: TuiDay | TuiDayRange | null = null;
 
@@ -112,17 +114,17 @@ export class TuiMobileCalendarComponent {
 
     constructor(
         @Inject(TUI_IS_IOS) readonly isIOS: boolean,
+        @Inject(TUI_IS_CYPRESS) readonly isCypress: boolean,
         @Inject(DOCUMENT) private readonly documentRef: Document,
+        @Self()
         @Inject(TuiDestroyService)
         private readonly destroy$: TuiDestroyService,
         @Inject(TUI_VALUE_STREAM) valueChanges: Observable<TuiDayRange | null>,
         @Inject(TUI_CLOSE_WORD) readonly closeWord$: Observable<string>,
         @Inject(TUI_CANCEL_WORD) readonly cancelWord$: Observable<string>,
         @Inject(TUI_DONE_WORD) readonly doneWord$: Observable<string>,
-        @Inject(TUI_ORDERED_SHORT_WEEK_DAYS)
-        readonly weekDays$: Observable<
-            [string, string, string, string, string, string, string]
-        >,
+        @Inject(TUI_SHORT_WEEK_DAYS)
+        readonly unorderedWeekDays$: TuiInjectionTokenType<typeof TUI_SHORT_WEEK_DAYS>,
         @Inject(TUI_CHOOSE_DAY_OR_RANGE_TEXTS)
         readonly chooseDayOrRangeTexts$: Observable<[string, string]>,
     ) {
@@ -286,15 +288,18 @@ export class TuiMobileCalendarComponent {
             return;
         }
 
-        const touchstart$ = typedFromEvent(
+        const touchstart$ = tuiTypedFromEvent(
             yearsScrollRef.elementRef.nativeElement,
             'touchstart',
         );
-        const touchend$ = typedFromEvent(
+        const touchend$ = tuiTypedFromEvent(
             yearsScrollRef.elementRef.nativeElement,
             'touchend',
         );
-        const click$ = typedFromEvent(yearsScrollRef.elementRef.nativeElement, 'click');
+        const click$ = tuiTypedFromEvent(
+            yearsScrollRef.elementRef.nativeElement,
+            'click',
+        );
 
         // Refresh activeYear
         yearsScrollRef
@@ -338,9 +343,7 @@ export class TuiMobileCalendarComponent {
                 ),
                 takeUntil(this.destroy$),
             )
-            .subscribe(() => {
-                this.scrollToActiveYear('smooth');
-            });
+            .subscribe(() => this.scrollToActiveYear('smooth'));
     }
 
     private initMonthScroll(): void {
@@ -350,12 +353,12 @@ export class TuiMobileCalendarComponent {
             return;
         }
 
-        const touchstart$ = typedFromEvent(
+        const touchstart$ = tuiTypedFromEvent(
             monthsScrollRef.elementRef.nativeElement,
             'touchstart',
             {passive: true},
         );
-        const touchend$ = typedFromEvent(
+        const touchend$ = tuiTypedFromEvent(
             monthsScrollRef.elementRef.nativeElement,
             'touchend',
         );
@@ -376,20 +379,21 @@ export class TuiMobileCalendarComponent {
                 ),
                 takeUntil(this.destroy$),
             )
-            .subscribe(() => {
-                this.scrollToActiveMonth('smooth');
-            });
+            .subscribe(() => this.scrollToActiveMonth('smooth'));
     }
 
-    private scrollToActiveYear(behavior?: ScrollBehavior): void {
+    private scrollToActiveYear(behavior: ScrollBehavior = 'auto'): void {
         this.yearsScrollRef?.scrollToIndex(
             Math.max(this.activeYear - STARTING_YEAR - 2, 0),
-            behavior,
+            this.isCypress ? 'auto' : behavior,
         );
     }
 
-    private scrollToActiveMonth(behavior?: ScrollBehavior): void {
-        this.monthsScrollRef?.scrollToIndex(this.activeMonth, behavior);
+    private scrollToActiveMonth(behavior: ScrollBehavior = 'auto'): void {
+        this.monthsScrollRef?.scrollToIndex(
+            this.activeMonth,
+            this.isCypress ? 'auto' : behavior,
+        );
     }
 
     private isYearActive(index: number): boolean {

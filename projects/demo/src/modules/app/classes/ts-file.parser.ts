@@ -4,7 +4,7 @@ export class TsFileParser {
     get className(): string {
         const [, className] = this.rawFileContent.match(/(?:export class\s)(\w*)/i) || [];
 
-        return className || '';
+        return className || ``;
     }
 
     set className(newClassName: string) {
@@ -15,11 +15,11 @@ export class TsFileParser {
     }
 
     get hasNgModule(): boolean {
-        return this.rawFileContent.includes('@NgModule');
+        return this.rawFileContent.includes(`@NgModule`);
     }
 
     get hasNgComponent(): boolean {
-        return this.rawFileContent.includes('@Component');
+        return this.rawFileContent.includes(`@Component`);
     }
 
     constructor(protected rawFileContent: string) {
@@ -28,10 +28,12 @@ export class TsFileParser {
         if (classesInside.length > 1) {
             throw new TuiTsParserException();
         }
+
+        this.replaceMetaAssets();
     }
 
     addImport(entity: string, packageOrPath: string): void {
-        const fromName = packageOrPath.replace('.ts', '');
+        const fromName = packageOrPath.replace(`.ts`, ``);
 
         this.rawFileContent = this.rawFileContent.includes(fromName)
             ? this.addIntoExistingImport(entity, fromName)
@@ -45,11 +47,27 @@ export class TsFileParser {
     private addIntoExistingImport(entity: string, packageName: string): string {
         const packageImportsRegex = new RegExp(
             `(?:import\\s?\\{\\r?\\n?)(?:(?:.*),\\r?\\n?)*?(?:.*?)\\r?\\n?} from (?:'|")${packageName}(?:'|");`,
-            'gm',
+            `gm`,
         );
 
         return this.rawFileContent.replace(packageImportsRegex, parsed => {
-            return parsed.replace('{', `{${entity}, `);
+            return parsed.replace(`{`, `{${entity}, `);
         });
+    }
+
+    /**
+     * @description:
+     * The 'import.meta' doesn't support on Stackblitz
+     */
+    private replaceMetaAssets(): void {
+        this.rawFileContent = this.rawFileContent.replace(
+            `import {assets} from '@demo/utils';\n`,
+            ``,
+        );
+
+        this.rawFileContent = this.rawFileContent.replace(
+            `assets\``,
+            `\`https://taiga-ui.dev/assets`,
+        );
     }
 }

@@ -1,21 +1,16 @@
-import {Directive, forwardRef} from '@angular/core';
-import {TUI_TEXTFIELD_HOST, TuiAbstractTextfieldHost} from '@taiga-ui/core';
+import {Directive} from '@angular/core';
+import {AbstractTuiTextfieldHost, tuiAsTextfieldHost} from '@taiga-ui/core';
 
 import {TuiComboBoxComponent} from './combo-box.component';
 
 @Directive({
     selector: 'tui-combo-box',
-    providers: [
-        {
-            provide: TUI_TEXTFIELD_HOST,
-            useExisting: forwardRef(() => TuiComboBoxDirective),
-        },
-    ],
+    providers: [tuiAsTextfieldHost(TuiComboBoxDirective)],
 })
-export class TuiComboBoxDirective extends TuiAbstractTextfieldHost<
-    TuiComboBoxComponent<any>
+export class TuiComboBoxDirective extends AbstractTuiTextfieldHost<
+    TuiComboBoxComponent<unknown>
 > {
-    get value(): string {
+    override get value(): string {
         return this.host.nativeValue;
     }
 

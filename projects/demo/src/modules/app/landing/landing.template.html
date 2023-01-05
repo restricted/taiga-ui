@@ -31,13 +31,16 @@
             <div class="date">
                 <tui-input-date
                     required
-                    tuiTextfieldExampleText="dd.mm.yyyy"
                     [(ngModel)]="date"
-                    (mousedown.capture.stop)="0"
-                    (click.capture.stop)="0"
-                    (keydown.capture.stop)="0"
+                    (mousedown.capture.stop)="(0)"
+                    (click.capture.stop)="(0)"
+                    (keydown.capture.stop)="(0)"
                 >
                     Choose date
+                    <input
+                        tuiTextfield
+                        placeholder="dd.mm.yyyy"
+                    />
                 </tui-input-date>
                 <tui-calendar
                     tuiPreventDefault="mousedown"
@@ -66,12 +69,15 @@
                     ></tui-toggle>
                     Push notifications
                 </label>
-                <tui-slider
+                <input
+                    tuiSlider
+                    type="range"
+                    step="any"
                     size="m"
                     class="tui-space_vertical-6"
                     [max]="140"
                     [ngModel]="80"
-                ></tui-slider>
+                />
                 <div class="icons">
                     <button
                         tuiIconButton
@@ -147,8 +153,7 @@
     <div class="container container_dark">
         <h2 class="opensource">It’s open source</h2>
         <p class="contributions">
-            We use these components in our work ourselves, so we often release
-            updates. Contributions are welcome —
+            We use these components in our work ourselves, so we often release updates. Contributions are welcome —
             <a
                 href="https://github.com/tinkoff/taiga-ui"
                 target="_blank"

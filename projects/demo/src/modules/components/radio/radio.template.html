@@ -5,8 +5,7 @@
 >
     <ng-template pageTab>
         <p i18n>
-            Radio button without a label. If you want to use it with a label,
-            see
+            Radio button without a label. If you want to use it with a label, see
             <a
                 tuiLink
                 routerLink="/components/radio-labeled"
@@ -51,9 +50,9 @@
                     [item]="null"
                     [identityMatcher]="identityMatcher"
                     [pseudoInvalid]="pseudoInvalid"
-                    [pseudoFocused]="pseudoFocused"
-                    [pseudoHovered]="pseudoHovered"
-                    [pseudoPressed]="pseudoPressed"
+                    [pseudoFocus]="pseudoFocused"
+                    [pseudoHover]="pseudoHovered"
+                    [pseudoActive]="pseudoPressed"
                     [pseudoDisabled]="pseudoDisabled"
                     [size]="size"
                     [focusable]="focusable"
@@ -65,9 +64,9 @@
                     [item]="items[1]"
                     [identityMatcher]="identityMatcher"
                     [pseudoInvalid]="pseudoInvalid"
-                    [pseudoFocused]="pseudoFocused"
-                    [pseudoHovered]="pseudoHovered"
-                    [pseudoPressed]="pseudoPressed"
+                    [pseudoFocus]="pseudoFocused"
+                    [pseudoHover]="pseudoHovered"
+                    [pseudoActive]="pseudoPressed"
                     [pseudoDisabled]="pseudoDisabled"
                     [size]="size"
                     [focusable]="focusable"
@@ -79,9 +78,9 @@
                     [item]="items[2]"
                     [identityMatcher]="identityMatcher"
                     [pseudoInvalid]="pseudoInvalid"
-                    [pseudoFocused]="pseudoFocused"
-                    [pseudoHovered]="pseudoHovered"
-                    [pseudoPressed]="pseudoPressed"
+                    [pseudoFocus]="pseudoFocused"
+                    [pseudoHover]="pseudoHovered"
+                    [pseudoActive]="pseudoPressed"
                     [pseudoDisabled]="pseudoDisabled"
                     [size]="size"
                     [focusable]="focusable"
@@ -117,8 +116,7 @@
                 [documentationPropertyValues]="identityMatcherVariants"
                 [(documentationPropertyValue)]="identityMatcher"
             >
-                Function that matches value and items, e.g. if objects are
-                copied. Uses
+                Function that matches value and items, e.g. if objects are copied. Uses
                 <code>===</code>
                 by default.
 
@@ -162,8 +160,7 @@
             <li>
                 Optionally use the
                 <code>TUI_RADIO_OPTIONS</code>
-                injection token to override the default options for the
-                component.
+                injection token to override the default options for the component.
 
                 <tui-doc-code
                     filename="myComponent.module.ts"

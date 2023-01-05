@@ -1,16 +1,20 @@
 import {
-    ComponentFactory,
+    ComponentFactoryResolver,
     ComponentRef,
     Directive,
     ElementRef,
     EmbeddedViewRef,
     Inject,
+    INJECTOR,
     Injector,
     TemplateRef,
     ViewChild,
     ViewContainerRef,
 } from '@angular/core';
+import {PolymorpheusComponent} from '@tinkoff/ng-polymorpheus';
 
+// TODO: find the best way for prevent cycle
+// eslint-disable-next-line import/no-cycle
 import {AbstractTuiPortalService} from './portal-service';
 
 /**
@@ -18,10 +22,11 @@ import {AbstractTuiPortalService} from './portal-service';
  */
 @Directive()
 export abstract class AbstractTuiPortalHostComponent {
-    @ViewChild('viewContainer', {read: ViewContainerRef})
+    @ViewChild(`viewContainer`, {read: ViewContainerRef})
     viewContainerRef!: ViewContainerRef;
 
     constructor(
+        @Inject(INJECTOR) private readonly injector: Injector,
         @Inject(ElementRef)
         readonly elementRef: ElementRef<HTMLElement>,
         @Inject(AbstractTuiPortalService) portalService: AbstractTuiPortalService,
@@ -33,23 +38,17 @@ export abstract class AbstractTuiPortalHostComponent {
         return this.elementRef.nativeElement.getBoundingClientRect();
     }
 
-    addComponentChild<C>(
-        componentFactory: ComponentFactory<C>,
-        injector: Injector,
-    ): ComponentRef<C> {
-        return this.viewContainerRef.createComponent<C>(
-            componentFactory,
-            undefined,
-            Injector.create({
-                parent: injector,
-                providers: [
-                    {
-                        provide: AbstractTuiPortalHostComponent,
-                        useValue: this,
-                    },
-                ],
-            }),
-        );
+    addComponentChild<C>(component: PolymorpheusComponent<C, any>): ComponentRef<C> {
+        const parent = component.createInjector(this.injector);
+        const resolver = parent.get(ComponentFactoryResolver);
+        const factory = resolver.resolveComponentFactory(component.component);
+        const providers = [{provide: AbstractTuiPortalHostComponent, useValue: this}];
+        const injector = Injector.create({parent, providers});
+        const ref = this.viewContainerRef.createComponent(factory, undefined, injector);
+
+        ref.changeDetectorRef.detectChanges();
+
+        return ref;
     }
 
     addTemplateChild<C>(templateRef: TemplateRef<C>, context?: C): EmbeddedViewRef<C> {

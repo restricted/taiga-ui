@@ -1,43 +1,24 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-import {
-    TuiActiveZoneModule,
-    TuiFocusableModule,
-    TuiFocusVisibleModule,
-    TuiRepeatTimesModule,
-} from '@taiga-ui/cdk';
-import {TuiFormatNumberPipeModule} from '@taiga-ui/core';
 
+import {TuiSliderKeyStepsDirective} from './helpers/slider-key-steps.directive';
+import {TuiSliderReadonlyDirective} from './helpers/slider-readonly.directive';
+import {TuiSliderThumbLabelComponent} from './helpers/slider-thumb-label/slider-thumb-label.component';
 import {TuiSliderComponent} from './slider.component';
-import {
-    TuiSliderKeyStepsDirective,
-    TuiSliderTickLabelPipe,
-} from './slider-key-steps.directive';
-import {TuiSliderOldComponent} from './slider-old.component';
-import {TuiSliderReadonlyDirective} from './slider-readonly.directive';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        TuiRepeatTimesModule,
-        TuiFocusableModule,
-        TuiFocusVisibleModule,
-        TuiActiveZoneModule,
-        TuiFormatNumberPipeModule,
-    ],
+    imports: [CommonModule],
     declarations: [
         TuiSliderComponent,
+        TuiSliderThumbLabelComponent,
         TuiSliderKeyStepsDirective,
         TuiSliderReadonlyDirective,
-        TuiSliderTickLabelPipe,
-        TuiSliderOldComponent,
     ],
     exports: [
         TuiSliderComponent,
+        TuiSliderThumbLabelComponent,
         TuiSliderKeyStepsDirective,
         TuiSliderReadonlyDirective,
-        TuiSliderTickLabelPipe,
-        TuiSliderOldComponent,
     ],
 })
 export class TuiSliderModule {}

@@ -1,65 +1,67 @@
-import {TuiAutofillFieldName, TuiInputModeT, TuiInputTypeT} from '@taiga-ui/cdk';
+import {TuiContextWithImplicit} from '@taiga-ui/cdk';
 import {TuiSizeL, TuiSizeS} from '@taiga-ui/core/types';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
 
-import {TuiTextfieldAutocompleteDirective} from './textfield-autocomplete.directive';
 import {TuiTextfieldCleanerDirective} from './textfield-cleaner.directive';
 import {TuiTextfieldCustomContentDirective} from './textfield-custom-content.directive';
-import {TuiTextfieldExampleTextDirective} from './textfield-example-text.directive';
-import {TuiTextfieldInputModeDirective} from './textfield-input-mode.directive';
+import {TuiTextfieldFillerDirective} from './textfield-filler.directive';
+import {TuiTextfieldIconDirective} from './textfield-icon.directive';
+import {TuiTextfieldIconLeftDirective} from './textfield-icon-left.directive';
 import {TuiTextfieldLabelOutsideDirective} from './textfield-label-outside.directive';
-import {TuiTextfieldMaxLengthDirective} from './textfield-max-length.directive';
+import {TuiTextfieldOptions} from './textfield-options';
+import {TuiTextfieldPostfixDirective} from './textfield-postfix.directive';
+import {TuiTextfieldPrefixDirective} from './textfield-prefix.directive';
 import {TuiTextfieldSizeDirective} from './textfield-size.directive';
-import {TuiTextfieldTypeDirective} from './textfield-type.directive';
 
 export class TuiTextfieldController {
     constructor(
         readonly change$: Observable<void>,
-        private readonly autocompleteDirective: TuiTextfieldAutocompleteDirective,
+        readonly options: TuiTextfieldOptions,
         private readonly cleanerDirective: TuiTextfieldCleanerDirective,
         private readonly customContentDirective: TuiTextfieldCustomContentDirective,
-        private readonly exampleTextDirective: TuiTextfieldExampleTextDirective,
-        private readonly inputModeDirective: TuiTextfieldInputModeDirective,
+        private readonly iconDirective: TuiTextfieldIconDirective,
+        private readonly iconLeftDirective: TuiTextfieldIconLeftDirective,
         private readonly labelOutsideDirective: TuiTextfieldLabelOutsideDirective,
-        private readonly maxLengthDirective: TuiTextfieldMaxLengthDirective,
         private readonly sizeDirective: TuiTextfieldSizeDirective,
-        private readonly typeDirective: TuiTextfieldTypeDirective,
+        private readonly prefixDirective: TuiTextfieldPrefixDirective,
+        private readonly postfixDirective: TuiTextfieldPostfixDirective,
+        private readonly fillerDirective: TuiTextfieldFillerDirective,
     ) {}
-
-    get autocomplete(): TuiAutofillFieldName | '' {
-        return this.autocompleteDirective.autocomplete;
-    }
 
     get cleaner(): boolean {
         return this.cleanerDirective.cleaner;
     }
 
     get customContent(): PolymorpheusContent {
-        return this.customContentDirective.customContent || '';
+        return this.customContentDirective.customContent || ``;
     }
 
-    get exampleText(): string {
-        return this.exampleTextDirective.exampleText;
+    get icon(): PolymorpheusContent<TuiContextWithImplicit<TuiSizeL | TuiSizeS>> {
+        return this.iconDirective.icon;
     }
 
-    get inputMode(): TuiInputModeT {
-        return this.inputModeDirective.inputMode;
+    get iconLeft(): PolymorpheusContent<TuiContextWithImplicit<TuiSizeL | TuiSizeS>> {
+        return this.iconLeftDirective.iconLeft;
     }
 
     get labelOutside(): boolean {
         return this.labelOutsideDirective.labelOutside;
     }
 
-    get maxLength(): number | null {
-        return this.maxLengthDirective.maxLength;
-    }
-
-    get size(): TuiSizeS | TuiSizeL {
+    get size(): TuiSizeL | TuiSizeS {
         return this.sizeDirective.size;
     }
 
-    get type(): TuiInputTypeT {
-        return this.typeDirective.type;
+    get prefix(): string {
+        return this.prefixDirective.prefix;
+    }
+
+    get postfix(): string {
+        return this.postfixDirective.postfix;
+    }
+
+    get filler(): string {
+        return this.fillerDirective.filler;
     }
 }

@@ -3,7 +3,7 @@ import {TUI_IS_MOBILE, TuiDialog} from '@taiga-ui/cdk';
 import {tuiFadeIn, tuiSlideInTop} from '@taiga-ui/core/animations';
 import {TuiAnimationOptions, TuiDialogOptions} from '@taiga-ui/core/interfaces';
 import {TUI_ANIMATIONS_DURATION, TUI_CLOSE_WORD} from '@taiga-ui/core/tokens';
-import {TuiSizeL, TuiSizeS} from '@taiga-ui/core/types';
+import {TuiDialogSize} from '@taiga-ui/core/types';
 import {POLYMORPHEUS_CONTEXT, PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
 
@@ -11,12 +11,12 @@ import {TUI_DIALOG_CLOSE_STREAM, TUI_DIALOG_PROVIDERS} from './dialog.providers'
 
 const REQUIRED_ERROR = new Error('Required dialog was dismissed');
 
-// @dynamic
 @Component({
     selector: 'tui-dialog',
     templateUrl: './dialog.template.html',
     styleUrls: ['./dialog.style.less'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    // So we don't force OnPush on dialog content
+    changeDetection: ChangeDetectionStrategy.Default,
     providers: TUI_DIALOG_PROVIDERS,
     animations: [tuiSlideInTop, tuiFadeIn],
 })
@@ -52,12 +52,12 @@ export class TuiDialogComponent<O, I> {
     }
 
     @HostBinding('attr.data-size')
-    get size(): TuiSizeS | TuiSizeL | 'fullscreen' | 'page' {
+    get size(): TuiDialogSize {
         return this.context.size;
     }
 
     @HostBinding('class._centered')
-    get header(): PolymorpheusContent {
+    get header(): PolymorpheusContent<TuiDialog<TuiDialogOptions<I>, O>> {
         return this.context.header;
     }
 

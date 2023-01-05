@@ -1,9 +1,11 @@
 <ng-container *ngIf="texts$ | async as texts">
     <span class="t-pages">
-        {{ texts.pages }}
-        <strong class="t-strong">{{ pages }}</strong>
+        <ng-container *ngIf="options.showPages">
+            {{ texts.pages }}
+            <strong class="t-strong">{{ pages }}</strong>
+        </ng-container>
     </span>
-    <span>
+    <span automation-id="tui-table-pagination__lines-per-page-wrapper">
         {{ texts.linesPerPage }}
         <tui-hosted-dropdown
             [content]="content"
@@ -13,16 +15,30 @@
                 <strong>{{ start + 1 }}–{{ end }}</strong>
             </button>
             <ng-template #content>
-                <tui-data-list>
+                <tui-data-list size="s">
                     <ng-container *ngFor="let item of items">
                         <button
-                            *ngIf="item !== size"
                             tuiOption
-                            size="s"
                             class="t-item"
                             (click)="onItem(item)"
                         >
-                            {{ item }}
+                            <ng-container
+                                *polymorpheusOutlet="
+                                    options.sizeOptionContent as text;
+                                    context: {$implicit: item, total: total}
+                                "
+                            >
+                                {{ text }}
+                            </ng-container>
+                            <tui-svg
+                                *ngIf="item === size; else fakeIcon"
+                                src="tuiIconCheckLarge"
+                                class="t-checkmark"
+                            ></tui-svg>
+
+                            <ng-template #fakeIcon>
+                                <span class="t-checkmark"></span>
+                            </ng-template>
                         </button>
                     </ng-container>
                 </tui-data-list>

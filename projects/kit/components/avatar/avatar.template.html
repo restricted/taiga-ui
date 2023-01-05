@@ -1,9 +1,14 @@
 <img
     *ngIf="isUrlValid"
     loading="lazy"
-    class="image"
+    class="t-image"
     [attr.alt]="text"
     [src]="avatarUrl || ''"
     (error)="onError()"
 />
-<span class="text">{{ computedText }}</span>
+<tui-svg
+    *ngIf="stringAvatar"
+    class="t-icon"
+    [src]="stringAvatar"
+></tui-svg>
+<span class="t-text">{{ computedText }}</span>

@@ -7,7 +7,7 @@ import {
     Input,
     Output,
 } from '@angular/core';
-import {tuiDefaultProp} from '@taiga-ui/cdk';
+import {tuiDefaultProp, tuiIsObserved} from '@taiga-ui/cdk';
 import {
     TUI_CLOSE_WORD,
     TUI_NOTIFICATION_OPTIONS,
@@ -22,7 +22,6 @@ export const STATUS_ICON = {
     warning: 'tuiIconAttention',
 } as const;
 
-// @bad TODO: Think about moving to kit
 @Component({
     selector: 'tui-notification',
     templateUrl: './notification.template.html',
@@ -38,7 +37,7 @@ export class TuiNotificationComponent {
     @Input()
     @HostBinding('attr.data-tui-host-status')
     @tuiDefaultProp()
-    status: 'info' | 'error' | 'warning' | 'success' = this.options.status;
+    status: 'error' | 'info' | 'success' | 'warning' = this.options.status;
 
     @Output()
     readonly close = new EventEmitter<void>();
@@ -55,6 +54,6 @@ export class TuiNotificationComponent {
 
     @HostBinding('class._has-close-button')
     get hasClose(): boolean {
-        return !!this.close.observers.length;
+        return tuiIsObserved(this.close);
     }
 }

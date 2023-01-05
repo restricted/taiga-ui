@@ -5,17 +5,18 @@ import {
     Inject,
     Input,
 } from '@angular/core';
+import {SafeResourceUrl} from '@angular/platform-browser';
 import {tuiDefaultProp, tuiRequiredSetter} from '@taiga-ui/cdk';
-import {sizeBigger} from '@taiga-ui/core';
-import {stringHashToHsl} from '@taiga-ui/kit/utils/format';
+import {tuiSizeBigger} from '@taiga-ui/core';
+import {tuiStringHashToHsl} from '@taiga-ui/kit/utils/format';
 
 import {TUI_AVATAR_OPTIONS, TuiAvatarOptions} from './avatar-options';
 
 @Component({
     selector: 'tui-avatar',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './avatar.template.html',
     styleUrls: ['./avatar.style.less'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TuiAvatarComponent {
     @Input()
@@ -25,9 +26,9 @@ export class TuiAvatarComponent {
 
     @Input('avatarUrl')
     @tuiRequiredSetter()
-    set avatarUrlSetter(avatarUrl: string | null) {
-        this.isUrlValid = !!avatarUrl;
+    set avatarUrlSetter(avatarUrl: SafeResourceUrl | string | null) {
         this.avatarUrl = avatarUrl;
+        this.isUrlValid = !!avatarUrl && !this.iconAvatar;
     }
 
     @Input()
@@ -43,7 +44,7 @@ export class TuiAvatarComponent {
     @tuiDefaultProp()
     rounded: boolean = this.options.rounded;
 
-    avatarUrl: string | null = null;
+    avatarUrl: SafeResourceUrl | string | null = null;
 
     isUrlValid = false;
 
@@ -51,7 +52,7 @@ export class TuiAvatarComponent {
 
     @HostBinding('style.background')
     get bgColor(): string {
-        return this.autoColor ? stringHashToHsl(this.text) : '';
+        return this.autoColor ? tuiStringHashToHsl(this.text) : '';
     }
 
     @HostBinding('class._has-avatar')
@@ -59,16 +60,26 @@ export class TuiAvatarComponent {
         return this.avatarUrl !== null && this.isUrlValid;
     }
 
+    get iconAvatar(): boolean {
+        return (
+            typeof this.avatarUrl === 'string' && !!this.avatarUrl?.startsWith('tuiIcon')
+        );
+    }
+
     get computedText(): string {
-        if (this.hasAvatar || this.text === '') {
+        if (this.hasAvatar || this.iconAvatar || this.text === '') {
             return '';
         }
 
         const words = this.text.split(' ');
 
-        return words.length > 1 && sizeBigger(this.size)
+        return words.length > 1 && tuiSizeBigger(this.size)
             ? words[0].slice(0, 1) + words[1].slice(0, 1)
             : words[0].slice(0, 1);
+    }
+
+    get stringAvatar(): string {
+        return this.iconAvatar ? String(this.avatarUrl) : '';
     }
 
     onError(): void {

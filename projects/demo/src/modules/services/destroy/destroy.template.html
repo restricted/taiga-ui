@@ -4,16 +4,13 @@
     path="cdk/services/destroy.service.ts"
 >
     <ng-template pageTab>
-        <p i18n>
-            A service to terminate subscriptions upon component/directive
-            removal.
-        </p>
+        <p i18n>A service to terminate subscriptions upon component/directive removal.</p>
         <tui-notification status="warning">
             Component must have
             <code>providers: [TuiDestroyService]</code>
         </tui-notification>
         <tui-doc-example
-            id="Basic"
+            id="basic"
             i18n-heading
             heading="Basic"
             [content]="example"
@@ -23,6 +20,18 @@
     </ng-template>
     <ng-template pageTab="Setup">
         <ol class="b-demo-steps">
+            <li>
+                <p i18n>
+                    Add
+                    <code>TuiDestroyService</code>
+                    to the providers of your component:
+                </p>
+
+                <tui-doc-code
+                    filename="myComponent.component.ts"
+                    [code]="provideService"
+                ></tui-doc-code>
+            </li>
             <li>
                 <p i18n>
                     Inject

@@ -1,23 +1,17 @@
 import {ComponentFixture} from '@angular/core/testing';
 
-import {createKeyboardEvent} from './keyboard-event';
+import {tuiCreateKeyboardEvent} from './keyboard-event';
 
-export function dispatchOnActive<T>(key: string, fixture?: ComponentFixture<T>): void {
-    if (document.activeElement) {
-        document.activeElement.dispatchEvent(createKeyboardEvent(key, 'keydown'));
-    }
+export function tuiDispatchOnActive<T>(key: string, fixture?: ComponentFixture<T>): void {
+    document.activeElement?.dispatchEvent(tuiCreateKeyboardEvent(key, `keydown`));
 
-    if (fixture) {
-        fixture.detectChanges();
-    }
+    fixture?.detectChanges();
 }
 
-export function activeText(): string {
-    return document.activeElement && document.activeElement.textContent
-        ? document.activeElement.textContent.trim()
-        : '';
+export function tuiActiveText(): string {
+    return document.activeElement?.textContent?.trim() ?? ``;
 }
 
-export function isActive(element: Element): boolean {
+export function tuiIsActive(element: Element): boolean {
     return document.activeElement === element;
 }

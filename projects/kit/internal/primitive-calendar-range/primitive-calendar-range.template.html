@@ -3,7 +3,7 @@
     [max]="max"
     [month]="userViewedMonthFirst"
     [markerHandler]="markerHandler"
-    [maxViewedMonth]="cappedUserViewedMonthSecond | tuiMapper: monthOffset:-1"
+    [maxViewedMonth]="cappedUserViewedMonthSecond | tuiMapper : monthOffset : -1"
     [value]="value"
     [disabledItemHandler]="disabledItemHandler"
     [showAdjacent]="false"
@@ -12,12 +12,12 @@
     (monthChange)="onSectionFirstViewedMonth($event)"
 ></tui-calendar>
 <tui-calendar
-    class="border"
+    class="t-border"
     [min]="min"
     [max]="max"
     [month]="userViewedMonthSecond"
     [markerHandler]="markerHandler"
-    [minViewedMonth]="cappedUserViewedMonthFirst | tuiMapper: monthOffset:1"
+    [minViewedMonth]="cappedUserViewedMonthFirst | tuiMapper : monthOffset : 1"
     [value]="value"
     [disabledItemHandler]="disabledItemHandler"
     [showAdjacent]="false"

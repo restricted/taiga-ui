@@ -1,26 +1,33 @@
-<nav
-    tuiTabs
-    [(activeItemIndex)]="index"
->
-    <button tuiTab>Just a tab</button>
+<form [formGroup]="form">
     <tui-hosted-dropdown
-        tuiDropdownHover
-        [content]="content"
+        [content]="dropdown"
         [(open)]="open"
     >
         <button
-            tuiTab
-            (tui-tab-activate.stop)="0"
+            tuiButton
+            [appearance]="appearance"
+            [iconRight]="length ? cleaner : arrow"
+            [style.--tui-padding.rem]="1.25"
+            (keydown.delete)="form.reset()"
         >
-            Hoverable/Clickable
+            {{ text }}
         </button>
-        <ng-template #content>
-            <tui-data-list (click)="onClick()">
-                <button tuiOption>Option 1</button>
-                <button tuiOption>Option 2</button>
-                <button tuiOption>Option 3</button>
-            </tui-data-list>
+        <ng-template #dropdown>
+            <tui-data-list-wrapper
+                tuiMultiSelectGroup
+                formControlName="control"
+                [items]="items"
+            ></tui-data-list-wrapper>
+        </ng-template>
+        <ng-template #cleaner>
+            <button
+                tuiIconButton
+                appearance="icon"
+                size="xs"
+                icon="tuiIconCloseLarge"
+                type="reset"
+                tuiPreventDefault="mousedown"
+            ></button>
         </ng-template>
     </tui-hosted-dropdown>
-    <button tuiTab>Another tab</button>
-</nav>
+</form>

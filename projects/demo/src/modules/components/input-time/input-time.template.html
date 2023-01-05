@@ -39,7 +39,7 @@
         </tui-doc-example>
 
         <tui-doc-example
-            id="options_max"
+            id="options-max"
             i18n-heading
             heading="Options (max values)"
             [content]="example4"
@@ -48,7 +48,7 @@
         </tui-doc-example>
 
         <tui-doc-example
-            id="options_ampm"
+            id="options-ampm"
             i18n-heading
             heading="Options (max values and postfix)"
             [content]="example5"
@@ -69,20 +69,24 @@
                     [tuiDropdownLimitWidth]="dropdownLimitWidth"
                     [tuiDropdownMinHeight]="dropdownMinHeight"
                     [tuiDropdownMaxHeight]="dropdownMaxHeight"
+                    [tuiDropdownOffset]="dropdownOffset"
                     [items]="items"
                     [itemSize]="itemSize"
                     [tuiTextfieldCleaner]="cleaner"
                     [tuiTextfieldLabelOutside]="labelOutside"
                     [tuiTextfieldSize]="size"
+                    [tuiTextfieldPrefix]="prefix"
+                    [tuiTextfieldPostfix]="postfix"
                     [mode]="mode"
                     [readOnly]="readOnly"
                     [strict]="strict"
                     [pseudoInvalid]="pseudoInvalid"
-                    [pseudoFocused]="pseudoFocused"
-                    [pseudoHovered]="pseudoHovered"
+                    [pseudoFocus]="pseudoFocused"
+                    [pseudoHover]="pseudoHovered"
                     [tuiHintContent]="hintContent"
                     [tuiHintDirection]="hintDirection"
-                    [tuiHintMode]="hintMode"
+                    [tuiHintAppearance]="hintAppearance"
+                    [style.text-align]="textAlign"
                 >
                     Input time
                 </tui-input-time>
@@ -152,6 +156,18 @@
             </ng-template>
         </tui-doc-documentation>
         <inherited-documentation></inherited-documentation>
+        <tui-doc-documentation heading="CSS customization">
+            <ng-template
+                i18n
+                documentationPropertyMode="input"
+                documentationPropertyType="string"
+                documentationPropertyName="style.text-align"
+                [documentationPropertyValues]="textAlignVariants"
+                [(documentationPropertyValue)]="textAlign"
+            >
+                Custom align content by text-align
+            </ng-template>
+        </tui-doc-documentation>
     </ng-template>
 
     <ng-template pageTab>
@@ -197,8 +213,7 @@
                 <p i18n>
                     Optionally use the
                     <code>TUI_INPUT_TIME_OPTIONS</code>
-                    injection token to override the default options for the
-                    component.
+                    injection token to override the default options for the component.
                 </p>
 
                 <tui-doc-code

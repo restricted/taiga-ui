@@ -16,7 +16,8 @@ import {Observable} from 'rxjs';
     selector: 'tui-alert-host',
     templateUrl: './alert-host.template.html',
     styleUrls: ['./alert-host.style.less'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    // So that we do not force OnPush on custom alerts
+    changeDetection: ChangeDetectionStrategy.Default,
     animations: [TUI_PARENT_ANIMATION],
     encapsulation: ViewEncapsulation.None,
 })
@@ -26,7 +27,7 @@ export class TuiAlertHostComponent<T extends TuiDialog<unknown, unknown>> {
         @Inject(INJECTOR) private readonly injector: Injector,
     ) {}
 
-    readonly mapper: TuiMapper<any, Injector> = useValue =>
+    readonly mapper: TuiMapper<unknown, Injector> = useValue =>
         Injector.create({
             providers: [
                 {

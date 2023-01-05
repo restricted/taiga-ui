@@ -8,15 +8,14 @@ import {
 } from '@angular/core/testing';
 import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {tuiAssertIsHTMLElement} from '@taiga-ui/cdk';
 import {TuiHintModule, TuiRootModule} from '@taiga-ui/core';
 import {TuiInputModule} from '@taiga-ui/kit/components';
 import {TuiFieldErrorPipeModule} from '@taiga-ui/kit/pipes';
 import {TUI_VALIDATION_ERRORS} from '@taiga-ui/kit/tokens';
 import {configureTestSuite} from '@taiga-ui/testing';
 
-describe('TuiFieldErrorContentPipe', () => {
-    const testError = 'testError';
+describe(`TuiFieldErrorContentPipe`, () => {
+    const testError = `testError`;
     const max = 15;
 
     @Component({
@@ -75,46 +74,42 @@ describe('TuiFieldErrorContentPipe', () => {
     });
 
     beforeEach(() => {
-        document.body.style.margin = '0';
+        document.body.style.margin = `0`;
         fixture = TestBed.createComponent(TestComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
-    describe('Hint', () => {
-        it('shows validation error', fakeAsync(() => {
+    describe(`Hint`, () => {
+        it(`shows validation error`, fakeAsync(() => {
             showHint();
             fixture.detectChanges();
-            expect(getTooltip()!.textContent!.trim()).toBe(testError);
+            expect(getTooltip()?.textContent?.trim()).toBe(testError);
         }));
 
-        it('shows validation error (function error)', fakeAsync(() => {
+        it(`shows validation error (function error)`, fakeAsync(() => {
             component.control.setValue(22);
             showHint();
             fixture.detectChanges();
-            expect(getTooltip()!.textContent!.trim()).toBe(`error ${max}`);
+            expect(getTooltip()?.textContent?.trim()).toBe(`error ${max}`);
         }));
     });
 
     function showHint(): void {
         component.control.markAsTouched();
         fixture.detectChanges();
-        getHost().dispatchEvent(new Event('mouseenter'));
+        getHost().dispatchEvent(new Event(`mouseenter`));
         fixture.detectChanges();
         tick(500);
         fixture.detectChanges();
         discardPeriodicTasks();
     }
 
-    function getHost(): HTMLElement {
-        const element = document.querySelector('#hint-host');
-
-        tuiAssertIsHTMLElement(element);
-
-        return element;
+    function getHost(): Element {
+        return document.querySelector(`#hint-host`)!;
     }
 
     function getTooltip(): Element | null {
-        return document.querySelector('[automation-id=tui-hint-box__tooltip]');
+        return document.querySelector(`tui-hint`);
     }
 });

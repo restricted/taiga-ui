@@ -2,6 +2,7 @@ import {Component, Inject, Injector} from '@angular/core';
 import {Router} from '@angular/router';
 import {changeDetection} from '@demo/emulate/change-detection';
 import {encapsulation} from '@demo/emulate/encapsulation';
+import {TuiContextWithImplicit} from '@taiga-ui/cdk';
 import {TuiAlertService, TuiNotification} from '@taiga-ui/core';
 import {PolymorpheusComponent} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
@@ -11,8 +12,8 @@ import {AlertExampleWithCustomLabelComponent} from './alert-example-with-custom-
 import {CustomLabelComponent} from './custom-label/custom-label.component';
 
 @Component({
-    selector: 'tui-alerts-example-5',
-    templateUrl: './index.html',
+    selector: `tui-alerts-example-5`,
+    templateUrl: `./index.html`,
     changeDetection,
     encapsulation,
 })
@@ -32,10 +33,10 @@ export class TuiAlertsExampleComponent5 {
                     this.injector,
                 ),
                 {
-                    label: ({$implicit}: any) =>
+                    label: ({$implicit}: TuiContextWithImplicit<TuiNotification>) =>
                         $implicit === TuiNotification.Error
-                            ? 'Error label from function'
-                            : 'Info label from function',
+                            ? `Error label from function`
+                            : `Info label from function`,
                     status: TuiNotification.Info,
                     autoClose: false,
                 },

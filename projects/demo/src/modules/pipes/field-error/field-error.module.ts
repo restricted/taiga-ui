@@ -3,7 +3,7 @@ import {NgModule} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {TuiCurrencyPipeModule} from '@taiga-ui/addon-commerce';
-import {generateRoutes, TuiAddonDocModule} from '@taiga-ui/addon-doc';
+import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
 import {TuiTableModule} from '@taiga-ui/addon-table';
 import {
     TuiButtonModule,
@@ -14,12 +14,12 @@ import {
     TuiTextfieldControllerModule,
 } from '@taiga-ui/core';
 import {
+    TuiFieldErrorPipeModule,
     TuiInputCountModule,
     TuiInputModule,
     TuiInputNumberModule,
     TuiInputPhoneModule,
 } from '@taiga-ui/kit';
-import {TuiFieldErrorPipeModule} from '@taiga-ui/kit/pipes/field-error';
 import {PolymorpheusModule} from '@tinkoff/ng-polymorpheus';
 
 import {TuiFieldErrorPipeExample1} from './examples/1';
@@ -50,7 +50,7 @@ import {ExampleTuiFieldErrorPipeComponent} from './field-error.component';
         TuiInputNumberModule,
         TuiCurrencyPipeModule,
         PolymorpheusModule,
-        RouterModule.forChild(generateRoutes(ExampleTuiFieldErrorPipeComponent)),
+        RouterModule.forChild(tuiGenerateRoutes(ExampleTuiFieldErrorPipeComponent)),
     ],
     declarations: [
         ExampleTuiFieldErrorPipeComponent,

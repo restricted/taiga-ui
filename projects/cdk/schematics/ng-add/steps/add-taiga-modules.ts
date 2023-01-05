@@ -1,5 +1,4 @@
 import {Rule, SchematicContext, Tree} from '@angular-devkit/schematics';
-
 import {getWorkspace} from '@schematics/angular/utility/workspace';
 import {
     addImportToNgModule,
@@ -10,24 +9,34 @@ import {
     saveActiveProject,
     setActiveProject,
 } from 'ng-morph';
-import {getProject} from '../../utils/get-project';
+
+import {addUniqueImport} from '../../utils/add-unique-import';
 import {getProjectTargetOptions} from '../../utils/get-project-target-options';
+import {getProjects} from '../../utils/get-projects';
 import {
     ALERT_MODULES,
     DIALOG_MODULES,
     MAIN_MODULES,
     SANITIZER_MODULES,
 } from '../constants/modules';
-import {Schema} from '../schema';
-import {addUniqueImport} from '../../utils/add-unique-import';
+import {TuiSchema} from '../schema';
 
-export function addTaigaModules(options: Schema): Rule {
+export function addTaigaModules(options: TuiSchema): Rule {
     return async (tree: Tree, context: SchematicContext) => {
         const workspace = await getWorkspace(tree);
-        const project = getProject(options, workspace);
-        const buildOptions = getProjectTargetOptions(project, 'build');
+        const project = getProjects(options, workspace)[0];
 
-        setActiveProject(createProject(tree, '/', ['**/*.ts', '**/*.json']));
+        if (!project) {
+            context.logger.warn(
+                `[WARNING]: Target project not found in current workspace`,
+            );
+
+            return;
+        }
+
+        const buildOptions = getProjectTargetOptions(project, `build`);
+
+        setActiveProject(createProject(tree, `/`, [`**/*.ts`, `**/*.json`]));
 
         const mainModule = getMainModule(buildOptions.main as string);
 
@@ -40,9 +49,9 @@ export function addTaigaModules(options: Schema): Rule {
 
 function addTuiModules(
     mainModule: ClassDeclaration,
-    options: Schema,
+    options: TuiSchema,
     context: SchematicContext,
-) {
+): void {
     const modules = [
         ...MAIN_MODULES,
         ...(options.addDialogsModule ? DIALOG_MODULES : []),
@@ -61,14 +70,14 @@ function addTuiModules(
     );
 }
 
-function addTuiProviders(mainModule: ClassDeclaration, options: Schema): void {
+function addTuiProviders(mainModule: ClassDeclaration, options: TuiSchema): void {
     if (!options.addSanitizer) {
         return;
     }
 
     addProviderToNgModule(
         mainModule,
-        '{provide: TUI_SANITIZER, useClass: NgDompurifySanitizer}',
+        `{provide: TUI_SANITIZER, useClass: NgDompurifySanitizer}`,
         {unique: true},
     );
 

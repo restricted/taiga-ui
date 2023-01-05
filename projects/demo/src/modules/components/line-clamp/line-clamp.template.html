@@ -4,9 +4,7 @@
     type="components"
 >
     <ng-template pageTab>
-        <p i18n>
-            Component cuts overflowed text with "..." and shows it by hover
-        </p>
+        <p i18n>Component cuts overflown text with "..." and shows it by hover</p>
 
         <tui-doc-example
             id="basic"
@@ -34,16 +32,26 @@
         >
             <tui-line-clamp-example-3></tui-line-clamp-example-3>
         </tui-doc-example>
+
+        <tui-doc-example
+            id="clamp-dropdown"
+            i18n-heading
+            heading="Clamp inside dropdown"
+            [content]="example4"
+        >
+            <tui-line-clamp-example-4></tui-line-clamp-example-4>
+        </tui-doc-example>
     </ng-template>
 
     <ng-template pageTab>
         <tui-doc-demo>
             <tui-line-clamp
-                [content]="content"
+                [style.maxWidth.px]="maxWidth"
+                [content]="content || defaultExampleContent"
                 [linesLimit]="linesLimit"
                 [lineHeight]="lineHeight"
             ></tui-line-clamp>
-            <ng-template #content>
+            <ng-template #defaultExampleContent>
                 Lorem ipsum
                 <br />
                 Gaudeamus igitur
@@ -59,6 +67,7 @@
                 documentationPropertyName="content"
                 documentationPropertyMode="input"
                 documentationPropertyType="PolymorpheusContent"
+                [(documentationPropertyValue)]="content"
             >
                 Content
             </ng-template>
@@ -79,6 +88,17 @@
                 [(documentationPropertyValue)]="linesLimit"
             >
                 Number of visible lines
+            </ng-template>
+        </tui-doc-documentation>
+        <tui-doc-documentation heading="CSS customization">
+            <ng-template
+                i18n
+                documentationPropertyName="style.maxWidth.px"
+                documentationPropertyMode="input"
+                documentationPropertyType="number"
+                [(documentationPropertyValue)]="maxWidth"
+            >
+                Value of max-width
             </ng-template>
         </tui-doc-documentation>
     </ng-template>
