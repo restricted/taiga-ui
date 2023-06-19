@@ -11,18 +11,23 @@ export interface TuiInputTimeOptions {
     readonly postfix: string;
     readonly maxValues: Record<TuiTimeFormatParts, number>;
     readonly itemSize: TuiSizeL | TuiSizeS;
+    readonly nativePicker?: boolean;
 }
 
 export const TUI_INPUT_TIME_DEFAULT_OPTIONS: TuiInputTimeOptions = {
-    icon: ({$implicit}) => ($implicit === `s` ? `tuiIconTime` : `tuiIconTimeLarge`),
+    icon: ({$implicit}) => ($implicit === `s` ? `tuiIconClock` : `tuiIconClockLarge`),
     mode: `HH:MM`,
     postfix: ``,
     maxValues: MAX_TIME_VALUES,
     itemSize: `m`,
+    nativePicker: false,
 };
 
+/**
+ * Default parameters for InputTime component
+ */
 export const TUI_INPUT_TIME_OPTIONS = new InjectionToken<TuiInputTimeOptions>(
-    `[TUI_INPUT_TIME_OPTIONS]: Default parameters for input time component`,
+    `[TUI_INPUT_TIME_OPTIONS]`,
     {
         factory: () => TUI_INPUT_TIME_DEFAULT_OPTIONS,
     },

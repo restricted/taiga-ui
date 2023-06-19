@@ -10,6 +10,7 @@ import {
     Optional,
     Output,
     QueryList,
+    Self,
     ViewChild,
     ViewChildren,
 } from '@angular/core';
@@ -30,6 +31,7 @@ import {
     EMPTY_QUERY,
     tuiAssert,
     tuiDefaultProp,
+    TuiDestroyService,
     TuiHandler,
     TuiInjectionTokenType,
     tuiIsNativeFocusedIn,
@@ -37,7 +39,7 @@ import {
 import {TuiHostedDropdownComponent} from '@taiga-ui/core';
 import {TuiLanguageEditor} from '@taiga-ui/i18n';
 import {Observable} from 'rxjs';
-import {take} from 'rxjs/operators';
+import {take, takeUntil} from 'rxjs/operators';
 
 import {TuiToolbarNavigationManagerDirective} from './toolbar-navigation-manager.directive';
 
@@ -46,6 +48,7 @@ import {TuiToolbarNavigationManagerDirective} from './toolbar-navigation-manager
     templateUrl: './toolbar.template.html',
     styleUrls: ['./toolbar.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [TuiDestroyService],
     host: {
         role: 'toolbar',
     },
@@ -77,7 +80,7 @@ export class TuiToolbarComponent {
 
     readonly TuiEditorTool: typeof TuiEditorTool = TuiEditorTool;
 
-    toolsSet: Set<TuiEditorTool> = new Set(defaultEditorTools);
+    toolsSet = new Set<TuiEditorTool>(defaultEditorTools);
 
     @Input()
     @tuiDefaultProp(toolsAssertion, 'Attach and TeX are not yet implemented in Editor')
@@ -88,7 +91,7 @@ export class TuiToolbarComponent {
     constructor(
         @Optional()
         @Inject(ElementRef)
-        private readonly elementRef: ElementRef<HTMLElement>,
+        private readonly el: ElementRef<HTMLElement>,
         @Inject(TuiTiptapEditorService) readonly editor: AbstractTuiEditor,
         @Inject(TUI_IMAGE_LOADER)
         private readonly imageLoader: TuiHandler<File, Observable<string>>,
@@ -103,11 +106,14 @@ export class TuiToolbarComponent {
         readonly texts$: Observable<TuiLanguageEditor['toolbarTools']>,
         @Inject(TUI_EDITOR_OPTIONS)
         private readonly defaultOptions: TuiEditorOptions,
+        @Self()
+        @Inject(TuiDestroyService)
+        private readonly destroy$: TuiDestroyService,
     ) {}
 
     get focused(): boolean {
         return (
-            tuiIsNativeFocusedIn(this.elementRef.nativeElement) ||
+            tuiIsNativeFocusedIn(this.el.nativeElement) ||
             !!this.dropdowns.find(({nativeElement}) =>
                 tuiIsNativeFocusedIn(nativeElement),
             )
@@ -216,10 +222,8 @@ export class TuiToolbarComponent {
         }
 
         this.imageLoader(file)
-            .pipe(take(1))
-            .subscribe(image => {
-                this.addImage(image);
-            });
+            .pipe(take(1), takeUntil(this.destroy$))
+            .subscribe(image => this.addImage(image));
     }
 
     onAttach(input: HTMLInputElement): void {
@@ -231,10 +235,14 @@ export class TuiToolbarComponent {
             return;
         }
 
-        tuiAssert.assert(!!this.filesLoader, 'Please provide TUI_ATTACH_FILES_LOADER');
+        ngDevMode &&
+            tuiAssert.assert(
+                !!this.filesLoader,
+                'Please provide TUI_ATTACH_FILES_LOADER',
+            );
 
         this.filesLoader?.(files)
-            .pipe(take(1))
+            .pipe(take(1), takeUntil(this.destroy$))
             .subscribe(attachedFiles => this.fileAttached.emit(attachedFiles));
     }
 

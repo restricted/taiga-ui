@@ -24,10 +24,9 @@ export function tuiCreateNumberMask({
     allowNegative = false,
     integerLimit = 0,
 }: TuiNumberMaskOptions = {}): TuiTextMaskListHandler {
-    tuiAssert.assert(Number.isInteger(decimalLimit));
-    tuiAssert.assert(decimalLimit >= 0);
-    tuiAssert.assert(Number.isInteger(integerLimit));
-    tuiAssert.assert(integerLimit >= 0);
+    ngDevMode && tuiAssert.assert(decimalLimit >= 0);
+    ngDevMode && tuiAssert.assert(Number.isInteger(integerLimit));
+    ngDevMode && tuiAssert.assert(integerLimit >= 0);
 
     // eslint-disable-next-line max-statements
     return (rawValue, {previousConformedValue}) => {
@@ -50,7 +49,7 @@ export function tuiCreateNumberMask({
         }
 
         const isNegative =
-            (rawValue[0] === CHAR_HYPHEN || rawValue[0] === CHAR_EN_DASH) &&
+            (rawValue?.startsWith(CHAR_HYPHEN) || rawValue?.startsWith(CHAR_EN_DASH)) &&
             allowNegative;
 
         if (
@@ -105,7 +104,7 @@ export function tuiCreateNumberMask({
 
             mask.push(decimalSymbol, MASK_CARET_TRAP, ...fractionCapped);
 
-            for (let i = 0; i < decimalLimit - fractionCapped.length; i++) {
+            for (let i = 0; i < Math.min(decimalLimit - fractionCapped.length, 20); i++) {
                 mask.push(TUI_DIGIT_REGEXP);
             }
         }

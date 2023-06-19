@@ -6,8 +6,6 @@ import {TUI_FOCUSABLE_ITEM_ACCESSOR} from '@taiga-ui/cdk/tokens';
 import {Observable, race, timer} from 'rxjs';
 import {map, skipWhile, take, throttleTime} from 'rxjs/operators';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {AbstractTuiAutofocusHandler} from './abstract.handler';
 
 const TIMEOUT = 1000;
@@ -19,11 +17,11 @@ export class TuiDefaultAutofocusHandler extends AbstractTuiAutofocusHandler {
         @Optional()
         @Self()
         @Inject(TUI_FOCUSABLE_ITEM_ACCESSOR)
-        tuiFocusableComponent: TuiFocusableElementAccessor | null,
-        @Inject(ElementRef) elementRef: ElementRef<HTMLElement>,
+        focusable: TuiFocusableElementAccessor | null,
+        @Inject(ElementRef) el: ElementRef<HTMLElement>,
         @Inject(ANIMATION_FRAME) private readonly animationFrame$: Observable<number>,
     ) {
-        super(tuiFocusableComponent, elementRef);
+        super(focusable, el);
     }
 
     setFocus(): void {

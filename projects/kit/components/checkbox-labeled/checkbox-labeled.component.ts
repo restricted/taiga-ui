@@ -19,7 +19,13 @@ import {
     tuiIsNativeFocused,
     TuiNativeFocusableElement,
 } from '@taiga-ui/cdk';
-import {TuiBrightness, TuiModeDirective, TuiSizeL} from '@taiga-ui/core';
+import {
+    TUI_CHECKBOX_OPTIONS,
+    TuiBrightness,
+    TuiCheckboxOptions,
+    TuiModeDirective,
+    TuiSizeL,
+} from '@taiga-ui/core';
 import {TuiCheckboxComponent} from '@taiga-ui/kit/components/checkbox';
 
 @Component({
@@ -42,19 +48,21 @@ export class TuiCheckboxLabeledComponent
     @Input()
     @HostBinding('attr.data-size')
     @tuiDefaultProp()
-    size: TuiSizeL = 'm';
+    size: TuiSizeL = this.options.size;
 
     constructor(
         @Optional()
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Optional()
         @Inject(TuiModeDirective)
         private readonly modeDirective: TuiModeDirective | null,
+        @Inject(TUI_CHECKBOX_OPTIONS)
+        private readonly options: TuiCheckboxOptions,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get focused(): boolean {
@@ -74,7 +82,8 @@ export class TuiCheckboxLabeledComponent
         this.updateFocused(focused);
     }
 
+    /** @deprecated use 'value' setter */
     onModelChange(value: boolean): void {
-        this.updateValue(value);
+        this.value = value;
     }
 }

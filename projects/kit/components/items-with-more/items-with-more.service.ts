@@ -18,7 +18,7 @@ export class TuiItemsWithMoreService extends Observable<number> {
 
     constructor(
         @Inject(NgZone) private readonly ngZone: NgZone,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
         @Inject(MutationObserverService) private readonly mutation$: Observable<unknown>,
         @Inject(TuiResizeService) private readonly resize$: Observable<unknown>,
         @Inject(TuiItemsWithMoreDirective)
@@ -28,7 +28,7 @@ export class TuiItemsWithMoreService extends Observable<number> {
     }
 
     private getOverflowIndex(): number {
-        const {clientWidth, children} = this.elementRef.nativeElement;
+        const {clientWidth, children} = this.el.nativeElement;
         const items = Array.from(children, ({clientWidth}) => clientWidth);
         const first = this.directive.required === -1 ? 0 : this.directive.required;
         const last = items.length - 1;
@@ -39,7 +39,7 @@ export class TuiItemsWithMoreService extends Observable<number> {
         let total = items.reduce((sum, width) => sum + width, 0) - more;
 
         if (total <= clientWidth && this.directive.itemsLimit >= items.length) {
-            return this.max;
+            return this.maxItems;
         }
 
         for (let i = last - 1; i > 0; i--) {
@@ -49,7 +49,7 @@ export class TuiItemsWithMoreService extends Observable<number> {
                 return tuiClamp(
                     i > this.directive.required ? i - 1 : i - 2,
                     -1,
-                    this.max,
+                    this.maxItems,
                 );
             }
         }
@@ -57,7 +57,7 @@ export class TuiItemsWithMoreService extends Observable<number> {
         return -1;
     }
 
-    private get max(): number {
+    private get maxItems(): number {
         return this.directive.itemsLimit > this.directive.required
             ? this.directive.itemsLimit - 1
             : this.directive.itemsLimit - 2;

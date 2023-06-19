@@ -1,10 +1,8 @@
-import {Inject, Optional, Pipe, PipeTransform, Self} from '@angular/core';
+import {Inject, Optional, Pipe, PipeTransform, Self, SkipSelf} from '@angular/core';
 import {
     AbstractControl,
+    ControlContainer,
     ControlValueAccessor,
-    FormArrayName,
-    FormGroupDirective,
-    FormGroupName,
     NgControl,
 } from '@angular/forms';
 import {tuiIsString, tuiPure, TuiValidationError} from '@taiga-ui/cdk';
@@ -24,29 +22,24 @@ export class TuiFieldErrorPipe implements PipeTransform, ControlValueAccessor {
 
     constructor(
         @Optional()
+        @SkipSelf()
+        @Inject(NgControl)
+        private readonly parent: NgControl | null,
+        @Optional()
         @Self()
         @Inject(NgControl)
-        private readonly ngControl: NgControl | null,
+        private readonly self: NgControl | null,
         @Optional()
-        @Self()
-        @Inject(FormArrayName)
-        private readonly formArrayName: FormArrayName | null,
-        @Optional()
-        @Self()
-        @Inject(FormGroupName)
-        private readonly formGroupName: FormGroupName | null,
-        @Optional()
-        @Self()
-        @Inject(FormGroupDirective)
-        private readonly formGroup: FormGroupDirective | null,
+        @Inject(ControlContainer)
+        private readonly container: ControlContainer | null,
         @Inject(TUI_VALIDATION_ERRORS)
         private readonly validationErrors: Record<
             string,
             Observable<PolymorpheusContent> | PolymorpheusContent
         >,
     ) {
-        if (this.ngControl && !this.ngControl.valueAccessor) {
-            this.ngControl.valueAccessor = this;
+        if (this.self && !this.self.valueAccessor) {
+            this.self.valueAccessor = this;
         }
     }
 
@@ -89,14 +82,8 @@ export class TuiFieldErrorPipe implements PipeTransform, ControlValueAccessor {
         return !!this.control?.touched;
     }
 
-    private get control(): AbstractControl | null {
-        return (
-            this.ngControl?.control ||
-            this.formArrayName?.control ||
-            this.formGroupName?.control ||
-            this.formGroup?.control ||
-            null
-        );
+    private get control(): AbstractControl | null | undefined {
+        return this.self?.control || this.parent?.control || this.container?.control;
     }
 
     private get errorId(): string {
@@ -120,23 +107,45 @@ export class TuiFieldErrorPipe implements PipeTransform, ControlValueAccessor {
 
     @tuiPure
     private getError(
-        firstError: any,
-        errorContent?: Observable<PolymorpheusContent> | PolymorpheusContent,
+        context: any,
+        content?: Observable<PolymorpheusContent> | PolymorpheusContent,
     ): Observable<TuiValidationError> {
-        if (firstError instanceof TuiValidationError) {
-            return of(firstError);
+        if (context instanceof TuiValidationError) {
+            return of(context);
         }
 
-        if (errorContent === undefined && tuiIsString(firstError)) {
-            return of(new TuiValidationError(firstError));
+        if (content === undefined && tuiIsString(context)) {
+            return of(new TuiValidationError(context));
         }
 
-        if (isObservable(errorContent)) {
-            return errorContent.pipe(
-                map(error => new TuiValidationError(error || ``, firstError)),
-            );
+        if (isObservable(content)) {
+            return unwrapObservable(content, context);
         }
 
-        return of(new TuiValidationError(errorContent || ``, firstError));
+        if (content instanceof Function) {
+            const message = content(context) as
+                | Observable<PolymorpheusContent>
+                | PolymorpheusContent;
+
+            return isObservable(message)
+                ? unwrapObservable(message, context)
+                : defaultError(message, context);
+        }
+
+        return defaultError(content, context);
     }
+}
+
+function unwrapObservable(
+    content: Observable<PolymorpheusContent>,
+    context: any,
+): Observable<TuiValidationError> {
+    return content.pipe(map(error => new TuiValidationError(error || ``, context)));
+}
+
+function defaultError(
+    content: PolymorpheusContent,
+    context: any,
+): Observable<TuiValidationError> {
+    return of(new TuiValidationError(content || ``, context));
 }

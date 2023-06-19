@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     ContentChildren,
+    HostBinding,
     Inject,
     Input,
     QueryList,
@@ -16,8 +17,8 @@ import {
     TuiIdentityMatcher,
     TuiInjectionTokenType,
     tuiIsPresent,
-    tuiItemsQueryListObservable,
     tuiPure,
+    tuiQueryListChanges,
 } from '@taiga-ui/cdk';
 import {
     TUI_DATA_LIST_HOST,
@@ -40,6 +41,7 @@ export class TuiMultiSelectGroupComponent<T> {
     @ContentChildren(TuiOptionComponent)
     private readonly options: QueryList<TuiOptionComponent<T>> = EMPTY_QUERY;
 
+    @HostBinding('class._label')
     @Input()
     @tuiDefaultProp()
     label = '';
@@ -57,12 +59,12 @@ export class TuiMultiSelectGroupComponent<T> {
 
     @tuiPure
     get empty$(): Observable<boolean> {
-        return tuiItemsQueryListObservable(this.options).pipe(map(({length}) => !length));
+        return tuiQueryListChanges(this.options).pipe(map(({length}) => !length));
     }
 
     @tuiPure
     get disabled$(): Observable<boolean> {
-        return tuiItemsQueryListObservable(this.options).pipe(
+        return tuiQueryListChanges(this.options).pipe(
             map(items => items.every(({disabled}) => disabled)),
         );
     }
@@ -114,7 +116,7 @@ export class TuiMultiSelectGroupComponent<T> {
 
     @tuiPure
     private get items$(): Observable<readonly T[]> {
-        return tuiItemsQueryListObservable(this.options).pipe(
+        return tuiQueryListChanges(this.options).pipe(
             map(options => options.map(({value}) => value).filter(tuiIsPresent)),
         );
     }

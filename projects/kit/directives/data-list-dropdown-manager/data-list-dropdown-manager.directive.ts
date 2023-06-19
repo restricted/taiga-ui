@@ -11,9 +11,9 @@ import {
     EMPTY_QUERY,
     TuiDestroyService,
     tuiGetClosestFocusable,
-    tuiItemsQueryListObservable,
     tuiPreventDefault,
     tuiPure,
+    tuiQueryListChanges,
     tuiTypedFromEvent,
 } from '@taiga-ui/cdk';
 import {TuiDropdownDirective} from '@taiga-ui/core';
@@ -22,7 +22,6 @@ import {
     debounceTime,
     filter,
     map,
-    mapTo,
     shareReplay,
     switchMap,
     take,
@@ -39,7 +38,7 @@ export class TuiDataListDropdownManagerDirective implements AfterViewInit {
     private readonly dropdowns: QueryList<TuiDropdownDirective> = EMPTY_QUERY;
 
     @ContentChildren(TuiDropdownDirective, {read: ElementRef, descendants: true})
-    private readonly elements: QueryList<ElementRef<HTMLElement>> = EMPTY_QUERY;
+    private readonly els: QueryList<ElementRef<HTMLElement>> = EMPTY_QUERY;
 
     constructor(
         @Self() @Inject(TuiDestroyService) private readonly destroy$: TuiDestroyService,
@@ -57,7 +56,7 @@ export class TuiDataListDropdownManagerDirective implements AfterViewInit {
                         dropdown.toggle(index === active);
                     });
 
-                    const element = this.elements.get(active);
+                    const element = this.els.get(active);
                     const dropdown = this.dropdowns.get(active);
 
                     if (!element || !dropdown?.dropdownBoxRef) {
@@ -72,7 +71,7 @@ export class TuiDataListDropdownManagerDirective implements AfterViewInit {
                     const esc$ = merge(
                         tuiTypedFromEvent(element.nativeElement, 'keydown'),
                         tuiTypedFromEvent(nativeElement, 'keydown'),
-                    ).pipe(filter(({keyCode}) => keyCode === 27));
+                    ).pipe(filter(({key}) => key === 'Escape'));
 
                     return merge(mouseEnter$, esc$).pipe(
                         tap(event => {
@@ -92,7 +91,7 @@ export class TuiDataListDropdownManagerDirective implements AfterViewInit {
 
     @tuiPure
     private get elements$(): Observable<readonly HTMLElement[]> {
-        return tuiItemsQueryListObservable(this.elements).pipe(
+        return tuiQueryListChanges(this.els).pipe(
             map(array => array.map(({nativeElement}) => nativeElement)),
             shareReplay({bufferSize: 1, refCount: true}),
         );
@@ -105,9 +104,9 @@ export class TuiDataListDropdownManagerDirective implements AfterViewInit {
                 merge(
                     ...elements.map((element, index) =>
                         tuiTypedFromEvent(element, 'keydown').pipe(
-                            filter(({keyCode}) => keyCode === 39),
+                            filter(({key}) => key === 'ArrowRight'),
                             tuiPreventDefault(),
-                            mapTo(index),
+                            map(() => index),
                         ),
                     ),
                 ),
@@ -121,7 +120,7 @@ export class TuiDataListDropdownManagerDirective implements AfterViewInit {
             switchMap(elements =>
                 merge(
                     ...elements.map((element, index) =>
-                        tuiTypedFromEvent(element, 'click').pipe(mapTo(index)),
+                        tuiTypedFromEvent(element, 'click').pipe(map(() => index)),
                     ),
                 ),
             ),

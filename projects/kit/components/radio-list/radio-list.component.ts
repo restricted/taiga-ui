@@ -58,7 +58,7 @@ export class TuiRadioListComponent<T> extends AbstractTuiNullableControl<T> {
     identityMatcher: TuiIdentityMatcher<T> = TUI_DEFAULT_IDENTITY_MATCHER;
 
     @Input()
-    @HostBinding('attr.data-tui-host-orientation')
+    @HostBinding('attr.data-orientation')
     @tuiDefaultProp()
     orientation: TuiOrientation = 'vertical';
 
@@ -71,15 +71,14 @@ export class TuiRadioListComponent<T> extends AbstractTuiNullableControl<T> {
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     // @bad TODO: Remove & { index: number }
     @Input()
-    @tuiDefaultProp()
     itemContent: PolymorpheusContent<TuiValueContentContext<T> & {index: number}> = ({
         $implicit,
     }) => String($implicit);
@@ -93,7 +92,7 @@ export class TuiRadioListComponent<T> extends AbstractTuiNullableControl<T> {
     }
 
     get focused(): boolean {
-        return tuiIsNativeFocusedIn(this.elementRef.nativeElement);
+        return tuiIsNativeFocusedIn(this.el.nativeElement);
     }
 
     computeId(index: number): string {
@@ -104,8 +103,9 @@ export class TuiRadioListComponent<T> extends AbstractTuiNullableControl<T> {
         return this.disabledItemHandler(item);
     }
 
+    /** @deprecated use 'value' setter */
     onModelChange(value: T): void {
-        this.updateValue(value);
+        this.value = value;
     }
 
     itemIsActive(item: T): boolean {

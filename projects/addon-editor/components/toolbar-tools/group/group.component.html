@@ -4,9 +4,9 @@
     size="s"
     icon="tuiIconPlusLarge"
     appearance="icon"
+    tuiHintDescribe
     [focusable]="false"
     [tuiHint]="insertGroupText$ | async"
-    [tuiHintDescribe]="''"
     (click)="addGroup()"
 ></button>
 
@@ -14,11 +14,11 @@
     tuiIconButton
     type="button"
     size="s"
-    icon="tuiIconRemoveLarge"
+    icon="tuiIconCloseLarge"
     appearance="icon"
+    tuiHintDescribe
     [focusable]="false"
     [disabled]="!!(disabled$ | async)"
     [tuiHint]="removeGroupText$ | async"
-    [tuiHintDescribe]="''"
     (click)="removeGroup()"
 ></button>

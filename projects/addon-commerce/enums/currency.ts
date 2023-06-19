@@ -1,3 +1,4 @@
+// cspell:disable
 /**
  * **Active ISO 4217 alphabetic currency codes**
  *
@@ -6,7 +7,7 @@
  *
  * @link https://en.wikipedia.org/wiki/ISO_4217
  */
-export const enum TuiCurrency {
+export enum TuiCurrency {
     /**
      * Russian ruble
      *

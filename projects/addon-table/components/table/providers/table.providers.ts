@@ -6,15 +6,14 @@ import {
 } from '@ng-web-apis/intersection-observer';
 import {
     MODE_PROVIDER,
-    TUI_TEXTFIELD_APPEARANCE,
+    TUI_TEXTFIELD_APPEARANCE_DIRECTIVE,
     TUI_TEXTFIELD_LABEL_OUTSIDE,
     TUI_TEXTFIELD_SIZE,
     TuiAppearance,
+    TuiTextfieldAppearanceDirective,
 } from '@taiga-ui/core';
 import {TUI_INPUT_COUNT_OPTIONS, TuiInputCountOptions} from '@taiga-ui/kit';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiTableDirective} from '../directives/table.directive';
 import {TUI_STUCK_PROVIDER} from './stuck.provider';
 
@@ -28,8 +27,14 @@ export const TUI_TABLE_PROVIDERS = [
         useValue: [0, 1],
     },
     {
-        provide: TUI_TEXTFIELD_APPEARANCE,
-        useValue: TuiAppearance.Table,
+        provide: TUI_TEXTFIELD_APPEARANCE_DIRECTIVE,
+        useFactory: (): TuiTextfieldAppearanceDirective => {
+            const directive = new TuiTextfieldAppearanceDirective();
+
+            directive.appearance = TuiAppearance.Table;
+
+            return directive;
+        },
     },
     {
         provide: TUI_TEXTFIELD_LABEL_OUTSIDE,

@@ -10,6 +10,7 @@ import {
     Input,
     Optional,
     Output,
+    Self,
     ViewChild,
 } from '@angular/core';
 import {
@@ -26,15 +27,18 @@ import {
     tuiIsNativeKeyboardFocusable,
     TuiNativeFocusableElement,
 } from '@taiga-ui/cdk';
+import {TuiPositionAccessor} from '@taiga-ui/core/abstract';
 import {
     TuiDropdownDirective,
     TuiDropdownHoverDirective,
 } from '@taiga-ui/core/directives/dropdown';
 import {tuiIsEditingKey} from '@taiga-ui/core/utils/miscellaneous';
+import {shouldCall} from '@tinkoff/ng-event-plugins';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
-import {BehaviorSubject, combineLatest, EMPTY, Observable} from 'rxjs';
-import {map, startWith} from 'rxjs/operators';
+import {BehaviorSubject, EMPTY, merge} from 'rxjs';
+import {distinctUntilChanged, skip} from 'rxjs/operators';
 
+import {TuiAccessorProxyDirective} from './accessor-proxy.directive';
 import {TuiHostedDropdownConnectorDirective} from './hosted-dropdown-connector.directive';
 
 export interface TuiHostedDropdownContext
@@ -42,12 +46,33 @@ export interface TuiHostedDropdownContext
     close(): void;
 }
 
+function shouldClose(
+    this: TuiHostedDropdownComponent,
+    event: Event | KeyboardEvent,
+): boolean {
+    return (
+        'key' in event &&
+        event.key.toLowerCase() === 'escape' &&
+        this.canOpen &&
+        this.open &&
+        !this.dropdown?.nextElementSibling
+    );
+}
+
+/* eslint-disable @typescript-eslint/member-ordering */
 @Component({
     selector: 'tui-hosted-dropdown',
     templateUrl: './hosted-dropdown.template.html',
     styleUrls: ['./hosted-dropdown.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [tuiAsFocusableItemAccessor(TuiHostedDropdownComponent)],
+    providers: [
+        tuiAsFocusableItemAccessor(TuiHostedDropdownComponent),
+        {
+            provide: TuiAccessorProxyDirective,
+            deps: [[new Optional(), new Self(), TuiPositionAccessor]],
+            useFactory: (position: TuiPositionAccessor[] | null) => position?.[0],
+        },
+    ],
 })
 export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
     @ContentChild(TuiHostedDropdownConnectorDirective, {read: ElementRef})
@@ -59,14 +84,14 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
     @ViewChild(TuiDropdownDirective)
     private readonly dropdownDirective?: TuiDropdownDirective;
 
-    private readonly manual$ = new BehaviorSubject(false);
+    /** TODO: rename in 4.0 */
+    readonly openChange = new BehaviorSubject(false);
 
     @ViewChild(TuiActiveZoneDirective)
     readonly activeZone!: TuiActiveZoneDirective;
 
     @Input()
-    @tuiDefaultProp()
-    content: PolymorpheusContent<TuiHostedDropdownContext> = '';
+    content: PolymorpheusContent<TuiHostedDropdownContext>;
 
     @Input()
     @tuiDefaultProp()
@@ -76,45 +101,43 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
     @tuiDefaultProp()
     canOpen = true;
 
-    @Output()
-    readonly openChange = new EventEmitter<boolean>();
+    @Output('openChange')
+    readonly open$ = merge(this.openChange, this.hover$ || EMPTY).pipe(
+        skip(1),
+        distinctUntilChanged(),
+    );
 
     @Output()
     readonly focusedChange = new EventEmitter<boolean>();
 
     readonly context!: TuiContextWithImplicit<TuiActiveZoneDirective>;
 
-    readonly open$ = combineLatest([
-        this.manual$,
-        (this.hover$ || EMPTY).pipe(startWith(false)),
-    ]).pipe(map(([manual, hover]) => manual || hover));
-
     constructor(
         @Optional()
         @Inject(TuiDropdownHoverDirective)
-        private readonly hover$: Observable<boolean> | null,
-        @Inject(ElementRef) private readonly elementRef: ElementRef,
+        private readonly hover$: TuiDropdownHoverDirective | null,
+        @Inject(ElementRef) private readonly el: ElementRef,
     ) {}
 
     @Input()
     @tuiDefaultProp()
     set open(open: boolean) {
-        this.manual$.next(open);
+        this.openChange.next(open);
     }
 
     get open(): boolean {
-        return this.manual$.value;
+        return this.openChange.value;
     }
 
     get host(): HTMLElement {
-        return this.dropdownHost?.nativeElement || this.elementRef.nativeElement;
+        return this.dropdownHost?.nativeElement || this.el.nativeElement;
     }
 
     get computedHost(): HTMLElement {
         return (
             this.dropdownHost?.nativeElement ||
             this.nativeFocusableElement ||
-            this.elementRef.nativeElement
+            this.el.nativeElement
         );
     }
 
@@ -127,7 +150,7 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
             ? this.host
             : tuiGetClosestFocusable({
                   initial: this.host,
-                  root: this.elementRef.nativeElement,
+                  root: this.el.nativeElement,
               });
     }
 
@@ -150,17 +173,18 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
 
     @HostListener('click', ['$event.target'])
     onClick(target: HTMLElement): void {
-        if (!this.hostEditable && this.computedHost.contains(target)) {
+        if (
+            !this.hostEditable &&
+            this.computedHost.contains(target) &&
+            !this.hover$?.hovered
+        ) {
             this.updateOpen(!this.open);
         }
     }
 
-    @HostListener('keydown.esc', ['$event'])
+    @shouldCall(shouldClose)
+    @HostListener('document:keydown.silent', ['$event'])
     onKeyDownEsc(event: Event): void {
-        if (!this.canOpen || !this.open) {
-            return;
-        }
-
         event.stopPropagation();
         this.closeDropdown();
     }
@@ -198,12 +222,9 @@ export class TuiHostedDropdownComponent implements TuiFocusableElementAccessor {
     }
 
     updateOpen(open: boolean): void {
-        if (open && !this.canOpen) {
-            return;
+        if (!open || this.canOpen) {
+            this.open = open;
         }
-
-        this.open = open;
-        this.openChange.emit(open);
     }
 
     readonly close = (): void => this.updateOpen(false);

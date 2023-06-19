@@ -3,7 +3,11 @@ import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {TuiMoneyModule} from '@taiga-ui/addon-commerce';
-import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
+import {
+    TuiAddonDocModule,
+    tuiGenerateRoutes,
+    TuiTextCodeModule,
+} from '@taiga-ui/addon-doc';
 import {TuiElasticStickyModule} from '@taiga-ui/addon-mobile';
 import {TuiAutoFocusModule, TuiPreventDefaultModule} from '@taiga-ui/cdk';
 import {
@@ -11,11 +15,15 @@ import {
     TuiDialogModule,
     TuiHintModule,
     TuiLinkModule,
+    TuiLoaderModule,
     TuiNotificationModule,
+    TuiSvgModule,
+    TuiTextfieldControllerModule,
 } from '@taiga-ui/core';
 import {
     TuiAccordionModule,
     TuiInputModule,
+    TuiInputNumberModule,
     TuiMarkerIconModule,
     TuiRadioListModule,
 } from '@taiga-ui/kit';
@@ -31,6 +39,9 @@ import {TuiDialogExampleComponent5} from './examples/5';
 import {TuiDialogExampleComponent6} from './examples/6';
 import {TuiDialogExampleComponent7} from './examples/7';
 import {SearchDialogExampleModule} from './examples/7/search-example/search-dialog.module';
+import {TuiDialogExampleComponent8} from './examples/8';
+import {TuiDialogExampleComponent9} from './examples/9';
+import {PayExampleModalModule} from './examples/9/pay-modal/pay-modal.module';
 
 @NgModule({
     imports: [
@@ -55,6 +66,12 @@ import {SearchDialogExampleModule} from './examples/7/search-example/search-dial
         DialogExampleModule,
         SearchDialogExampleModule,
         RouterModule.forChild(tuiGenerateRoutes(ExampleTuiDialogComponent)),
+        TuiSvgModule,
+        TuiLoaderModule,
+        TuiInputNumberModule,
+        PayExampleModalModule,
+        TuiTextfieldControllerModule,
+        TuiTextCodeModule,
     ],
     declarations: [
         ExampleTuiDialogComponent,
@@ -65,6 +82,8 @@ import {SearchDialogExampleModule} from './examples/7/search-example/search-dial
         TuiDialogExampleComponent5,
         TuiDialogExampleComponent6,
         TuiDialogExampleComponent7,
+        TuiDialogExampleComponent8,
+        TuiDialogExampleComponent9,
     ],
     exports: [ExampleTuiDialogComponent],
 })

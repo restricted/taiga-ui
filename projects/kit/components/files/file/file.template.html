@@ -66,9 +66,9 @@
             size="xs"
             icon="tuiIconCloseLarge"
             appearance="icon"
+            tuiPreventDefault="mousedown"
             class="t-remove"
             [title]="texts.remove"
-            [class.t-remove_mobile]="isMobile"
             (click.prevent)="onRemoveClick()"
         ></button>
     </ng-container>
@@ -78,6 +78,7 @@
     <img
         *ngIf="preview; else loader"
         automation-id="tui-file__preview"
+        alt="file preview"
         class="t-image"
         [src]="preview"
     />
@@ -93,7 +94,7 @@
         <tui-svg
             automation-id="tui-file__icon"
             class="t-icon"
-            [class.t-icon_deleted]="isDeleted"
+            [class.t-icon_blank]="isBig || isDeleted"
             [class.t-icon_error]="isError"
             [src]="icon"
         ></tui-svg>

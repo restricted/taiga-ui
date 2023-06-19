@@ -53,7 +53,7 @@ export class TuiAccordionItemComponent
     showArrow = true;
 
     @Input()
-    @HostBinding('attr.data-tui-host-borders')
+    @HostBinding('attr.data-borders')
     @tuiDefaultProp()
     borders: 'all' | 'top-bottom' | null = 'all';
 
@@ -89,7 +89,7 @@ export class TuiAccordionItemComponent
     readonly lazyContent?: TuiAccordionItemContentDirective;
 
     constructor(
-        @Inject(ChangeDetectorRef) private readonly changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) private readonly cdr: ChangeDetectorRef,
         @Inject(TUI_MODE) readonly mode$: Observable<TuiBrightness | null>,
     ) {
         super();
@@ -130,7 +130,7 @@ export class TuiAccordionItemComponent
 
     close(): void {
         this.updateOpen(false);
-        this.changeDetectorRef.markForCheck();
+        this.cdr.markForCheck();
     }
 
     private updateOpen(open: boolean): void {

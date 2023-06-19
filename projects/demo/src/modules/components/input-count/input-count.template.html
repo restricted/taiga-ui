@@ -1,26 +1,33 @@
 <tui-doc-page
+    deprecated
     header="InputCount"
     package="KIT"
     type="components"
 >
     <ng-template pageTab>
-        <div
-            i18n
-            class="tui-space_bottom-3"
-        >
+        <tui-notification status="error">
+            <strong>Deprecated</strong>
+            . Use
+            <a
+                tuiLink
+                routerLink="/components/input-number"
+            >
+                InputNumber
+            </a>
+            with
+            <code>step</code>
+            input instead.
+        </tui-notification>
+
+        <div class="tui-space_vertical-3">
             <code>InputCount</code>
             is a good choice to input integer positive numbers under 999
         </div>
-        <div
-            i18n
-            class="tui-space_bottom-3"
-        >
-            It allows limit value with min and max and handles such cases
-        </div>
+        <div class="tui-space_bottom-3">It allows limit value with min and max and handles such cases</div>
 
-        <p i18n>It does not indicate validation status</p>
+        <p>It does not indicate validation status</p>
 
-        <p i18n>
+        <p>
             Number formatting can be customized by using
             <a
                 tuiLink
@@ -33,7 +40,6 @@
 
         <tui-doc-example
             id="base"
-            i18n-heading
             heading="Basic"
             [content]="example1"
         >
@@ -49,7 +55,6 @@
 
         <tui-doc-example
             id="medium-large"
-            i18n-heading
             heading="Size M"
             [content]="example2"
         >
@@ -58,7 +63,6 @@
 
         <tui-doc-example
             id="options"
-            i18n-heading
             heading="Options"
             [content]="example3"
         >
@@ -79,10 +83,18 @@
                     [prefix]="prefix"
                     [postfix]="postfix"
                     [readOnly]="readOnly"
+                    [pseudoInvalid]="pseudoInvalid"
+                    [pseudoFocus]="pseudoFocused"
+                    [pseudoHover]="pseudoHovered"
+                    [pseudoActive]="pseudoPressed"
                     [tuiTextfieldIconLeft]="iconLeft"
                     [tuiTextfieldLabelOutside]="labelOutside"
                     [tuiTextfieldFiller]="filler"
                     [tuiTextfieldSize]="size"
+                    [tuiTextfieldCustomContent]="customContent"
+                    [tuiHintContent]="hintContent"
+                    [tuiHintDirection]="hintDirection"
+                    [tuiHintAppearance]="hintAppearance"
                     [style.text-align]="textAlign"
                 >
                     Number of accounts
@@ -91,8 +103,7 @@
         </tui-doc-demo>
         <tui-doc-documentation>
             <ng-template
-                i18n
-                documentationPropertyName=""
+                documentationPropertyName="disabled"
                 documentationPropertyType="boolean"
                 [(documentationPropertyValue)]="disabled"
             >
@@ -101,7 +112,6 @@
                 )
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="hideButtons"
                 documentationPropertyMode="input"
                 documentationPropertyType="boolean"
@@ -110,7 +120,6 @@
                 Hide icon buttons
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="min"
                 documentationPropertyMode="input"
                 documentationPropertyType="number"
@@ -119,7 +128,6 @@
                 Minimum value
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="max"
                 documentationPropertyMode="input"
                 documentationPropertyType="number"
@@ -130,7 +138,6 @@
                 by default)
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="prefix"
                 documentationPropertyMode="input"
                 documentationPropertyType="string"
@@ -142,7 +149,6 @@
                 instead
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="postfix"
                 documentationPropertyMode="input"
                 documentationPropertyType="string"
@@ -154,7 +160,6 @@
                 instead
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="step"
                 documentationPropertyMode="input"
                 documentationPropertyType="number"
@@ -167,7 +172,6 @@
         <inherited-documentation></inherited-documentation>
         <tui-doc-documentation heading="CSS customization">
             <ng-template
-                i18n
                 documentationPropertyMode="input"
                 documentationPropertyType="string"
                 documentationPropertyName="style.text-align"
@@ -182,7 +186,7 @@
     <ng-template pageTab>
         <ol class="b-demo-steps">
             <li>
-                <p i18n>
+                <p>
                     Import an Angular module for forms and
                     <code>TuiInputCountModule</code>
                     in the same module where you want to use our component:
@@ -195,7 +199,7 @@
             </li>
 
             <li>
-                <p i18n>
+                <p>
                     Declare a form (
                     <code>FormGroup</code>
                     ) or a control (
@@ -210,7 +214,7 @@
             </li>
 
             <li>
-                <p i18n>Add to the template:</p>
+                <p>Add to the template:</p>
 
                 <tui-doc-code
                     filename="myComponent.template.html"
@@ -219,7 +223,7 @@
             </li>
 
             <li>
-                <p i18n>
+                <p>
                     Optionally use the
                     <code>TUI_INPUT_COUNT_OPTIONS</code>
                     injection token to override the default options for the component.

@@ -3,14 +3,19 @@ import {TuiTextMaskList} from '@taiga-ui/core';
 
 import {tuiCreateDateMask} from './create-date-mask';
 
+/**
+ * @deprecated Use {@link https://tinkoff.github.io/maskito/kit/date-range DateRange} from {@link https://github.com/Tinkoff/maskito Maskito} instead
+ * TODO: delete in v4.0
+ */
 export function tuiCreateDateRangeMask(
     dateMode: TuiDateMode,
     dateSeparator: string,
 ): TuiTextMaskList {
-    tuiAssert.assert(
-        dateSeparator.length === 1,
-        `Separator should consist of only 1 symbol`,
-    );
+    ngDevMode &&
+        tuiAssert.assert(
+            dateSeparator.length === 1,
+            `Separator should consist of only 1 symbol`,
+        );
 
     const dateMask = tuiCreateDateMask(dateMode, dateSeparator);
 

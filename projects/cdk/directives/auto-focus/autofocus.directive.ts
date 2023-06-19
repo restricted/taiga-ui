@@ -1,10 +1,15 @@
-import {AfterViewInit, Directive, Inject, Input} from '@angular/core';
+import {AfterViewInit, Directive, Inject, Input, Self} from '@angular/core';
 import {tuiCoerceBooleanProperty} from '@taiga-ui/cdk/coercion';
+import {TuiDestroyService} from '@taiga-ui/cdk/services';
+import {timer} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 import {
     TUI_AUTOFOCUS_HANDLER,
+    TUI_AUTOFOCUS_OPTIONS,
     TUI_AUTOFOCUS_PROVIDERS,
     TuiAutofocusHandler,
+    TuiAutofocusOptions,
 } from './autofocus.options';
 
 @Directive({
@@ -16,12 +21,28 @@ export class TuiAutoFocusDirective implements AfterViewInit {
     autoFocus: boolean | '' = true;
 
     constructor(
-        @Inject(TUI_AUTOFOCUS_HANDLER) private readonly handler: TuiAutofocusHandler,
+        @Inject(TUI_AUTOFOCUS_HANDLER)
+        private readonly handler: TuiAutofocusHandler,
+        @Inject(TUI_AUTOFOCUS_OPTIONS)
+        private readonly options: TuiAutofocusOptions,
+        @Self()
+        @Inject(TuiDestroyService)
+        private readonly destroy$: TuiDestroyService,
     ) {}
 
     ngAfterViewInit(): void {
         if (tuiCoerceBooleanProperty(this.autoFocus)) {
-            this.handler.setFocus();
+            this.focus();
+        }
+    }
+
+    focus(): void {
+        if (Number.isNaN(this.options.delay)) {
+            void Promise.resolve().then(() => this.handler.setFocus());
+        } else {
+            timer(this.options.delay)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe(() => this.handler.setFocus());
         }
     }
 }

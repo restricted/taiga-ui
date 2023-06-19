@@ -1,12 +1,26 @@
 {
+    "name": "addon-preview",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "root": "projects/addon-preview",
     "sourceRoot": "projects/addon-preview/src",
     "projectType": "library",
     "prefix": "tui",
     "implicitDependencies": ["!testing"],
-    "architect": {
+    "targets": {
+        "lint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "eslint --no-error-on-unmatched-pattern \"**/projects/addon-preview/**/*\""
+            }
+        },
+        "stylelint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "stylelint \"**/addon-preview/**/*.{css,less}\" --allow-empty-input"
+            }
+        },
         "build": {
-            "builder": "@angular-devkit/build-angular:ng-packagr",
+            "executor": "@angular-devkit/build-angular:ng-packagr",
             "outputs": ["dist/addon-preview"],
             "options": {
                 "tsConfig": "tsconfig.build.json",
@@ -21,14 +35,14 @@
             ]
         },
         "test": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "outputs": ["coverage/addon-preview"],
             "options": {
-                "command": "jest --testMatch '**/projects/addon-preview/**/*.spec.ts' jest --testMatch '**/projects/addon-preview/**/*.spec.ts' --collect-coverage --collect-coverage-from '**/projects/addon-preview/**/*.ts' --coverage-directory=coverage/addon-preview"
+                "command": "jest --testMatch \"**/projects/addon-preview/**/*.spec.ts\" --collect-coverage --collect-coverage-from \"**/projects/addon-preview/**/*.ts\" --coverage-directory=coverage/addon-preview"
             }
         },
         "publish": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "command": "ts-node ./scripts/publish.ts --path ./dist/addon-preview --dry-run {args.dry-run} --customVersion {args.customVersion} --customTag {args.customTag}"
             }

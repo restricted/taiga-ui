@@ -5,29 +5,26 @@ import {TuiAlertContext} from '@taiga-ui/cdk';
 import {TuiAlertOptions, TuiAlertService, TuiNotification} from '@taiga-ui/core';
 
 @Component({
-    selector: `tui-alerts-example-2`,
-    templateUrl: `./index.html`,
+    selector: 'tui-alerts-example-2',
+    templateUrl: './index.html',
     changeDetection,
     encapsulation,
 })
 export class TuiAlertsExampleComponent2 {
-    @ViewChild(`withdrawTemplate`)
+    @ViewChild('withdrawTemplate')
     withdrawTemplate?: TemplateRef<TuiAlertContext<TuiAlertOptions<unknown>>>;
 
-    @ViewChild(`depositTemplate`)
+    @ViewChild('depositTemplate')
     depositTemplate?: TemplateRef<TuiAlertContext<TuiAlertOptions<unknown>>>;
 
     money = 1000;
 
-    constructor(
-        @Inject(TuiAlertService)
-        private readonly alertService: TuiAlertService,
-    ) {}
+    constructor(@Inject(TuiAlertService) private readonly alerts: TuiAlertService) {}
 
     showWithdrawAlert(): void {
-        this.alertService
-            .open(this.withdrawTemplate || ``, {
-                label: `A template sample`,
+        this.alerts
+            .open(this.withdrawTemplate || '', {
+                label: 'A template sample',
                 status: TuiNotification.Warning,
                 autoClose: false,
             })
@@ -35,9 +32,9 @@ export class TuiAlertsExampleComponent2 {
     }
 
     showDepositAlert(): void {
-        this.alertService
-            .open(this.depositTemplate || ``, {
-                label: `A template sample`,
+        this.alerts
+            .open(this.depositTemplate || '', {
+                label: 'A template sample',
                 status: TuiNotification.Success,
                 autoClose: false,
             })

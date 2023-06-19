@@ -1,11 +1,13 @@
 import {DOCUMENT} from '@angular/common';
 import {Injector, Type} from '@angular/core';
 import {
+    DecorationWithType,
     Editor,
     NodeView,
     NodeViewProps,
     NodeViewRenderer,
     NodeViewRendererOptions,
+    NodeViewRendererProps,
 } from '@tiptap/core';
 import type {Node as ProseMirrorNode} from 'prosemirror-model';
 import type {Decoration} from 'prosemirror-view';
@@ -28,7 +30,7 @@ export class TuiNodeViewNgComponent implements NodeViewProps {
     deleteNode!: NodeViewProps['deleteNode'];
 }
 
-interface TuiNodeViewRendererOptions extends NodeViewRendererOptions {
+export interface TuiNodeViewRendererOptions extends NodeViewRendererOptions {
     update?: (node: ProseMirrorNode, decorations: Decoration[]) => boolean;
     injector: Injector;
 }
@@ -42,7 +44,7 @@ interface TuiNodeViewRendererOptions extends NodeViewRendererOptions {
  * It was copied from
  * {@link https://github.com/sibiraj-s/ngx-tiptap/blob/master/projects/ngx-tiptap/src/lib/NodeViewRenderer.ts ngx-tiptap}
  */
-class TuiNodeView extends NodeView<
+export class TuiNodeView extends NodeView<
     Type<TuiNodeViewNgComponent>,
     Editor,
     TuiNodeViewRendererOptions
@@ -50,9 +52,21 @@ class TuiNodeView extends NodeView<
     renderer!: TuiComponentRenderer<TuiNodeViewNgComponent, NodeViewProps>;
     contentDOMElement: HTMLElement | null = null;
 
+    /**
+     * @caretaker note:
+     * Class constructor NodeView cannot be invoked without 'new'
+     */
+    constructor(
+        component: Type<TuiNodeViewNgComponent>,
+        props: NodeViewRendererProps,
+        options?: Partial<TuiNodeViewRendererOptions>,
+    ) {
+        super(component, props, options);
+    }
+
     override mount(): void {
         const injector = this.options.injector;
-        const documentRef = injector.get(DOCUMENT);
+        const doc = injector.get(DOCUMENT);
 
         const props: NodeViewProps = {
             editor: this.editor,
@@ -70,14 +84,14 @@ class TuiNodeView extends NodeView<
 
         // Register drag handler
         if (this.extension.config.draggable) {
-            this.renderer.elementRef.nativeElement.ondragstart = (e: DragEvent) => {
+            this.renderer.el.nativeElement.ondragstart = (e: DragEvent) => {
                 this.onDragStart(e);
             };
         }
 
         this.contentDOMElement = this.node.isLeaf
             ? null
-            : documentRef.createElement(this.node.isInline ? `span` : `div`);
+            : doc.createElement(this.node.isInline ? `span` : `div`);
 
         if (this.contentDOMElement) {
             // For some reason the whiteSpace prop is not inherited properly in Chrome and Safari
@@ -102,7 +116,7 @@ class TuiNodeView extends NodeView<
         return this.contentDOMElement;
     }
 
-    update(node: ProseMirrorNode, decorations: Decoration[]): boolean {
+    update(node: ProseMirrorNode, decorations: DecorationWithType[]): boolean {
         if (this.options.update) {
             return this.options.update(node, decorations);
         }
@@ -148,10 +162,13 @@ class TuiNodeView extends NodeView<
     }
 }
 
-export const TuiNodeViewRenderer =
-    (
-        component: Type<TuiNodeViewNgComponent>,
-        options: Partial<TuiNodeViewRendererOptions>,
-    ): NodeViewRenderer =>
-    props =>
-        new TuiNodeView(component, props, options);
+/**
+ * @deprecated
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export function TuiNodeViewRenderer(
+    component: Type<TuiNodeViewNgComponent>,
+    options: Partial<TuiNodeViewRendererOptions>,
+): NodeViewRenderer {
+    return (props: NodeViewRendererProps) => new TuiNodeView(component, props, options);
+}

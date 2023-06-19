@@ -9,8 +9,8 @@
         appearance="icon"
         icon="tuiIconFontLarge"
         tuiHintDirection="top-left"
+        tuiHintDescribe
         [tuiHint]="fontText$ | async"
-        [tuiHintDescribe]="''"
         [pseudoActive]="fonts.open"
         [focusable]="fonts.open"
     ></button>
@@ -23,7 +23,9 @@
                 [attr.automation-id]="'tui_font__' + (item.name || '' | lowercase)"
                 [style.fontSize.px]="item.px"
                 [style.fontWeight]="item.weight"
-                (click)="onClick(item)"
+                [ngClass]="item?.ngClass || {}"
+                [ngStyle]="item?.ngStyle || {}"
+                (click)="setFontOption(item)"
             >
                 {{ item.name }}
             </button>

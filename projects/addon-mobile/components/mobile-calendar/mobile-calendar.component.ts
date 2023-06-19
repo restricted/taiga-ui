@@ -1,6 +1,7 @@
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {DOCUMENT} from '@angular/common';
 import {
+    AfterViewInit,
     ChangeDetectionStrategy,
     Component,
     EventEmitter,
@@ -27,7 +28,11 @@ import {
     TuiMonth,
     tuiTypedFromEvent,
 } from '@taiga-ui/cdk';
-import {TUI_CLOSE_WORD, TUI_SHORT_WEEK_DAYS} from '@taiga-ui/core';
+import {
+    TUI_ANIMATIONS_DURATION,
+    TUI_CLOSE_WORD,
+    TUI_SHORT_WEEK_DAYS,
+} from '@taiga-ui/core';
 import {
     TUI_CANCEL_WORD,
     TUI_CHOOSE_DAY_OR_RANGE_TEXTS,
@@ -38,10 +43,9 @@ import {
     debounceTime,
     delay,
     filter,
-    flatMap,
     map,
+    mergeMap,
     switchMap,
-    switchMapTo,
     take,
     takeUntil,
     windowToggle,
@@ -66,7 +70,7 @@ import {
     providers: TUI_MOBILE_CALENDAR_PROVIDERS,
     host: {'[class._ios]': 'isIOS'},
 })
-export class TuiMobileCalendarComponent {
+export class TuiMobileCalendarComponent implements AfterViewInit {
     @ViewChild('yearsScrollRef')
     private readonly yearsScrollRef?: CdkVirtualScrollViewport;
 
@@ -115,7 +119,7 @@ export class TuiMobileCalendarComponent {
     constructor(
         @Inject(TUI_IS_IOS) readonly isIOS: boolean,
         @Inject(TUI_IS_CYPRESS) readonly isCypress: boolean,
-        @Inject(DOCUMENT) private readonly documentRef: Document,
+        @Inject(DOCUMENT) private readonly doc: Document,
         @Self()
         @Inject(TuiDestroyService)
         private readonly destroy$: TuiDestroyService,
@@ -127,6 +131,7 @@ export class TuiMobileCalendarComponent {
         readonly unorderedWeekDays$: TuiInjectionTokenType<typeof TUI_SHORT_WEEK_DAYS>,
         @Inject(TUI_CHOOSE_DAY_OR_RANGE_TEXTS)
         readonly chooseDayOrRangeTexts$: Observable<[string, string]>,
+        @Inject(TUI_ANIMATIONS_DURATION) private readonly duration: number,
     ) {
         valueChanges.pipe(takeUntil(this.destroy$)).subscribe(value => {
             this.value = value;
@@ -134,7 +139,7 @@ export class TuiMobileCalendarComponent {
     }
 
     get yearWidth(): number {
-        return this.documentRef.documentElement.clientWidth / YEARS_IN_ROW;
+        return this.doc.documentElement.clientWidth / YEARS_IN_ROW;
     }
 
     ngAfterViewInit(): void {
@@ -271,7 +276,12 @@ export class TuiMobileCalendarComponent {
         this.updateViewportDimension();
 
         this.monthsScrollRef?.scrolledIndexChange
-            .pipe(this.lateInit(), take(1), takeUntil(this.destroy$))
+            .pipe(
+                delay(this.duration),
+                this.lateInit(),
+                take(1),
+                takeUntil(this.destroy$),
+            )
             .subscribe(() => {
                 this.updateViewportDimension();
                 this.initYearScroll();
@@ -307,7 +317,7 @@ export class TuiMobileCalendarComponent {
             .pipe(
                 // Ignore smooth scroll resulting from click on the exact year
                 windowToggle(touchstart$, () => click$),
-                flatMap(x => x),
+                mergeMap(x => x),
                 // Delay is required to run months scroll in the next frame to prevent flicker
                 delay(0),
                 map(
@@ -332,7 +342,7 @@ export class TuiMobileCalendarComponent {
             .pipe(
                 switchMap(() => touchend$),
                 switchMap(() =>
-                    race<unknown>(
+                    race(
                         yearsScrollRef.elementScrolled(),
                         timer(SCROLL_DEBOUNCE_TIME),
                     ).pipe(
@@ -366,9 +376,9 @@ export class TuiMobileCalendarComponent {
         // Smooth scroll to the closest month after scrolling is done
         touchstart$
             .pipe(
-                switchMapTo(touchend$),
-                switchMapTo(
-                    race<unknown>(
+                switchMap(() => touchend$),
+                switchMap(() =>
+                    race(
                         monthsScrollRef.elementScrolled(),
                         timer(SCROLL_DEBOUNCE_TIME),
                     ).pipe(

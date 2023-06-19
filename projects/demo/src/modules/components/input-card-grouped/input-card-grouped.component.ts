@@ -47,6 +47,11 @@ export class ExampleTuiInputCardGroupedComponent extends AbstractExampleTuiInter
         HTML: import('./examples/4/index.html?raw'),
     };
 
+    readonly example5: TuiDocExample = {
+        TypeScript: import('./examples/5/index.ts?raw'),
+        HTML: import('./examples/5/index.html?raw'),
+    };
+
     readonly cards: Record<string, string> = {
         common: 'https://ng-web-apis.github.io/dist/assets/images/common.svg',
         universal: 'https://ng-web-apis.github.io/dist/assets/images/universal.svg',
@@ -74,7 +79,7 @@ export class ExampleTuiInputCardGroupedComponent extends AbstractExampleTuiInter
 
     constructor(
         @Inject(TuiAlertService)
-        private readonly alertService: TuiAlertService,
+        private readonly alerts: TuiAlertService,
     ) {
         super();
     }
@@ -98,7 +103,7 @@ export class ExampleTuiInputCardGroupedComponent extends AbstractExampleTuiInter
     }
 
     onBinChange(bin: string | null): void {
-        this.alertService.open(`bin: ${bin}`).subscribe();
+        this.alerts.open(`bin: ${bin}`).subscribe();
     }
 
     getContentVariants(

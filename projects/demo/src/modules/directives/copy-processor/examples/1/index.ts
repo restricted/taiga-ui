@@ -9,9 +9,9 @@ import {
 } from '@taiga-ui/core';
 
 @Component({
-    selector: `tui-copy-processor-example-1`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-copy-processor-example-1',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
@@ -21,20 +21,18 @@ export class TuiCopyProcessorExample1 {
     constructor(
         @Inject(TUI_NUMBER_FORMAT) private readonly format: TuiNumberFormatSettings,
         @Inject(TuiAlertService)
-        private readonly alertService: TuiAlertService,
+        private readonly alerts: TuiAlertService,
     ) {}
 
-    @HostListener(`copy`, [`$event`])
+    @HostListener('copy', ['$event'])
     onCopy(event: ClipboardEvent): void {
-        this.alertService
-            .open(event.clipboardData?.getData(`text/plain`) ?? ``)
-            .subscribe();
+        this.alerts.open(event.clipboardData?.getData('text/plain') ?? '').subscribe();
     }
 
     readonly numberProcessor: TuiStringHandler<string> = text =>
         text
-            .replace(this.format.decimalSeparator, `.`)
-            .replace(new RegExp(this.format.thousandSeparator, `g`), ``);
+            .replace(this.format.decimalSeparator, '.')
+            .replace(new RegExp(this.format.thousandSeparator, 'g'), '');
 
     readonly textProcessor: TuiStringHandler<string> = text => text.toUpperCase();
 }

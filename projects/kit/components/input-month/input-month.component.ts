@@ -80,13 +80,13 @@ export class TuiInputMonthComponent
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Inject(TUI_MONTH_FORMATTER)
         readonly formatter: TuiHandler<TuiMonth | null, Observable<string>>,
         @Inject(TUI_INPUT_DATE_OPTIONS)
         private readonly options: TuiInputDateOptions,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): HTMLInputElement | null {
@@ -114,12 +114,12 @@ export class TuiInputMonthComponent
             return;
         }
 
-        this.updateValue(null);
+        this.value = null;
         this.onOpenChange(true);
     }
 
     onMonthClick(month: TuiMonth): void {
-        this.updateValue(month);
+        this.value = month;
         this.close();
     }
 

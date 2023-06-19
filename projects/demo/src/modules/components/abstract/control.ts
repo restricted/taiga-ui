@@ -3,8 +3,8 @@ import {TuiAutofillFieldName, TuiInputMode, TuiInputType} from '@taiga-ui/cdk';
 import {
     TUI_DROPDOWN_DEFAULT_OPTIONS,
     TUI_HINT_DIRECTIONS,
+    TuiDropdownAlign,
     TuiDropdownWidth,
-    TuiHorizontalDirection,
     TuiSizeL,
     TuiSizeS,
     TuiVerticalDirection,
@@ -72,6 +72,7 @@ export abstract class AbstractExampleTuiControl
     readonly inputModeVariants: readonly TuiInputMode[] = [`text`, `numeric`];
 
     readonly customContentVariants: PolymorpheusContent[] = [
+        ``,
         CUSTOM_SVG_NAME,
         `tuiIconSearchLarge`,
         `tuiIconCalendarLarge`,
@@ -79,7 +80,7 @@ export abstract class AbstractExampleTuiControl
         `tuiIconMastercardMono`,
     ];
 
-    customContentSelected: PolymorpheusContent = ``;
+    customContentSelected = this.customContentVariants[0];
 
     inputMode = this.inputModeVariants[0];
 
@@ -105,9 +106,11 @@ export abstract class AbstractExampleTuiControl
 
     filler = ``;
 
+    minHeight: number | null = null;
+
     maxHeight: number | null = null;
 
-    readonly iconLeftVariants = [``, `tuiIconMailLarge`, `tuiIconPiechartLarge`];
+    readonly iconLeftVariants = [``, `tuiIconMailLarge`, `tuiIconPieChartLarge`];
 
     iconLeft = this.iconLeftVariants[0];
 
@@ -117,7 +120,11 @@ export abstract class AbstractExampleTuiControl
 
     hintAppearance = this.hintAppearanceVariants[0];
 
-    readonly dropdownAlignVariants: readonly TuiHorizontalDirection[] = [`left`, `right`];
+    readonly dropdownAlignVariants: readonly TuiDropdownAlign[] = [
+        `left`,
+        `right`,
+        `center`,
+    ];
 
     dropdownAlign = TUI_DROPDOWN_DEFAULT_OPTIONS.align;
 

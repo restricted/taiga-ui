@@ -4,19 +4,23 @@ import {TuiSizeL, TuiSizeS} from '@taiga-ui/core/types';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
 export interface TuiTextfieldOptions {
-    readonly iconCleaner:
-        | PolymorpheusContent
-        | PolymorpheusContent<TuiContextWithImplicit<TuiSizeL | TuiSizeS>>;
+    readonly hintOnDisabled: boolean;
+    readonly iconCleaner: PolymorpheusContent<
+        TuiContextWithImplicit<TuiSizeL | TuiSizeS>
+    >;
 }
 
 /** Default values for primitive textfield options */
 export const TUI_TEXTFIELD_DEFAULT_OPTIONS: TuiTextfieldOptions = {
-    iconCleaner: ({$implicit}: TuiContextWithImplicit<TuiSizeL | TuiSizeS>) =>
-        $implicit === `s` ? `tuiIconClose` : `tuiIconCloseLarge`,
+    iconCleaner: `tuiIconClose`,
+    hintOnDisabled: false,
 };
 
+/**
+ * Default parameters for textfield
+ */
 export const TUI_TEXTFIELD_OPTIONS = new InjectionToken<TuiTextfieldOptions>(
-    `[TUI_TEXTFIELD_OPTIONS]: Default parameters for textfield`,
+    `[TUI_TEXTFIELD_OPTIONS]`,
     {factory: () => TUI_TEXTFIELD_DEFAULT_OPTIONS},
 );
 

@@ -1,9 +1,14 @@
 import {ChangeDetectorRef, InjectionToken, Provider} from '@angular/core';
 import {TuiDestroyService, tuiWatch} from '@taiga-ui/cdk';
+import {TUI_TEXTFIELD_APPEARANCE} from '@taiga-ui/core/tokens';
 import {merge, NEVER, Observable} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
 import {TuiTextfieldController} from './textfield.controller';
+import {
+    TUI_TEXTFIELD_APPEARANCE_DIRECTIVE,
+    TuiTextfieldAppearanceDirective,
+} from './textfield-appearance.directive';
 import {
     TUI_TEXTFIELD_CLEANER,
     TuiTextfieldCleanerDirective,
@@ -37,9 +42,7 @@ import {
 import {TUI_TEXTFIELD_SIZE, TuiTextfieldSizeDirective} from './textfield-size.directive';
 
 export const TUI_TEXTFIELD_WATCHED_CONTROLLER =
-    new InjectionToken<TuiTextfieldController>(
-        `[TUI_TEXTFIELD_WATCHED_CONTROLLER]: watched textfield controller`,
-    );
+    new InjectionToken<TuiTextfieldController>(`[TUI_TEXTFIELD_WATCHED_CONTROLLER]`);
 
 export const TEXTFIELD_CONTROLLER_PROVIDER: Provider = [
     TuiDestroyService,
@@ -49,6 +52,8 @@ export const TEXTFIELD_CONTROLLER_PROVIDER: Provider = [
             ChangeDetectorRef,
             TuiDestroyService,
             TUI_TEXTFIELD_OPTIONS,
+            TUI_TEXTFIELD_APPEARANCE,
+            TUI_TEXTFIELD_APPEARANCE_DIRECTIVE,
             TUI_TEXTFIELD_CLEANER,
             TUI_TEXTFIELD_CUSTOM_CONTENT,
             TUI_TEXTFIELD_ICON,
@@ -60,10 +65,12 @@ export const TEXTFIELD_CONTROLLER_PROVIDER: Provider = [
             TUI_TEXTFIELD_FILLER,
         ],
         useFactory: (
-            changeDetectorRef: ChangeDetectorRef,
+            cdr: ChangeDetectorRef,
             destroy$: Observable<void>,
             options: TuiTextfieldOptions,
+            legacyAppearance: string,
             ...controllers: [
+                TuiTextfieldAppearanceDirective,
                 TuiTextfieldCleanerDirective,
                 TuiTextfieldCustomContentDirective,
                 TuiTextfieldIconDirective,
@@ -77,11 +84,16 @@ export const TEXTFIELD_CONTROLLER_PROVIDER: Provider = [
         ) => {
             const change$ = merge(
                 ...controllers.map(({change$}) => change$ || NEVER),
-            ).pipe(tuiWatch(changeDetectorRef), takeUntil(destroy$));
+            ).pipe(tuiWatch(cdr), takeUntil(destroy$));
 
             change$.subscribe();
 
-            return new TuiTextfieldController(change$, options, ...controllers);
+            return new TuiTextfieldController(
+                change$,
+                options,
+                legacyAppearance,
+                ...controllers,
+            );
         },
     },
 ];

@@ -13,17 +13,17 @@ import {
     tuiDefaultProp,
     TuiDestroyService,
     tuiIsPresent,
-    tuiItemsQueryListObservable,
+    tuiQueryListChanges,
 } from '@taiga-ui/cdk';
 import {identity, merge} from 'rxjs';
-import {filter, map, mapTo, pairwise, switchMap, takeUntil} from 'rxjs/operators';
+import {filter, map, pairwise, switchMap, takeUntil} from 'rxjs/operators';
 
 import {TuiAccordionItemComponent} from './accordion-item/accordion-item.component';
 
 @Component({
     selector: 'tui-accordion',
+    templateUrl: './accordion.template.html',
     styleUrls: ['./accordion.style.less'],
-    templateUrl: 'accordion.template.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [TuiDestroyService],
 })
@@ -47,7 +47,7 @@ export class TuiAccordionComponent implements AfterContentInit {
 
     ngAfterContentInit(): void {
         const {accordionItems} = this;
-        const rows$ = tuiItemsQueryListObservable(accordionItems);
+        const rows$ = tuiQueryListChanges(accordionItems);
         const newOpenRow$ = rows$.pipe(
             pairwise(),
             map(([previous, current]) =>
@@ -60,7 +60,10 @@ export class TuiAccordionComponent implements AfterContentInit {
                 switchMap(rows =>
                     merge(
                         ...rows.map(row =>
-                            row.openChange.pipe(filter(identity), mapTo(row)),
+                            row.openChange.pipe(
+                                filter(identity),
+                                map(() => row),
+                            ),
                         ),
                     ),
                 ),

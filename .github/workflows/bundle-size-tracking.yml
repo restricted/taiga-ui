@@ -1,0 +1,25 @@
+name: ⚙️ Bundle size
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [synchronize, opened, reopened]
+
+jobs:
+  tracking:
+    if: ${{ !contains(github.head_ref, 'release/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.5.3
+      - name: Setup global variables
+        uses: ./.github/actions/variables
+      - name: Setup Node.js and Cache
+        uses: ./.github/actions/nodejs
+
+      - run: npx nx build demo
+
+      - name: Run BundleMon
+        continue-on-error: true
+        run: npx bundlemon
+        env:
+          CI_COMMIT_SHA: ${{ env.CI_COMMIT_SHA }}

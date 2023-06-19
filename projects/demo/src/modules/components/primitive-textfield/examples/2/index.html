@@ -4,13 +4,9 @@
     [tuiTextfieldLabelOutside]="true"
     [tuiTextfieldCleaner]="true"
 >
-    <label
-        i18n-tuiLabel
-        tuiLabel="Modified cleaner icon"
-    >
+    <label tuiLabel="Modified cleaner icon">
         <tui-primitive-textfield
-            [value]="value"
-            (valueChange)="onValueChange($event)"
+            [(value)]="value"
             (focusedChange)="onFocused($event)"
         >
             Type an email
@@ -22,14 +18,14 @@
     </label>
 
     <label
-        i18n-tuiLabel
         tuiLabel="Override modified cleaner icon"
         class="tui-space_top-4"
     >
         <tui-primitive-textfield
-            [value]="value"
-            [iconCleaner]="iconCleaner"
-            (valueChange)="onValueChange($event)"
+            iconCleaner="tuiIconEdit2"
+            tuiHintContent="Hint is shown for disabled control"
+            [disabled]="true"
+            [(value)]="value"
             (focusedChange)="onFocused($event)"
         >
             Type an email
@@ -40,7 +36,3 @@
         </tui-primitive-textfield>
     </label>
 </form>
-
-<ng-template #iconCleaner>
-    <tui-svg src="tuiIconDraft"></tui-svg>
-</ng-template>

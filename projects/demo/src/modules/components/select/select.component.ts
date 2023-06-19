@@ -34,7 +34,7 @@ export class ExampleTuiSelectComponent extends AbstractExampleTuiControl {
     @ViewChild('valueTemplateContent')
     private readonly valueTemplateRef: PolymorpheusContent<
         TuiValueContentContext<Account>
-    > = '';
+    >;
 
     readonly exampleModule = import('./examples/import/import-module.md?raw');
     readonly exampleHtml = import('./examples/import/insert-template.md?raw');
@@ -116,7 +116,7 @@ export class ExampleTuiSelectComponent extends AbstractExampleTuiControl {
 
     readonly valueTemplateVariants = ['', 'Template'];
 
-    readonly iconVariants = ['', 'tuiIconPiechartLarge', 'tuiIconCardsLarge'];
+    readonly iconVariants = ['', 'tuiIconPieChartLarge', 'tuiIconCreditCardLarge'];
 
     override iconLeft = this.iconVariants[0];
 

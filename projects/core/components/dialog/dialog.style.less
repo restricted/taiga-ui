@@ -129,7 +129,7 @@
 .t-content {
     border-radius: inherit;
     padding: 2rem;
-    background: var(--tui-base-01);
+    background: var(--tui-elevation-01);
 
     &:not(:first-child) {
         border-top-left-radius: 0;
@@ -143,20 +143,29 @@
     order: -1;
 }
 
+.t-filler {
+    flex-grow: 1;
+}
+
 .t-close {
     .transition(background);
     position: fixed;
     top: 1.5rem;
     right: 1.5rem;
+    display: none;
     color: var(--tui-base-01);
-    background: rgba(104, 104, 104, 0.96);
 
-    &:hover {
-        background: rgba(159, 159, 159, 0.86);
+    :host-context(.t-dialog:last-of-type) & {
+        display: block;
     }
 
-    :host:not([data-size='fullscreen']) & {
+    :host:not([data-size='fullscreen']):not([data-size='page']) & {
         animation: tuiFadeIn var(--tui-duration);
+        background: rgba(104, 104, 104, 0.96);
+
+        &:hover {
+            background: rgba(159, 159, 159, 0.86);
+        }
     }
 
     :host:not([data-size='fullscreen']).ng-animating & {
@@ -167,7 +176,7 @@
         position: absolute;
         top: 0;
         right: 0;
-        background: transparent;
+        background: transparent !important;
         color: var(--tui-base-06);
 
         &:hover {

@@ -4,8 +4,6 @@ import {TuiDestroyService} from '@taiga-ui/cdk';
 import {TuiModeDirective} from '@taiga-ui/core';
 
 import {CSS_VARS} from '../../tokens/css-vars';
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiCustomizationComponent} from './customization.component';
 
 export const TUI_DOC_CUSTOMIZATION_VARS = new InjectionToken<Record<string, string>>(
@@ -21,10 +19,10 @@ export const TUI_DOC_CUSTOMIZATION_PROVIDERS: Provider[] = [
         provide: TUI_DOC_CUSTOMIZATION_VARS,
         deps: [WINDOW, CSS_VARS],
         useFactory: (
-            windowRef: Window,
+            win: Window,
             variables: readonly string[],
         ): Record<string, string> => {
-            const styles = windowRef.getComputedStyle(windowRef.document.documentElement);
+            const styles = win.getComputedStyle(win.document.documentElement);
 
             return variables.reduce(
                 (dictionary, variable) => ({

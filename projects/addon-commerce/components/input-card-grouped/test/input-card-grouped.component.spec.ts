@@ -1,10 +1,24 @@
-import {Component, TemplateRef, ViewChild} from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    Optional,
+    Self,
+    TemplateRef,
+    ViewChild,
+} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {
     TuiInputCardGroupedComponent,
     TuiInputCardGroupedModule,
 } from '@taiga-ui/addon-commerce';
+import {
+    TUI_AUTOFOCUS_HANDLER,
+    TUI_FOCUSABLE_ITEM_ACCESSOR,
+    TuiAutoFocusDirective,
+    TuiDestroyService,
+    TuiSynchronousAutofocusHandler,
+} from '@taiga-ui/cdk';
 import {TuiSvgModule} from '@taiga-ui/core';
 import {configureTestSuite, TuiNativeInputPO} from '@taiga-ui/testing';
 
@@ -40,7 +54,22 @@ describe(`InputCardGrouped`, () => {
     let inputCVCPO: TuiNativeInputPO;
 
     configureTestSuite(() => {
-        TestBed.configureTestingModule({
+        TestBed.overrideDirective(TuiAutoFocusDirective, {
+            set: {
+                selector: `[tuiAutoFocus]`,
+                providers: [
+                    {
+                        provide: TUI_AUTOFOCUS_HANDLER,
+                        useClass: TuiSynchronousAutofocusHandler,
+                        deps: [
+                            [new Optional(), new Self(), TUI_FOCUSABLE_ITEM_ACCESSOR],
+                            ElementRef,
+                        ],
+                    },
+                    TuiDestroyService,
+                ],
+            },
+        }).configureTestingModule({
             imports: [ReactiveFormsModule, TuiInputCardGroupedModule, TuiSvgModule],
             declarations: [TestComponent],
         });
@@ -144,29 +173,6 @@ describe(`InputCardGrouped`, () => {
 
             expect(getExpire()).toBe(`12/12`);
             expect(inputExpirePO.value).toBe(`12/12`);
-        });
-
-        describe(`fixes incorrect value`, () => {
-            it(`replaces 50/08 with 05/08`, () => {
-                inputExpirePO.sendText(`50/08`);
-
-                expect(getExpire()).toBe(`05/08`);
-                expect(inputExpirePO.value).toBe(`05/08`);
-            });
-
-            it(`replaces 14/08 with 12/08`, () => {
-                inputExpirePO.sendText(`14/08`);
-
-                expect(getExpire()).toBe(`12/08`);
-                expect(inputExpirePO.value).toBe(`12/08`);
-            });
-
-            it(`replaces 00/08 with 01/08`, () => {
-                inputExpirePO.sendText(`00/08`);
-
-                expect(getExpire()).toBe(`01/08`);
-                expect(inputExpirePO.value).toBe(`01/08`);
-            });
         });
     });
 

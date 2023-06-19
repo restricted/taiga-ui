@@ -4,8 +4,8 @@ import {encapsulation} from '@demo/emulate/encapsulation';
 import {TuiAlertService} from '@taiga-ui/core';
 
 @Component({
-    selector: `tui-tabs-example-3`,
-    templateUrl: `./index.html`,
+    selector: 'tui-tabs-example-3',
+    templateUrl: './index.html',
     changeDetection,
     encapsulation,
 })
@@ -14,10 +14,10 @@ export class TuiTabsExample3 {
 
     constructor(
         @Inject(TuiAlertService)
-        private readonly alertService: TuiAlertService,
+        private readonly alerts: TuiAlertService,
     ) {}
 
     onClick(item: string): void {
-        this.alertService.open(item).subscribe();
+        this.alerts.open(item).subscribe();
     }
 }

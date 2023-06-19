@@ -1,12 +1,26 @@
 {
+    "name": "addon-table",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "root": "projects/addon-table",
     "sourceRoot": "projects/addon-table",
     "projectType": "library",
     "prefix": "tui",
     "implicitDependencies": ["!testing"],
-    "architect": {
+    "targets": {
+        "lint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "eslint --no-error-on-unmatched-pattern \"**/projects/addon-table/**/*\""
+            }
+        },
+        "stylelint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "stylelint \"**/addon-table/**/*.{css,less}\" --allow-empty-input"
+            }
+        },
         "build": {
-            "builder": "@angular-devkit/build-angular:ng-packagr",
+            "executor": "@angular-devkit/build-angular:ng-packagr",
             "outputs": ["dist/addon-table"],
             "options": {
                 "tsConfig": "tsconfig.build.json",
@@ -21,14 +35,14 @@
             ]
         },
         "test": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "outputs": ["coverage/addon-table"],
             "options": {
-                "command": "jest --testMatch '**/projects/addon-table/**/*.spec.ts' jest --testMatch '**/projects/addon-table/**/*.spec.ts' --collect-coverage --collect-coverage-from '**/projects/addon-table/**/*.ts' --coverage-directory=coverage/addon-table"
+                "command": "jest --testMatch \"**/projects/addon-table/**/*.spec.ts\" --collect-coverage --collect-coverage-from \"**/projects/addon-table/**/*.ts\" --coverage-directory=coverage/addon-table"
             }
         },
         "publish": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "command": "ts-node ./scripts/publish.ts --path ./dist/addon-table --dry-run {args.dry-run} --customVersion {args.customVersion} --customTag {args.customTag}"
             }

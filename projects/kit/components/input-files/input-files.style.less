@@ -2,6 +2,9 @@
 
 tui-input-files {
     display: block;
+    min-height: var(--tui-height-l);
+    border-radius: var(--tui-radius-m);
+    font: var(--tui-font-text-m);
 
     .t-native {
         .fullsize();
@@ -18,23 +21,28 @@ tui-input-files {
     }
 
     .t-label {
+        width: 100%;
         text-align: center;
+    }
+
+    .t-description {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        padding: 1rem 0;
+        box-sizing: border-box;
     }
 }
 
 /* stylelint-disable order/order */
 [tuiWrapper][data-appearance='input-file'] {
-    display: flex;
     background: transparent;
-    font: var(--tui-font-text-m);
     word-wrap: break-word;
     color: var(--tui-text-02);
-    flex: 1;
-    justify-content: center;
-    align-items: center;
-    min-height: var(--tui-height-l);
-    border-radius: var(--tui-radius-m);
-    padding: 1rem 0.5rem;
+    min-height: inherit;
+    border-radius: inherit;
+    padding: 0 0.5rem;
     box-sizing: border-box;
 
     &:after {
@@ -47,9 +55,6 @@ tui-input-files {
     }
 
     .wrapper-disabled({
-        opacity: var(--tui-disabled-opacity);
-        pointer-events: none;
-
         &:after {
             color: var(--tui-text-03);
         }

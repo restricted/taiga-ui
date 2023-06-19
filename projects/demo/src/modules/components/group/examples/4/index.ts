@@ -4,13 +4,14 @@ import {changeDetection} from '@demo/emulate/change-detection';
 import {encapsulation} from '@demo/emulate/encapsulation';
 
 @Component({
-    selector: `tui-group-example-4`,
-    templateUrl: `./index.html`,
+    selector: 'tui-group-example-4',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
 export class TuiGroupExample4 {
     readonly testForm = new FormGroup({
-        testValue: new FormControl(``),
+        testValue: new FormControl(''),
     });
 }

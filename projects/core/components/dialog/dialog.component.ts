@@ -1,13 +1,26 @@
-import {ChangeDetectionStrategy, Component, HostBinding, Inject} from '@angular/core';
-import {TUI_IS_MOBILE, TuiDialog} from '@taiga-ui/cdk';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    HostBinding,
+    Inject,
+    Self,
+} from '@angular/core';
+import {
+    ALWAYS_TRUE_HANDLER,
+    TUI_IS_MOBILE,
+    TuiDestroyService,
+    TuiDialog,
+} from '@taiga-ui/cdk';
 import {tuiFadeIn, tuiSlideInTop} from '@taiga-ui/core/animations';
 import {TuiAnimationOptions, TuiDialogOptions} from '@taiga-ui/core/interfaces';
 import {TUI_ANIMATIONS_DURATION, TUI_CLOSE_WORD} from '@taiga-ui/core/tokens';
 import {TuiDialogSize} from '@taiga-ui/core/types';
 import {POLYMORPHEUS_CONTEXT, PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
-import {Observable} from 'rxjs';
+import {isObservable, merge, Observable, of, Subject} from 'rxjs';
+import {filter, map, switchMap, takeUntil} from 'rxjs/operators';
 
-import {TUI_DIALOG_CLOSE_STREAM, TUI_DIALOG_PROVIDERS} from './dialog.providers';
+import {TUI_DIALOGS_CLOSE} from './dialog.tokens';
+import {TuiDialogCloseService} from './dialog-close.service';
 
 const REQUIRED_ERROR = new Error('Required dialog was dismissed');
 
@@ -16,8 +29,9 @@ const REQUIRED_ERROR = new Error('Required dialog was dismissed');
     templateUrl: './dialog.template.html',
     styleUrls: ['./dialog.style.less'],
     // So we don't force OnPush on dialog content
+    // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
     changeDetection: ChangeDetectionStrategy.Default,
-    providers: TUI_DIALOG_PROVIDERS,
+    providers: [TuiDestroyService, TuiDialogCloseService],
     animations: [tuiSlideInTop, tuiFadeIn],
 })
 export class TuiDialogComponent<O, I> {
@@ -37,18 +51,26 @@ export class TuiDialogComponent<O, I> {
         },
     } as const;
 
+    readonly close$ = new Subject();
+
     constructor(
         @Inject(TUI_ANIMATIONS_DURATION) private readonly duration: number,
         @Inject(TUI_IS_MOBILE) private readonly isMobile: boolean,
-        @Inject(POLYMORPHEUS_CONTEXT)
-        readonly context: TuiDialog<TuiDialogOptions<I>, O>,
-        @Inject(TUI_DIALOG_CLOSE_STREAM)
-        close$: Observable<unknown>,
+        @Inject(POLYMORPHEUS_CONTEXT) readonly context: TuiDialog<TuiDialogOptions<I>, O>,
+        @Inject(TuiDestroyService) @Self() destroy$: Observable<void>,
+        @Inject(TuiDialogCloseService) dialogClose$: Observable<unknown>,
+        @Inject(TUI_DIALOGS_CLOSE) close$: Observable<unknown>,
         @Inject(TUI_CLOSE_WORD) readonly closeWord$: Observable<string>,
     ) {
-        close$.subscribe(() => {
-            this.close();
-        });
+        merge(
+            this.close$.pipe(switchMap(() => toObservable(context.closeable))),
+            dialogClose$.pipe(switchMap(() => toObservable(context.dismissible))),
+            close$.pipe(map(ALWAYS_TRUE_HANDLER)),
+        )
+            .pipe(filter(Boolean), takeUntil(destroy$))
+            .subscribe(() => {
+                this.close();
+            });
     }
 
     @HostBinding('attr.data-size')
@@ -64,16 +86,24 @@ export class TuiDialogComponent<O, I> {
     @HostBinding('@tuiSlideInTop')
     @HostBinding('@tuiFadeIn')
     get slideInTop(): TuiAnimationOptions {
-        return this.size === 'fullscreen' || this.size === 'page' || this.isMobile
+        return this.fullscreen || this.isMobile
             ? this.fullscreenAnimation
             : this.animation;
     }
 
-    close(): void {
+    get fullscreen(): boolean {
+        return !this.isMobile && (this.size === 'fullscreen' || this.size === 'page');
+    }
+
+    private close(): void {
         if (this.context.required) {
             this.context.$implicit.error(REQUIRED_ERROR);
         } else {
             this.context.$implicit.complete();
         }
     }
+}
+
+function toObservable<T>(valueOrStream: Observable<T> | T): Observable<T> {
+    return isObservable(valueOrStream) ? valueOrStream : of(valueOrStream);
 }

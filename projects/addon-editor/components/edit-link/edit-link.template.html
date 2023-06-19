@@ -5,7 +5,9 @@
                 <ng-container *ngIf="anchorMode; else fullOptions">Edit anchor</ng-container>
                 <ng-template #fullOptions>
                     <span *ngIf="prefixIsHashMode; else urlTitle">Link to anchor</span>
-                    <ng-template #urlTitle><span>URL</span></ng-template>
+                    <ng-template #urlTitle>
+                        <span>URL</span>
+                    </ng-template>
                 </ng-template>
             </div>
             <div class="t-url">
@@ -47,17 +49,19 @@
         <a
             tuiLink
             target="_blank"
+            iconAlign="left"
             class="t-link"
             [href]="href"
+            [icon]="prefixIsHashMode ? 'tuiIconHash' : 'tuiIconExternalLink'"
         >
-            {{ anchorMode ? '#' : '' }}{{ url | tuiShortUrl }}
+            {{ url | tuiShortUrl }}
         </a>
         <button
             tuiIconButton
             type="button"
             size="s"
             title="Change link"
-            icon="tuiIconEditLarge"
+            icon="tuiIconEdit2Large"
             shape="rounded"
             appearance="icon"
             class="t-button t-edit-button"

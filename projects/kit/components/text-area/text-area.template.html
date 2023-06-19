@@ -56,9 +56,8 @@
                             [id]="id"
                             [tuiFocusable]="computedFocusable"
                             [disabled]="computedDisabled"
-                            [ngModel]="value"
                             [readOnly]="readOnly"
-                            (ngModelChange)="onValueChange($event)"
+                            [(ngModel)]="value"
                         ></textarea>
                         <ng-content select="textarea"></ng-content>
                     </div>
@@ -66,25 +65,51 @@
             </tui-scrollbar>
         </div>
         <div class="t-icons">
+            <div
+                *ngIf="iconLeftContent"
+                class="t-icon t-icon_left t-textfield-icon"
+            >
+                <tui-svg
+                    *polymorpheusOutlet="iconLeftContent as src; context: {$implicit: size}"
+                    tuiWrapper
+                    appearance="icon"
+                    [src]="src"
+                ></tui-svg>
+            </div>
+            <ng-container *ngIf="hasCustomContent">
+                <tui-svg
+                    *polymorpheusOutlet="controller.customContent as src"
+                    [src]="src"
+                ></tui-svg>
+            </ng-container>
             <ng-container *ngIf="hasCleaner">
                 <tui-svg
                     *polymorpheusOutlet="iconCleaner as src; context: {$implicit: size}"
+                    tuiWrapper
+                    appearance="icon"
                     class="t-cleaner"
                     [src]="src"
                     (click.stop)="onValueChange('')"
                 ></tui-svg>
             </ng-container>
             <tui-tooltip
-                *ngIf="hintOptions && hintOptions.content && !computedDisabled"
+                *ngIf="hasTooltip"
                 automation-id="tui-text-area__tooltip"
                 class="t-tooltip"
                 [describeId]="id"
-                [direction]="hintOptions.direction"
-                [appearance]="hintOptions.appearance"
-                [content]="hintOptions.content"
-                [showDelay]="hintOptions.showDelay"
-                [hideDelay]="hintOptions.hideDelay"
+                [content]="hintOptions?.content"
             ></tui-tooltip>
+            <div
+                *ngIf="iconContent"
+                class="t-icon t-textfield-icon"
+            >
+                <tui-svg
+                    *polymorpheusOutlet="iconContent as src; context: {$implicit: size}"
+                    tuiWrapper
+                    appearance="icon"
+                    [src]="src"
+                ></tui-svg>
+            </div>
         </div>
     </label>
 </div>

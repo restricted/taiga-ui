@@ -24,6 +24,7 @@ export class ExampleTuiButtonComponent extends AbstractExampleTuiInteractive {
     readonly example1: TuiDocExample = {
         TypeScript: import('./examples/1/index.ts?raw'),
         HTML: import('./examples/1/index.html?raw'),
+        LESS: import('./examples/1/index.less?raw'),
     };
 
     readonly example2: TuiDocExample = {
@@ -101,6 +102,6 @@ export class ExampleTuiButtonComponent extends AbstractExampleTuiInteractive {
     getContentVariants(
         template: TemplateRef<Record<string, unknown>>,
     ): readonly PolymorpheusContent[] {
-        return ['', 'tuiIconEyeClosed', 'tuiIconHeartLarge', template];
+        return ['', 'tuiIconEyeOff', 'tuiIconHeartLarge', template];
     }
 }

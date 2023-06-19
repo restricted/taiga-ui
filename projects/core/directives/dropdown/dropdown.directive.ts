@@ -5,14 +5,15 @@ import {
     ElementRef,
     Inject,
     INJECTOR,
+    Injector,
     Input,
     OnChanges,
     OnDestroy,
+    Type,
 } from '@angular/core';
 import {
     TuiActiveZoneDirective,
     TuiContextWithImplicit,
-    tuiDefaultProp,
     TuiDropdownPortalService,
     tuiPure,
 } from '@taiga-ui/cdk';
@@ -26,8 +27,6 @@ import {TuiPortalItem} from '@taiga-ui/core/interfaces';
 import {tuiCheckFixedPosition} from '@taiga-ui/core/utils';
 import {PolymorpheusComponent, PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TUI_DROPDOWN_COMPONENT} from './dropdown.providers';
 
 @Directive({
@@ -36,11 +35,6 @@ import {TUI_DROPDOWN_COMPONENT} from './dropdown.providers';
     providers: [
         tuiAsRectAccessor(TuiDropdownDirective),
         tuiAsVehicle(TuiDropdownDirective),
-        {
-            provide: PolymorpheusComponent,
-            deps: [TUI_DROPDOWN_COMPONENT, INJECTOR],
-            useClass: PolymorpheusComponent,
-        },
     ],
 })
 export class TuiDropdownDirective
@@ -53,24 +47,25 @@ export class TuiDropdownDirective
         TuiVehicle
 {
     @Input('tuiDropdown')
-    @tuiDefaultProp()
-    content: PolymorpheusContent<TuiContextWithImplicit<TuiActiveZoneDirective>> = '';
+    content: PolymorpheusContent<TuiContextWithImplicit<TuiActiveZoneDirective>>;
 
     dropdownBoxRef: ComponentRef<unknown> | null = null;
 
+    readonly type = 'dropdown';
+
+    readonly component = new PolymorpheusComponent(this.dropdown, this.injector);
+
     constructor(
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
-        @Inject(PolymorpheusComponent)
-        readonly component: PolymorpheusComponent<unknown, any>,
+        @Inject(ElementRef) readonly el: ElementRef<HTMLElement>,
+        @Inject(TUI_DROPDOWN_COMPONENT) private readonly dropdown: Type<unknown>,
+        @Inject(INJECTOR) private readonly injector: Injector,
         @Inject(TuiDropdownPortalService)
         private readonly dropdownService: TuiDropdownPortalService,
     ) {}
 
     @tuiPure
     get position(): 'absolute' | 'fixed' {
-        return tuiCheckFixedPosition(this.elementRef.nativeElement)
-            ? 'fixed'
-            : 'absolute';
+        return tuiCheckFixedPosition(this.el.nativeElement) ? 'fixed' : 'absolute';
     }
 
     ngAfterViewChecked(): void {
@@ -89,7 +84,7 @@ export class TuiDropdownDirective
     }
 
     getClientRect(): ClientRect {
-        return this.elementRef.nativeElement.getBoundingClientRect();
+        return this.el.nativeElement.getBoundingClientRect();
     }
 
     toggle(show: boolean): void {

@@ -1,10 +1,11 @@
 import {Directive, Inject, Input} from '@angular/core';
-import {WINDOW} from '@ng-web-apis/common';
+import {EMPTY_CLIENT_RECT} from '@taiga-ui/cdk';
 import {
     tuiAsPositionAccessor,
     TuiPositionAccessor,
     TuiRectAccessor,
 } from '@taiga-ui/core/abstract';
+import {TUI_VIEWPORT} from '@taiga-ui/core/tokens';
 import {TuiPoint} from '@taiga-ui/core/types';
 
 import {TUI_DROPDOWN_OPTIONS, TuiDropdownOptions} from './dropdown-options.directive';
@@ -17,7 +18,7 @@ import {TuiDropdownPositionDirective} from './dropdown-position.directive';
         tuiAsPositionAccessor(TuiDropdownPositionSidedDirective),
     ],
 })
-export class TuiDropdownPositionSidedDirective implements TuiPositionAccessor {
+export class TuiDropdownPositionSidedDirective extends TuiPositionAccessor {
     private previous = this.options.direction || 'bottom';
 
     @Input()
@@ -26,13 +27,16 @@ export class TuiDropdownPositionSidedDirective implements TuiPositionAccessor {
     @Input()
     tuiDropdownSidedOffset = 4;
 
+    readonly type = 'dropdown';
+
     constructor(
         @Inject(TUI_DROPDOWN_OPTIONS) private readonly options: TuiDropdownOptions,
-        @Inject(WINDOW) private readonly windowRef: Window,
-        @Inject(TuiRectAccessor) private readonly accessor: TuiRectAccessor,
+        @Inject(TUI_VIEWPORT) private readonly viewport: TuiRectAccessor,
         @Inject(TuiDropdownPositionDirective)
-        private readonly vertical: TuiPositionAccessor,
-    ) {}
+        private readonly vertical: TuiDropdownPositionDirective,
+    ) {
+        super();
+    }
 
     getPosition(rect: ClientRect): TuiPoint {
         if (this.tuiDropdownSided === false) {
@@ -40,14 +44,15 @@ export class TuiDropdownPositionSidedDirective implements TuiPositionAccessor {
         }
 
         const {height, width} = rect;
-        const hostRect = this.accessor.getClientRect();
-        const {innerHeight, innerWidth} = this.windowRef;
-        const {align, direction, minHeight, offset} = this.options;
+        const hostRect = this.vertical.accessor?.getClientRect() ?? EMPTY_CLIENT_RECT;
+        const viewport = this.viewport.getClientRect();
+        const {direction, minHeight, offset} = this.options;
+        const align = this.options.align === 'center' ? 'left' : this.options.align;
         const available = {
-            top: hostRect.bottom,
-            left: hostRect.left - offset,
-            right: innerWidth - hostRect.right - offset,
-            bottom: innerHeight - hostRect.top,
+            top: hostRect.bottom - viewport.top,
+            left: hostRect.left - offset - viewport.left,
+            right: viewport.right - hostRect.right - offset,
+            bottom: viewport.bottom - hostRect.top,
         } as const;
         const position = {
             top: hostRect.bottom - height + this.tuiDropdownSidedOffset + 1, // 1 for border

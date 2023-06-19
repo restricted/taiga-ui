@@ -1,3 +1,4 @@
+<!-- eslint-disable @html-eslint/require-img-alt -->
 <img
     *ngIf="isUrlValid"
     loading="lazy"
@@ -6,6 +7,11 @@
     [src]="avatarUrl || ''"
     (error)="onError()"
 />
+<tui-svg
+    *ngIf="useFallback"
+    class="t-icon"
+    [src]="fallback!"
+></tui-svg>
 <tui-svg
     *ngIf="stringAvatar"
     class="t-icon"

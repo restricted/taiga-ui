@@ -24,7 +24,7 @@ import {
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
 import {ɵgetDOM as getDOM} from '@angular/platform-browser';
-import {TuiTextMaskOptions} from '@taiga-ui/core';
+import {TUI_LEGACY_MASK, TuiTextMaskOptions} from '@taiga-ui/core';
 import {createTextMaskInputElement} from 'text-mask-core';
 
 /**
@@ -38,7 +38,7 @@ function _isAndroid(): boolean {
 
 /**
  * @internal
- * @deprecated
+ * @deprecated Use {@link https://github.com/Tinkoff/maskito Maskito}
  * Don't use it! It can be deleted at any time (even in minor releases).
  * Use {@link https://github.com/text-mask/text-mask/tree/master/angular2 angular2-text-mask} instead.
  */
@@ -56,6 +56,10 @@ function _isAndroid(): boolean {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => MaskedInputDirective),
             multi: true,
+        },
+        {
+            provide: TUI_LEGACY_MASK,
+            useExisting: forwardRef(() => MaskedInputDirective),
         },
     ],
 })
@@ -114,11 +118,7 @@ export class MaskedInputDirective implements ControlValueAccessor, OnChanges {
     }
 
     setDisabledState(isDisabled: boolean): void {
-        this._renderer.setProperty(
-            this._elementRef.nativeElement,
-            'disabled',
-            isDisabled,
-        );
+        this._renderer.setProperty(this.inputElement, 'disabled', isDisabled);
     }
 
     _handleInput(value: any) {

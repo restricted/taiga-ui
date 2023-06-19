@@ -1,25 +1,32 @@
 {
+    "name": "demo",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "root": "projects/demo/",
     "sourceRoot": "projects/demo/src",
     "projectType": "application",
     "prefix": "app",
-    "schematics": {},
-    "i18n": {
-        "sourceLocale": "en-US",
-        "locales": {
-            "ru": "projects/demo/src/locale/messages.ru.xlf"
-        }
-    },
     "implicitDependencies": ["!testing"],
-    "architect": {
+    "targets": {
+        "lint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "eslint --no-error-on-unmatched-pattern \"**/projects/demo/**/*\""
+            }
+        },
+        "stylelint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "stylelint \"**/demo/**/*.{css,less}\" --allow-empty-input"
+            }
+        },
         "i18n": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "command": "nx build i18n"
             }
         },
         "build": {
-            "builder": "@angular-builders/custom-webpack:browser",
+            "executor": "@angular-builders/custom-webpack:browser",
             "outputs": ["dist/demo"],
             "dependsOn": [
                 {
@@ -89,14 +96,7 @@
                     "namedChunks": false,
                     "buildOptimizer": true,
                     "statsJson": false,
-                    "progress": false,
-                    "budgets": [
-                        {
-                            "type": "initial",
-                            "maximumWarning": "2mb",
-                            "maximumError": "5mb"
-                        }
-                    ]
+                    "progress": false
                 },
                 "next": {
                     "fileReplacements": [
@@ -114,9 +114,11 @@
                     "statsJson": false,
                     "progress": false
                 },
+                "development": {
+                    "baseHref": "/"
+                },
                 "def": {
                     "baseHref": "/",
-                    "budgets": [],
                     "fileReplacements": [
                         {
                             "replace": "projects/demo/src/emulate/change-detection-strategy.ts",
@@ -126,7 +128,6 @@
                 },
                 "shadow": {
                     "baseHref": "/",
-                    "budgets": [],
                     "fileReplacements": [
                         {
                             "replace": "projects/demo/src/emulate/view-encapsulation.ts",
@@ -134,25 +135,26 @@
                         }
                     ]
                 },
-                "ru": {
-                    "baseHref": "/",
-                    "localize": ["ru"]
-                },
-                "development": {
-                    "baseHref": "/"
-                },
-                "serve-fast": {
+                "fast": {
                     "baseHref": "/",
                     "sourceMap": false,
                     "namedChunks": false,
-                    "statsJson": false,
-                    "budgets": []
+                    "statsJson": false
+                },
+                "coalescing": {
+                    "baseHref": "/",
+                    "fileReplacements": [
+                        {
+                            "replace": "projects/demo/src/emulate/ng-zone-options.ts",
+                            "with": "projects/demo/src/emulate/ng-zone-options.coalescing.ts"
+                        }
+                    ]
                 }
             },
             "defaultConfiguration": "production"
         },
         "mkcert": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "parallel": false,
                 "commands": [
@@ -161,12 +163,12 @@
                     "echo ------",
                     "mkcert -install",
                     "mkdir -p .ssl",
-                    "mkcert -key-file .ssl/localhost-key.pem -cert-file .ssl/localhost.pem localhost 127.0.0.1 ::1"
+                    "mkcert -key-file .ssl/localhost-key.pem -cert-file .ssl/localhost.pem localhost 127.0.0.1 $(ifconfig | grep \"inet \" | grep -Fv 127.0.0.1 | awk '{print $2}' | tr '\\n' ' ') ::1"
                 ]
             }
         },
         "serve": {
-            "builder": "@angular-builders/custom-webpack:dev-server",
+            "executor": "@angular-builders/custom-webpack:dev-server",
             "dependsOn": [
                 {
                     "target": "i18n",
@@ -184,57 +186,35 @@
                     "browserTarget": "demo:build:production",
                     "aot": true
                 },
-                "def": {
-                    "browserTarget": "demo:build:def"
-                },
-                "shadow": {
-                    "browserTarget": "demo:build:shadow"
-                },
                 "ru": {
                     "browserTarget": "demo:build:ru"
                 },
                 "development": {
                     "browserTarget": "demo:build:development"
                 },
-                "development-fast": {
-                    "port": 3334,
-                    "browserTarget": "demo:build:serve-fast"
+                "def": {
+                    "browserTarget": "demo:build:def"
+                },
+                "fast": {
+                    "browserTarget": "demo:build:fast"
+                },
+                "shadow": {
+                    "browserTarget": "demo:build:shadow"
+                },
+                "coalescing": {
+                    "browserTarget": "demo:build:coalescing"
                 }
             },
             "defaultConfiguration": "development"
         },
         "serve-ssl": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
-                "command": "nx mkcert demo && nx serve --ssl"
-            }
-        },
-        "serve-ip": {
-            "builder": "@nrwl/workspace:run-commands",
-            "options": {
-                "command": "nx serve --open --host 0.0.0.0 --disable-host-check"
-            }
-        },
-        "serve-ru": {
-            "builder": "@nrwl/workspace:run-commands",
-            "options": {
-                "command": "nx serve --configuration ru"
-            }
-        },
-        "serve-default": {
-            "builder": "@nrwl/workspace:run-commands",
-            "options": {
-                "command": "nx serve --configuration def"
-            }
-        },
-        "serve-shadow": {
-            "builder": "@nrwl/workspace:run-commands",
-            "options": {
-                "command": "nx serve --configuration shadow"
+                "command": "nx mkcert demo && nx serve demo --ssl --open --host 0.0.0.0 --disable-host-check"
             }
         },
         "serve-ssr": {
-            "builder": "@nguniversal/builders:ssr-dev-server",
+            "executor": "@nguniversal/builders:ssr-dev-server",
             "options": {},
             "configurations": {
                 "production": {
@@ -256,14 +236,14 @@
             "defaultConfiguration": "development"
         },
         "serve-compiled": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "command": "angular-http-server -p {args.port} --silent --path {args.path} & npx wait-on http://localhost:{args.port} --timeout 5000",
                 "forwardAllArgs": false
             }
         },
         "server": {
-            "builder": "@angular-builders/custom-webpack:server",
+            "executor": "@angular-builders/custom-webpack:server",
             "options": {
                 "customWebpackConfig": {
                     "path": "projects/demo/webpack.config.ts"
@@ -288,7 +268,7 @@
             "defaultConfiguration": "production"
         },
         "prerender": {
-            "builder": "@nguniversal/builders:prerender",
+            "executor": "@nguniversal/builders:prerender",
             "options": {
                 "browserTarget": "demo:build:production",
                 "serverTarget": "demo:server:production",
@@ -298,69 +278,12 @@
                 "production": {}
             }
         },
-        "extract-i18n": {
-            "builder": "@angular-builders/custom-webpack:extract-i18n",
-            "options": {
-                "browserTarget": "demo:build"
-            }
-        },
         "test": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "outputs": ["coverage/demo"],
             "options": {
-                "command": "jest --testMatch '**/projects/demo/**/*.spec.ts'",
+                "command": "jest --testMatch \"**/projects/demo/**/*.spec.ts\"",
                 "forwardAllArgs": true
-            }
-        },
-        "e2e": {
-            "builder": "@nrwl/workspace:run-commands",
-            "options": {
-                "parallel": false,
-                "commands": [
-                    "npx wait-on http://localhost:3333 --timeout 1000",
-                    "cypress open --browser chrome --project ./projects/demo-integrations"
-                ]
-            }
-        },
-        "e2e-mobile": {
-            "builder": "@nrwl/workspace:run-commands",
-            "options": {
-                "parallel": false,
-                "commands": [
-                    "npx wait-on http://localhost:3333 --timeout 1000",
-                    "cypress open --browser chrome --project ./projects/demo-integrations --config-file cypress-mobile.config.ts --spec '**/demo/**/*.cy.ts'"
-                ]
-            }
-        },
-        "e2e-headless": {
-            "builder": "@nrwl/workspace:run-commands",
-            "options": {
-                "parallel": false,
-                "commands": [
-                    "npx wait-on http://localhost:3333 --timeout 1000",
-                    "cypress run --browser chrome --headless --project ./projects/demo-integrations"
-                ]
-            }
-        },
-        "e2e-mobile-headless": {
-            "builder": "@nrwl/workspace:run-commands",
-            "options": {
-                "parallel": false,
-                "commands": [
-                    "npx wait-on http://localhost:3333 --timeout 1000",
-                    "cypress run --browser chrome --headless --project ./projects/demo-integrations --config-file cypress-mobile.config.ts"
-                ]
-            }
-        },
-        "e2e-ci": {
-            "builder": "@nrwl/workspace:run-commands",
-            "options": {
-                "parallel": true,
-                "commands": [
-                    {"command": "echo \"CYPRESS_API_URL: $CYPRESS_API_URL\"", "forwardAllArgs": false},
-                    "npx cy2 run --parallel --record --key {args.key} --ci-build-id {args.key} --env ci=true --browser chrome --headless --project ./projects/demo-integrations --spec '**/{args.folder}/**/*.cy.ts' --config-file {args.config}",
-                    "sleep 10 && npx cy2 run --parallel --record --key {args.key} --ci-build-id {args.key} --env ci=true --browser chrome --headless --project ./projects/demo-integrations --spec '**/{args.folder}/**/*.cy.ts' --config-file {args.config}"
-                ]
             }
         }
     }

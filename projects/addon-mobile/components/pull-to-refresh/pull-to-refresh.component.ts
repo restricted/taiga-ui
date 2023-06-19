@@ -1,64 +1,73 @@
-import {ChangeDetectionStrategy, Component, Inject, Output} from '@angular/core';
-import {TUI_IS_IOS, tuiPure} from '@taiga-ui/cdk';
-import {Observable, of} from 'rxjs';
-import {distinctUntilChanged, filter, map, mapTo} from 'rxjs/operators';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    Inject,
+    Input,
+    Output,
+    Self,
+} from '@angular/core';
+import {
+    TUI_IS_IOS,
+    TuiContextWithImplicit,
+    tuiDefaultProp,
+    TuiDestroyService,
+    TuiHandler,
+    tuiScrollFrom,
+} from '@taiga-ui/cdk';
+import {TUI_SCROLL_REF} from '@taiga-ui/core';
+import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
+import {Observable} from 'rxjs';
+import {distinctUntilChanged, filter, map, startWith, takeUntil} from 'rxjs/operators';
 
 import {
-    MICRO_OFFSET,
-    PULLED_DISTANCE,
-    TUI_PULL_TO_REFRESH_PROVIDERS,
-    TUI_PULLING,
+    TUI_PULL_TO_REFRESH_COMPONENT,
+    TUI_PULL_TO_REFRESH_THRESHOLD,
 } from './pull-to-refresh.providers';
-
-const IOS_LOADING_DISTANCE = PULLED_DISTANCE / 2;
-const ANDROID_MAX_DISTANCE = PULLED_DISTANCE * 1.5;
-
-function translateY(distance: number): string {
-    return `translateY(${distance}px)`;
-}
+import {MICRO_OFFSET, TuiPullToRefreshService} from './pull-to-refresh.service';
 
 @Component({
     selector: 'tui-pull-to-refresh',
     templateUrl: './pull-to-refresh.template.html',
     styleUrls: ['./pull-to-refresh.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: TUI_PULL_TO_REFRESH_PROVIDERS,
+    providers: [TuiPullToRefreshService, TuiDestroyService],
 })
 export class TuiPullToRefreshComponent {
-    @Output()
-    readonly pulled: Observable<void> = this.pulling$.pipe(
-        distinctUntilChanged(),
-        filter(distance => distance === PULLED_DISTANCE),
-        mapTo(undefined),
-    );
+    @Input()
+    @tuiDefaultProp()
+    styleHandler: TuiHandler<number, Record<string, any> | null> = this.isIOS
+        ? distance => ({transform: `translateY(${distance / 2}px)`})
+        : () => null;
 
-    readonly pulledInPercent$: Observable<number> = this.pulling$.pipe(
-        map(distance => (distance * 100) / PULLED_DISTANCE),
+    @Output()
+    readonly pulled: Observable<unknown> = this.pulling$.pipe(
+        filter(distance => distance === this.threshold),
     );
 
     readonly dropped$: Observable<boolean> = this.pulling$.pipe(
-        map(distance => distance <= MICRO_OFFSET || distance === PULLED_DISTANCE),
+        map(distance => distance <= MICRO_OFFSET || distance === this.threshold),
         distinctUntilChanged(),
     );
 
-    readonly contentTransform$: Observable<string | null> = this.isIOS
-        ? this.pulling$.pipe(
-              map(distance =>
-                  distance === PULLED_DISTANCE ? IOS_LOADING_DISTANCE : distance,
-              ),
-              map(translateY),
-          )
-        : of(null);
-
     constructor(
-        @Inject(TUI_IS_IOS) readonly isIOS: boolean,
-        @Inject(TUI_PULLING) private readonly pulling$: Observable<number>,
-    ) {}
-
-    @tuiPure
-    get loaderTransform$(): Observable<string> {
-        return this.pulling$.pipe(
-            map(distance => translateY(Math.min(distance, ANDROID_MAX_DISTANCE))),
-        );
+        @Inject(TuiDestroyService) @Self() destroy$: Observable<unknown>,
+        @Inject(TUI_SCROLL_REF) {nativeElement}: ElementRef<HTMLElement>,
+        @Inject(TUI_IS_IOS) private readonly isIOS: boolean,
+        @Inject(TUI_PULL_TO_REFRESH_THRESHOLD) private readonly threshold: number,
+        @Inject(TUI_PULL_TO_REFRESH_COMPONENT)
+        readonly component: PolymorpheusContent<TuiContextWithImplicit<number>>,
+        @Inject(TuiPullToRefreshService) readonly pulling$: Observable<number>,
+    ) {
+        // Ensure scrolling down is impossible while pulling
+        tuiScrollFrom(nativeElement)
+            .pipe(startWith(null), takeUntil(destroy$))
+            .subscribe(() => {
+                if (nativeElement.scrollTop) {
+                    nativeElement.style.touchAction = '';
+                } else {
+                    nativeElement.style.touchAction = 'pan-down';
+                }
+            });
     }
 }

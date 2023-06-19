@@ -20,7 +20,7 @@
         [nativeId]="nativeId"
         [readOnly]="readOnly"
         [disabled]="computedDisabled"
-        [textMask]="computedMask"
+        [maskito]="computedMask"
         [value]="computedValue"
         (valueChange)="onValueChange($event)"
     >
@@ -29,11 +29,23 @@
             select="input"
             ngProjectAs="input"
         ></ng-content>
+
+        <div
+            *ngIf="showValueTemplate"
+            ngProjectAs="tuiContent"
+            class="t-value"
+        >
+            <ng-container *polymorpheusOutlet="computedContent as text; context: {$implicit: value}">
+                {{ text }}
+            </ng-container>
+        </div>
     </tui-primitive-textfield>
 
     <ng-template #iconContent>
         <tui-svg
             *polymorpheusOutlet="calendarIcon as src; context: {$implicit: size}"
+            tuiWrapper
+            appearance="icon"
             automation-id="tui-input-date-range__icon"
             [class.t-icon]="!computedDisabled"
             [src]="src"

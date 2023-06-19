@@ -1,0 +1,33 @@
+<tui-multi-select
+    class="b-form"
+    [formControl]="itemControl"
+    [tuiTextfieldLabelOutside]="true"
+    [tuiTextfieldCleaner]="true"
+    [tuiHintContent]="'hint'"
+    [editable]="false"
+>
+    Star Wars persons
+
+    <select
+        tuiSelect
+        multiple
+        [items]="items"
+    ></select>
+</tui-multi-select>
+
+<tui-multi-select
+    class="b-form tui-space_top-5"
+    [formControl]="itemGroupControl"
+    [tuiTextfieldLabelOutside]="true"
+    [editable]="false"
+    [disabledItemHandler]="disableHandler"
+>
+    Star Wars persons
+
+    <select
+        tuiSelect
+        multiple
+        [items]="groupItems"
+        [labels]="labels"
+    ></select>
+</tui-multi-select>

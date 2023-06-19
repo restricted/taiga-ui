@@ -4,8 +4,7 @@
     [focusable]="focusable"
     [disabled]="disabled"
     [readOnly]="readOnly"
-    [value]="value"
-    (valueChange)="onValueChange($event)"
+    [(value)]="value"
     (focusedChange)="onFocused($event)"
 >
     <ng-content></ng-content>
@@ -17,6 +16,8 @@
 
 <ng-template #iconContent>
     <tui-svg
+        tuiWrapper
+        appearance="icon"
         class="icon"
         [tuiHint]="hintContent"
         [src]="icon"

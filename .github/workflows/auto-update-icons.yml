@@ -1,0 +1,31 @@
+name: 🤖 Auto update bundled icons
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  bundling:
+    if: ${{ !contains(github.head_ref , 'release/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.5.3
+      - name: Setup global variables
+        uses: ./.github/actions/variables
+
+      - uses: actions/checkout@v3.5.3
+        if: env.SUPPORT_AUTO_PUSH == 'true'
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.TINKOFF_BOT_PAT }}
+
+      - name: Setup Node.js and Cache
+        uses: ./.github/actions/nodejs
+      - run: |
+          npx nx prebuild icons
+          npx nx build icons
+
+      - name: Auto update bundled icons
+        if: env.SUPPORT_AUTO_PUSH == 'true'
+        uses: ./.github/actions/auto-push
+        with:
+          message: icons have changed

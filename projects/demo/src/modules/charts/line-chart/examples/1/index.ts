@@ -1,13 +1,13 @@
 import {Component} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
 import {encapsulation} from '@demo/emulate/encapsulation';
-import {TUI_DEFAULT_STRINGIFY} from '@taiga-ui/cdk';
+import {TUI_DEFAULT_STRINGIFY, TuiContextWithImplicit} from '@taiga-ui/cdk';
 import {TuiPoint} from '@taiga-ui/core';
 
 @Component({
-    selector: `tui-line-chart-example-1`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-line-chart-example-1',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
@@ -23,4 +23,8 @@ export class TuiLineChartExample1 {
     ];
 
     readonly stringify = TUI_DEFAULT_STRINGIFY;
+
+    readonly hintContent = ({
+        $implicit,
+    }: TuiContextWithImplicit<readonly TuiPoint[]>): number => $implicit[0][1];
 }

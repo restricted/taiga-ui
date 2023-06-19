@@ -13,9 +13,9 @@ import {AbstractTuiControl, TuiNativeFocusableElement} from '@taiga-ui/cdk';
 import {TuiPrimitiveTextfieldComponent} from '@taiga-ui/core';
 
 @Component({
-    selector: `tui-primitive-textfield-example-1`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-primitive-textfield-example-1',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
@@ -30,9 +30,9 @@ export class TuiPrimitiveTextfieldExample1 extends AbstractTuiControl<string> {
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): TuiNativeFocusableElement | null {
@@ -46,19 +46,15 @@ export class TuiPrimitiveTextfieldExample1 extends AbstractTuiControl<string> {
     }
 
     get icon(): string {
-        return this.isPasswordHidden ? `tuiIconHideLarge` : `tuiIconShowLarge`;
+        return this.isPasswordHidden ? 'tuiIconEyeOffLarge' : 'tuiIconEyeLarge';
     }
 
     get hint(): string {
-        return this.isPasswordHidden ? `Show password` : `Hide password`;
+        return this.isPasswordHidden ? 'Show password' : 'Hide password';
     }
 
     get inputType(): string {
-        return this.isPasswordHidden ? `password` : `text`;
-    }
-
-    onValueChange(textValue: string): void {
-        this.updateValue(textValue);
+        return this.isPasswordHidden ? 'password' : 'text';
     }
 
     onFocused(focused: boolean): void {
@@ -70,6 +66,6 @@ export class TuiPrimitiveTextfieldExample1 extends AbstractTuiControl<string> {
     }
 
     protected getFallbackValue(): string {
-        return ``;
+        return '';
     }
 }

@@ -31,7 +31,7 @@ import {Observable} from 'rxjs';
 import {TUI_TAG_OPTIONS, TuiTagOptions} from './tag-options';
 
 @Component({
-    selector: 'tui-tag, a[tuiTag]',
+    selector: 'tui-tag, a[tuiTag], button[tuiTag]',
     templateUrl: './tag.template.html',
     styleUrls: ['./tag.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,7 +68,7 @@ export class TuiTagComponent {
     showLoader = false;
 
     @Input()
-    @HostBinding('attr.data-tui-host-status')
+    @HostBinding('attr.data-status')
     @tuiDefaultProp()
     status: TuiStatus = this.options.status;
 
@@ -92,8 +92,7 @@ export class TuiTagComponent {
     autoColor: boolean = this.options.autoColor;
 
     @Input()
-    @tuiDefaultProp()
-    leftContent: PolymorpheusContent = '';
+    leftContent: PolymorpheusContent;
 
     @Output()
     readonly edited = new EventEmitter<string>();
@@ -111,7 +110,7 @@ export class TuiTagComponent {
     }
 
     constructor(
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
         @Inject(TUI_MODE) readonly mode$: Observable<TuiBrightness | null>,
         @Inject(TUI_TAG_OPTIONS) private readonly options: TuiTagOptions,
         @Inject(TUI_TEXTFIELD_WATCHED_CONTROLLER)
@@ -136,11 +135,6 @@ export class TuiTagComponent {
 
     get iconCleaner(): PolymorpheusContent<TuiContextWithImplicit<TuiSizeL | TuiSizeS>> {
         return this.controller.options.iconCleaner;
-    }
-
-    @HostBinding('class._has-icon')
-    get hasIcon(): boolean {
-        return this.showLoader || this.removable;
     }
 
     @HostListener('keydown.enter', ['$event'])
@@ -190,7 +184,7 @@ export class TuiTagComponent {
             case 'esc':
                 event.preventDefault();
                 this.stopEditing();
-                this.elementRef.nativeElement.focus();
+                this.el.nativeElement.focus();
                 break;
             default:
                 break;

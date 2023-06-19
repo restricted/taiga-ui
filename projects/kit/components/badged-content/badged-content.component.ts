@@ -15,20 +15,18 @@ const BADGE_SIZE: {[key: string]: TuiSizeL | TuiSizeXS} = {
 
 @Component({
     selector: 'tui-badged-content',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './badged-content.template.html',
     styleUrls: ['./badged-content.style.less'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TuiBadgedContentComponent {
     @Input()
-    @HostBinding('attr.data-tui-host-top')
-    @tuiDefaultProp()
-    contentTop: PolymorpheusContent = '';
+    @HostBinding('class._with-top')
+    contentTop: PolymorpheusContent;
 
     @Input()
-    @HostBinding('attr.data-tui-host-bottom')
-    @tuiDefaultProp()
-    contentBottom: PolymorpheusContent = '';
+    @HostBinding('class._with-bottom')
+    contentBottom: PolymorpheusContent;
 
     @Input()
     @HostBinding('attr.data-size')

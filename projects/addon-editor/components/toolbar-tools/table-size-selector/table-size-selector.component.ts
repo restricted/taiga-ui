@@ -20,14 +20,22 @@ const MIN_DISTANCE_PX = 70;
 })
 export class TuiTableSizeSelectorComponent {
     @Output()
-    readonly onSelectSize = new EventEmitter<{cols: number; rows: number}>();
+    readonly selectSize = new EventEmitter<{cols: number; rows: number}>();
+
+    /**
+     * @deprecated use {@link selectSize}
+     * TODO: remove in v4.0
+     */
+    @Output()
+    // eslint-disable-next-line @angular-eslint/no-output-on-prefix
+    readonly onSelectSize = this.selectSize;
 
     tableSize = {
         rows: 1,
         cols: 1,
     };
 
-    constructor(@Inject(WINDOW) private readonly windowRef: Window) {}
+    constructor(@Inject(WINDOW) private readonly win: Window) {}
 
     get columnsNumber(): number {
         return Math.min(Math.max(3, this.tableSize.cols + 1), MAX_COLS_NUMBER);
@@ -42,12 +50,20 @@ export class TuiTableSizeSelectorComponent {
     }
 
     updateCurrentSize(rows: number, cols: number, event: MouseEvent): void {
-        if (tuiGetViewportWidth(this.windowRef) - event.clientX > MIN_DISTANCE_PX) {
+        if (tuiGetViewportWidth(this.win) - event.clientX > MIN_DISTANCE_PX) {
             this.tableSize = {rows, cols};
         }
     }
 
+    /**
+     * @deprecated use {@link select}
+     * TODO: remove in v4.0
+     */
     onClick(): void {
-        this.onSelectSize.emit(this.tableSize);
+        this.select();
+    }
+
+    select(): void {
+        this.selectSize.emit(this.tableSize);
     }
 }

@@ -1,14 +1,8 @@
-<tui-doc-page
-    i18n-header
-    header="Skeleton"
->
+<tui-doc-page header="Skeleton">
     <ng-template pageTab>
         <tui-styles-info></tui-styles-info>
 
-        <div
-            i18n
-            class="tui-space_bottom-3"
-        >
+        <div class="tui-space_bottom-3">
             <p>
                 Use
                 <strong>.tui-skeleton</strong>
@@ -20,10 +14,7 @@
             <li class="tui-list__item">
                 <code>.tui-skeleton</code>
                 :
-                <ul
-                    i18n
-                    class="tui-list tui-list_linear tui-list_nested tui-list_extra-small"
-                >
+                <ul class="tui-list tui-list_linear tui-list_nested tui-list_extra-small">
                     <li class="tui-list__item">
                         <code>.tui-skeleton_light</code>
                         : style for dark background
@@ -46,11 +37,15 @@
                     </li>
                 </ul>
             </li>
+            <li class="tui-list__item">
+                if you want to use border-radius for skeleton you can use
+                <code>--tui-skeleton-radius</code>
+                css variable
+            </li>
         </ul>
 
         <tui-doc-example
             id="classes"
-            i18n-heading
             heading="Classes"
             [content]="example1"
         >
@@ -59,7 +54,6 @@
 
         <tui-doc-example
             id="mixins"
-            i18n-heading
             heading="Mixins"
             [content]="example2"
         >

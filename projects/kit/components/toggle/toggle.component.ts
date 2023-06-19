@@ -41,6 +41,7 @@ import {TUI_TOGGLE_OPTIONS, TuiToggleOptions} from './toggle-options';
         tuiAsFocusableItemAccessor(TuiToggleComponent),
         tuiAsControl(TuiToggleComponent),
     ],
+    host: {'[class._checked]': 'value'},
 })
 export class TuiToggleComponent
     extends AbstractTuiControl<boolean>
@@ -71,14 +72,14 @@ export class TuiToggleComponent
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Optional()
         @Inject(TuiModeDirective)
         private readonly modeDirective: TuiModeDirective | null,
         @Inject(TUI_TOGGLE_OPTIONS)
         readonly options: TuiToggleOptions,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get iconOn(): PolymorpheusContent<TuiContextWithImplicit<TuiSizeL>> {
@@ -98,18 +99,13 @@ export class TuiToggleComponent
     }
 
     get appearance(): TuiAppearance {
-        return this.singleColor || this.checked
+        return this.singleColor || this.value
             ? TuiAppearance.Primary
             : TuiAppearance.Secondary;
     }
 
     get sizeM(): boolean {
         return this.size === 'm';
-    }
-
-    @HostBinding('class._checked')
-    get checked(): boolean {
-        return this.value;
     }
 
     get loaderSize(): TuiSizeXS {
@@ -121,8 +117,9 @@ export class TuiToggleComponent
         return this.modeDirective ? this.modeDirective.mode : null;
     }
 
+    /** @deprecated use 'value' setter */
     onChecked(checked: boolean): void {
-        this.updateValue(checked);
+        this.value = checked;
     }
 
     onFocused(focused: boolean): void {

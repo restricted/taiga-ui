@@ -41,14 +41,16 @@ export class TuiInputInlineComponent
     @tuiDefaultProp()
     maxLength: number | null = null;
 
+    indent = -1;
+
     constructor(
         @Optional()
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): TuiNativeFocusableElement | null {
@@ -63,12 +65,20 @@ export class TuiInputInlineComponent
         return this.value !== '';
     }
 
+    /** @deprecated use 'value' setter */
     onValueChange(value: string): void {
-        this.updateValue(value);
+        this.value = value;
     }
 
     onFocused(focused: boolean): void {
         this.updateFocused(focused);
+    }
+
+    onScroll(): void {
+        const indent = this.native?.nativeElement.scrollLeft || 0;
+
+        // -1 for Safari (see styles)
+        this.indent = -1 - indent;
     }
 
     protected getFallbackValue(): string {

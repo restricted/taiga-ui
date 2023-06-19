@@ -24,7 +24,7 @@ import {replaceServices} from '../steps/replace-services';
 import {showWarnings} from '../steps/show-warnings';
 import {getFileSystem} from '../utils/get-file-system';
 import {migrateExpandTemplates} from '../v3-5/steps/migrate-expand-templates';
-import {CONSTS_TO_REPLACE} from './constants/consts';
+import {CONSTANTS_TO_REPLACE} from './constants/constants';
 import {ENUMS_TO_REPLACE} from './constants/enums';
 import {REMOVED_MODULES} from './constants/modules';
 import {SERVICES_TO_REPLACE} from './constants/services';
@@ -87,7 +87,7 @@ function main(options: TuiSchema): Rule {
         replaceDeepImports(options);
         replaceEnums(options, ENUMS_TO_REPLACE);
         renameTypes(options, TYPES_TO_RENAME);
-        replaceConstants(options, CONSTS_TO_REPLACE);
+        replaceConstants(options, CONSTANTS_TO_REPLACE);
         replaceServices(options, SERVICES_TO_REPLACE);
         replaceStyles();
         showWarnings(context, MIGRATION_WARNINGS);
@@ -109,7 +109,9 @@ function main(options: TuiSchema): Rule {
 
 function addTaigaStyles(options: TuiSchema): Rule {
     return async (tree: Tree, context) => {
-        const taigaStyles = [TAIGA_THEME_FONTS];
+        const proprietary = getPackageJsonDependency(tree, `@taiga-ui/proprietary-core`);
+
+        const taigaStyles = proprietary ? [] : [TAIGA_THEME_FONTS];
         const stylesToReplace = {
             from: TAIGA_GLOBAL_OLD_STYLE,
             to: [TAIGA_GLOBAL_NEW_STYLE],

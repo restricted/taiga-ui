@@ -2,10 +2,16 @@ import './tiptap-editor.types';
 
 import {Inject, Injectable} from '@angular/core';
 import {AbstractTuiEditor} from '@taiga-ui/addon-editor/abstract';
+import {EDITOR_BLANK_COLOR} from '@taiga-ui/addon-editor/constants';
+import type {TuiEditableIframe} from '@taiga-ui/addon-editor/extensions/iframe-editor';
+import type {TuiEditableImage} from '@taiga-ui/addon-editor/extensions/image-editor';
+import type {TuiYoutubeOptions} from '@taiga-ui/addon-editor/extensions/youtube';
 import {TuiEditorAttachedFile} from '@taiga-ui/addon-editor/interfaces';
 import {TIPTAP_EDITOR} from '@taiga-ui/addon-editor/tokens';
 import {tuiGetMarkRange, tuiParseStyle} from '@taiga-ui/addon-editor/utils';
+import {tuiPx} from '@taiga-ui/cdk';
 import type {Editor, Range} from '@tiptap/core';
+import {MarkType} from 'prosemirror-model';
 import type {EditorState} from 'prosemirror-state';
 import {Observable} from 'rxjs';
 import {distinctUntilChanged, map, startWith} from 'rxjs/operators';
@@ -71,13 +77,22 @@ export class TuiTiptapEditorService extends AbstractTuiEditor {
     }
 
     getFontColor(): string {
-        return this.editor.getAttributes(`textStyle`).fontColor || `rgb(51, 51, 51)`;
+        return this.editor.getAttributes(`textStyle`).fontColor || EDITOR_BLANK_COLOR;
+    }
+
+    getFontSize(): number {
+        return parseInt(this.editor.getAttributes(`textStyle`).fontSize, 10);
+    }
+
+    setFontSize(size: number): void {
+        this.editor
+            .chain()
+            .setMark(`textStyle`, {fontSize: tuiPx(size)})
+            .run();
     }
 
     getBackgroundColor(): string {
-        return (
-            this.editor?.getAttributes(`textStyle`).backgroundColor || `rgb(51, 51, 51)`
-        );
+        return this.editor?.getAttributes(`textStyle`).backgroundColor || `transparent`;
     }
 
     getCellColor(): string {
@@ -106,10 +121,22 @@ export class TuiTiptapEditorService extends AbstractTuiEditor {
         this.editor
             .chain()
             .focus()
-            .first(({commands}) => [
-                () => commands.setEditableImage?.({src}) || false,
-                () => commands.setImage({src}),
-            ])
+            .command(({commands, state}) => {
+                const setImage = (commands.setEditableImage ?? commands.setImage) as
+                    | ((config: TuiEditableImage) => boolean)
+                    | undefined;
+
+                if (setImage) {
+                    const anchor = state.selection.anchor;
+
+                    setImage({src});
+                    commands.setTextSelection(anchor);
+
+                    return true;
+                }
+
+                return false;
+            })
             .run();
     }
 
@@ -287,7 +314,9 @@ export class TuiTiptapEditorService extends AbstractTuiEditor {
     }
 
     setValue(value: string): void {
-        this.editor.commands.setContent(value);
+        if (value !== this.html) {
+            this.editor.commands.setContent(value);
+        }
     }
 
     destroy(): void {
@@ -342,5 +371,25 @@ export class TuiTiptapEditorService extends AbstractTuiEditor {
 
     setFileLink(preview: TuiEditorAttachedFile): void {
         this.editor.commands.setFileLink(preview);
+    }
+
+    setYoutubeVideo(options: TuiYoutubeOptions): void {
+        this.editor.commands.setYoutubeVideo(options as any);
+    }
+
+    setIframe(options: TuiEditableIframe): void {
+        this.editor.commands.setIframe(options);
+    }
+
+    removeEmptyTextStyle(): void {
+        this.editor.commands.removeEmptyTextStyle();
+    }
+
+    toggleMark(
+        typeOrName: MarkType | string,
+        attributes?: Record<string, any>,
+        options?: {extendEmptyMarkRange?: boolean},
+    ): void {
+        this.editor.commands.toggleMark(typeOrName, attributes, options);
     }
 }

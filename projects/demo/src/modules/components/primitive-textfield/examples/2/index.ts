@@ -16,11 +16,13 @@ import {
 } from '@taiga-ui/core';
 
 @Component({
-    selector: `tui-primitive-textfield-example-2`,
-    templateUrl: `./index.html`,
+    selector: 'tui-primitive-textfield-example-2',
+    templateUrl: './index.html',
     changeDetection,
     encapsulation,
-    providers: [tuiTextfieldOptionsProvider({iconCleaner: `tuiIconChevronUp`})],
+    providers: [
+        tuiTextfieldOptionsProvider({iconCleaner: 'tuiIconEdit2', hintOnDisabled: true}),
+    ],
 })
 export class TuiPrimitiveTextfieldExample2 extends AbstractTuiControl<string> {
     @ViewChild(TuiPrimitiveTextfieldComponent)
@@ -31,9 +33,9 @@ export class TuiPrimitiveTextfieldExample2 extends AbstractTuiControl<string> {
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): TuiNativeFocusableElement | null {
@@ -46,15 +48,11 @@ export class TuiPrimitiveTextfieldExample2 extends AbstractTuiControl<string> {
         return !!this.textfield && this.textfield.focused;
     }
 
-    onValueChange(textValue: string): void {
-        this.updateValue(textValue);
-    }
-
     onFocused(focused: boolean): void {
         this.updateFocused(focused);
     }
 
     protected getFallbackValue(): string {
-        return ``;
+        return '';
     }
 }

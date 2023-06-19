@@ -1,15 +1,17 @@
+import {ALWAYS_FALSE_HANDLER} from '@taiga-ui/cdk/constants';
 import {TuiOwnerDocumentException} from '@taiga-ui/cdk/exceptions';
+import {tuiIsFalsy} from '@taiga-ui/cdk/utils';
 import {tuiIsNativeFocused} from '@taiga-ui/cdk/utils/focus';
 import {concat, merge, Observable} from 'rxjs';
 import {
     distinctUntilChanged,
     filter,
     ignoreElements,
-    mapTo,
+    map,
     repeat,
     shareReplay,
     startWith,
-    switchMapTo,
+    switchMap,
     take,
     withLatestFrom,
 } from 'rxjs/operators';
@@ -63,10 +65,12 @@ export function tuiFocusVisibleObservable(element: Element): Observable<boolean>
                 (_event, elementActual, documentActual) =>
                     elementActual || documentActual,
             ),
-            filter(isUserFocus => !isUserFocus),
+            filter(tuiIsFalsy),
         ),
     ).pipe(
-        switchMapTo(elementBlur$.pipe(mapTo(false), take(1), startWith(true))),
+        switchMap(() =>
+            elementBlur$.pipe(map(ALWAYS_FALSE_HANDLER), take(1), startWith(true)),
+        ),
         distinctUntilChanged(),
     );
 }

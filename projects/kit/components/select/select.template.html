@@ -7,7 +7,7 @@
     <tui-primitive-textfield
         automation-id="tui-select__textfield"
         class="t-textfield"
-        [tuiTextfieldIcon]="arrow"
+        [tuiTextfieldIcon]="arrow ? icon : ''"
         [editable]="false"
         [pseudoFocus]="computedFocused"
         [pseudoHover]="pseudoHover"
@@ -29,12 +29,10 @@
         ></ng-content>
 
         <ng-template #select>
-            <ng-container *ngIf="isMobile">
-                <ng-content
-                    select="select"
-                    ngProjectAs="select"
-                ></ng-content>
-            </ng-container>
+            <ng-content
+                *ngIf="isMobile"
+                select="select"
+            ></ng-content>
         </ng-template>
 
         <ng-container
@@ -55,4 +53,14 @@
             ></div>
         </div>
     </tui-primitive-textfield>
+
+    <ng-template #icon>
+        <div
+            tuiWrapper
+            appearance="icon"
+            class="t-icon"
+        >
+            <ng-container *polymorpheusOutlet="arrow"></ng-container>
+        </div>
+    </ng-template>
 </tui-hosted-dropdown>

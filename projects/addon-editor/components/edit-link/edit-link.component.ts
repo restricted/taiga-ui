@@ -9,15 +9,21 @@ import {
     Output,
 } from '@angular/core';
 import {AbstractTuiEditor} from '@taiga-ui/addon-editor/abstract';
+import {
+    TUI_EDITOR_LINK_HASH_PREFIX,
+    TUI_EDITOR_LINK_HTTPS_PREFIX,
+    TuiEditorLinkPrefix,
+    TuiEditorLinkProtocol,
+} from '@taiga-ui/addon-editor/constants';
 import {TuiTiptapEditorService} from '@taiga-ui/addon-editor/directives';
-import {TUI_EDITOR_LINK_TEXTS} from '@taiga-ui/addon-editor/tokens';
+import {
+    TUI_EDITOR_LINK_TEXTS,
+    TUI_EDITOR_OPTIONS,
+    TuiEditorOptions,
+} from '@taiga-ui/addon-editor/tokens';
 import {tuiDefaultProp, TuiInjectionTokenType, tuiIsElement} from '@taiga-ui/cdk';
 
-const HASH_PREFIX = '#' as const;
-const HTTP_PREFIX = 'http://' as const;
-const HTTPS_PREFIX = 'https://' as const;
-
-type TuiLinkPrefix = typeof HASH_PREFIX | typeof HTTP_PREFIX | typeof HTTPS_PREFIX;
+import {tuiEditLinkParseUrl} from './utils/edit-link-parse-url';
 
 @Component({
     selector: 'tui-edit-link',
@@ -38,23 +44,29 @@ export class TuiEditLinkComponent {
 
     edit = !this.url;
 
-    prefix: TuiLinkPrefix = this.makeDefaultPrefix();
+    prefix: TuiEditorLinkPrefix = this.makeDefaultPrefix();
 
     anchorIds = this.getAllAnchorsIds();
 
     constructor(
         @Inject(DOCUMENT)
-        private readonly documentRef: Document,
+        private readonly doc: Document,
         @Inject(TUI_EDITOR_LINK_TEXTS)
         readonly texts$: TuiInjectionTokenType<typeof TUI_EDITOR_LINK_TEXTS>,
         @Inject(TuiTiptapEditorService) private readonly editor: AbstractTuiEditor,
+        @Inject(TUI_EDITOR_OPTIONS)
+        private readonly options: TuiEditorOptions,
     ) {}
+
+    get defaultProtocol(): TuiEditorLinkProtocol {
+        return this.options.linkOptions?.protocol ?? TUI_EDITOR_LINK_HTTPS_PREFIX;
+    }
 
     @Input()
     @tuiDefaultProp()
     set anchorMode(mode: boolean) {
         this.isOnlyAnchorMode = mode;
-        this.prefix = mode ? HASH_PREFIX : this.makeDefaultPrefix();
+        this.prefix = mode ? TUI_EDITOR_LINK_HASH_PREFIX : this.makeDefaultPrefix();
     }
 
     get anchorMode(): boolean {
@@ -62,7 +74,7 @@ export class TuiEditLinkComponent {
     }
 
     get prefixIsHashMode(): boolean {
-        return this.prefix === HASH_PREFIX;
+        return this.prefix === TUI_EDITOR_LINK_HASH_PREFIX;
     }
 
     get hasUrl(): boolean {
@@ -102,7 +114,7 @@ export class TuiEditLinkComponent {
     }
 
     changePrefix(isPrefix: boolean): void {
-        this.prefix = isPrefix ? HASH_PREFIX : HTTP_PREFIX;
+        this.prefix = isPrefix ? TUI_EDITOR_LINK_HASH_PREFIX : this.defaultProtocol;
     }
 
     onSave(): void {
@@ -115,7 +127,9 @@ export class TuiEditLinkComponent {
 
     onBackspace(): void {
         if (!this.url) {
-            this.prefix = this.isOnlyAnchorMode ? HASH_PREFIX : HTTP_PREFIX;
+            this.prefix = this.isOnlyAnchorMode
+                ? TUI_EDITOR_LINK_HASH_PREFIX
+                : this.defaultProtocol;
         }
     }
 
@@ -135,17 +149,20 @@ export class TuiEditLinkComponent {
         this.url = '';
     }
 
-    private makeDefaultPrefix(): TuiLinkPrefix {
+    private makeDefaultPrefix(): TuiEditorLinkPrefix {
         const a = this.getAnchorElement();
+        const defaultPrefix =
+            (tuiEditLinkParseUrl(a?.getAttribute('href') ?? '')
+                .prefix as TuiEditorLinkPrefix) || this.defaultProtocol;
 
         if (a) {
             return (!a.getAttribute('href') && a.getAttribute('id')) ||
-                a.getAttribute('href')?.startsWith(HASH_PREFIX)
-                ? HASH_PREFIX
-                : HTTP_PREFIX;
+                a.getAttribute('href')?.startsWith(TUI_EDITOR_LINK_HASH_PREFIX)
+                ? TUI_EDITOR_LINK_HASH_PREFIX
+                : defaultPrefix;
         }
 
-        return HTTP_PREFIX;
+        return defaultPrefix;
     }
 
     private detectAnchorMode(): boolean {
@@ -155,11 +172,17 @@ export class TuiEditLinkComponent {
     }
 
     private getFocusedParentElement(): HTMLElement | null {
-        return this.documentRef.getSelection()?.focusNode?.parentElement || null;
+        return this.doc.getSelection()?.focusNode?.parentElement || null;
     }
 
     private getAnchorElement(): HTMLAnchorElement | null {
-        return this.getFocusedParentElement()?.closest('a') || null;
+        const focusable = this.getFocusedParentElement();
+
+        return (
+            focusable?.closest('a') ??
+            focusable?.querySelector('img')?.closest('a') ??
+            null
+        );
     }
 
     private getHrefOrAnchorId(): string {
@@ -171,32 +194,35 @@ export class TuiEditLinkComponent {
     }
 
     private removePrefix(url: string): string {
-        if (url.startsWith(HTTP_PREFIX)) {
-            this.prefix = this.isOnlyAnchorMode ? HASH_PREFIX : HTTP_PREFIX;
+        const fullPath =
+            url.startsWith(TUI_EDITOR_LINK_HASH_PREFIX) ||
+            this.prefix === TUI_EDITOR_LINK_HASH_PREFIX
+                ? url
+                : `${this.prefix ?? ''}${url}`;
 
-            return url.replace(HTTP_PREFIX, '');
+        const {prefix, path} = tuiEditLinkParseUrl(fullPath);
+        const expectAnchorMode =
+            this.isOnlyAnchorMode ||
+            prefix === TUI_EDITOR_LINK_HASH_PREFIX ||
+            (prefix === '' && this.prefix === TUI_EDITOR_LINK_HASH_PREFIX);
+
+        if (expectAnchorMode) {
+            this.prefix = TUI_EDITOR_LINK_HASH_PREFIX;
+        } else if (prefix === '') {
+            this.prefix = this.defaultProtocol;
+        } else {
+            this.prefix = prefix as TuiEditorLinkPrefix;
         }
 
-        if (url.startsWith(HTTPS_PREFIX)) {
-            this.prefix = this.isOnlyAnchorMode ? HASH_PREFIX : HTTPS_PREFIX;
-
-            return url.replace(HTTPS_PREFIX, '');
-        }
-
-        if (url.startsWith(HASH_PREFIX)) {
-            this.prefix = HASH_PREFIX;
-
-            return url.replace(HASH_PREFIX, '');
-        }
-
-        return url;
+        return path;
     }
 
     private getAllAnchorsIds(): string[] {
-        const nodes =
+        const nodes: Element[] = Array.from(
             this.editor
                 .getOriginTiptapEditor()
-                .view.dom.querySelectorAll('[data-type="jump-anchor"]') ?? [];
+                .view.dom.querySelectorAll('[data-type="jump-anchor"]') ?? [],
+        );
 
         return Array.from(nodes)
             .map(node => node.getAttribute('id') || '')

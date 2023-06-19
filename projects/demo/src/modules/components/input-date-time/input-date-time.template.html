@@ -4,23 +4,24 @@
     type="components"
 >
     <ng-template pageTab>
-        <div
-            i18n
-            class="tui-space_bottom-9"
-        >
+        <div class="tui-space_bottom-9">
             <code>InputDateTime</code>
             allows to input date and time
         </div>
 
-        <h3 i18n>DI-tokens for date localization:</h3>
-        <dl i18n>
-            <dt><code>TUI_DATE_FORMAT</code></dt>
+        <h3>DI-tokens for date localization:</h3>
+        <dl>
+            <dt>
+                <code>TUI_DATE_FORMAT</code>
+            </dt>
             <dd class="tui-space_bottom-5">
                 active date format (
                 <code>'DMY' | 'MDY' | 'YMD'</code>
                 )
             </dd>
-            <dt><code>TUI_DATE_SEPARATOR</code></dt>
+            <dt>
+                <code>TUI_DATE_SEPARATOR</code>
+            </dt>
             <dd>single-character date's separator (dot, slash etc.)</dd>
         </dl>
         <p class="tui-space_bottom-9">
@@ -34,9 +35,11 @@
             with the usage of these tokens.
         </p>
 
-        <h3 i18n>DI-tokens for input-configurations:</h3>
-        <dl i18n>
-            <dt><code>TUI_DATE_TIME_VALUE_TRANSFORMER</code></dt>
+        <h3>DI-tokens for input-configurations:</h3>
+        <dl>
+            <dt>
+                <code>TUI_DATE_TIME_VALUE_TRANSFORMER</code>
+            </dt>
             <dd>
                 custom format of control output (
                 <code>[TuiDay | null, TuiTime | null]</code>
@@ -56,7 +59,6 @@
 
         <tui-doc-example
             id="base"
-            i18n-heading
             heading="Basic"
             [content]="example1"
         >
@@ -88,11 +90,21 @@
 
         <tui-doc-example
             id="string-control-output"
-            i18n-heading
             heading="With control's output as string"
             [content]="example4"
         >
             <tui-input-date-time-example-4></tui-input-date-time-example-4>
+        </tui-doc-example>
+
+        <tui-doc-example
+            id="native"
+            heading="Native input datetime"
+            [content]="example5"
+        >
+            <tui-notification class="tui-space_bottom-5">
+                Please note that native input datetime only supports HH:MM time mode
+            </tui-notification>
+            <tui-input-date-time-example-5></tui-input-date-time-example-5>
         </tui-doc-example>
     </ng-template>
 
@@ -126,8 +138,7 @@
         </tui-doc-demo>
         <tui-doc-documentation>
             <ng-template
-                i18n
-                documentationPropertyName=""
+                documentationPropertyName="disabled"
                 documentationPropertyType="boolean"
                 [(documentationPropertyValue)]="disabled"
             >
@@ -147,7 +158,6 @@
                 <strong>Must be a pure function</strong>
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="min"
                 documentationPropertyMode="input"
                 documentationPropertyType="TuiDay | [TuiDay, TuiTime]"
@@ -157,7 +167,6 @@
                 Min date
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="max"
                 documentationPropertyMode="input"
                 documentationPropertyType="TuiDay | [TuiDay, TuiTime]"
@@ -167,7 +176,6 @@
                 Max date
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="defaultActiveYearMonth"
                 documentationPropertyMode="input"
                 documentationPropertyType="TuiMonth"
@@ -177,7 +185,6 @@
                 The default active month that is shown when you opens calendar for the first time
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="timeMode"
                 documentationPropertyMode="input"
                 documentationPropertyType="TuiTimeMode"
@@ -190,7 +197,6 @@
         <inherited-documentation [dropdown]="true"></inherited-documentation>
         <tui-doc-documentation heading="CSS customization">
             <ng-template
-                i18n
                 documentationPropertyMode="input"
                 documentationPropertyType="string"
                 documentationPropertyName="style.text-align"
@@ -205,7 +211,7 @@
     <ng-template pageTab>
         <ol class="b-demo-steps">
             <li>
-                <p i18n>
+                <p>
                     Import an Angular module for forms and
                     <code>TuiInputDateTimeModule</code>
                     in the same module where you want to use our component:
@@ -218,7 +224,7 @@
             </li>
 
             <li>
-                <p i18n>
+                <p>
                     Declare a form (
                     <code>FormGroup</code>
                     ) or a control (
@@ -232,7 +238,7 @@
                 ></tui-doc-code>
             </li>
 
-            <li i18n>
+            <li>
                 Use in template:
 
                 <tui-doc-code

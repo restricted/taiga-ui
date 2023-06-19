@@ -11,11 +11,14 @@ export const TUI_RATING_DEFAULT_OPTIONS: TuiRatingOptions = {
     min: 0,
     max: 5,
     iconNormal: `tuiIconStarLarge`,
-    iconFilled: `tuiIconStarFilledLarge`,
+    iconFilled: `tuiIconStarLarge`,
 };
 
+/**
+ * Default parameters for Rating component
+ */
 export const TUI_RATING_OPTIONS = new InjectionToken<TuiRatingOptions>(
-    `[TUI_RATING_OPTIONS]: Default parameters for rating component`,
+    `[TUI_RATING_OPTIONS]`,
     {
         factory: () => TUI_RATING_DEFAULT_OPTIONS,
     },

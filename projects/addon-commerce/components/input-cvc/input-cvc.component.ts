@@ -9,6 +9,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import {NgControl} from '@angular/forms';
+import {MaskitoOptions} from '@maskito/core';
 import {TuiCodeCVCLength} from '@taiga-ui/addon-commerce/types';
 import {
     AbstractTuiControl,
@@ -25,7 +26,6 @@ import {
     TUI_TEXTFIELD_LABEL_OUTSIDE,
     TuiPrimitiveTextfieldComponent,
     TuiTextfieldLabelOutsideDirective,
-    TuiTextMaskOptions,
 } from '@taiga-ui/core';
 
 @Component({
@@ -53,17 +53,15 @@ export class TuiInputCVCComponent
     @tuiRequiredSetter()
     set length(length: TuiCodeCVCLength) {
         this.exampleText = '0'.repeat(length);
-        this.textMaskOptions = {
+        this.maskOptions = {
             mask: new Array(length).fill(TUI_DIGIT_REGEXP),
-            guide: false,
         };
     }
 
     exampleText = '000';
 
-    textMaskOptions: TuiTextMaskOptions = {
+    maskOptions: MaskitoOptions = {
         mask: new Array(3).fill(TUI_DIGIT_REGEXP),
-        guide: false,
     };
 
     constructor(
@@ -71,11 +69,11 @@ export class TuiInputCVCComponent
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Inject(TUI_TEXTFIELD_LABEL_OUTSIDE)
         private readonly textfieldLabelOutside: TuiTextfieldLabelOutsideDirective,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): TuiNativeFocusableElement | null {
@@ -98,10 +96,9 @@ export class TuiInputCVCComponent
         this.updateFocused(focused);
     }
 
-    onCopy(): void {}
-
+    /** deprecated use 'value' setter */
     onValueChange(value: string): void {
-        this.updateValue(value);
+        this.value = value;
     }
 
     protected getFallbackValue(): string {

@@ -5,9 +5,9 @@ import {tuiPure, tuiSum} from '@taiga-ui/cdk';
 import {TuiAlertService, tuiFormatNumber} from '@taiga-ui/core';
 
 @Component({
-    selector: `tui-legend-item-example-2`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-legend-item-example-2',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
@@ -16,11 +16,11 @@ export class TuiLegendItemExample2 {
 
     readonly data = [13769, 12367, 10172, 3018, 2592];
     readonly sum = tuiSum(...this.data);
-    readonly labels = [`Axes`, `Faxes`, `Taxes`, `Saxes`, `Other`];
+    readonly labels = ['Axes', 'Faxes', 'Taxes', 'Saxes', 'Other'];
 
     constructor(
         @Inject(TuiAlertService)
-        private readonly alertService: TuiAlertService,
+        private readonly alerts: TuiAlertService,
     ) {}
 
     get value(): readonly number[] {
@@ -37,8 +37,8 @@ export class TuiLegendItemExample2 {
 
     onClick(index: number): void {
         if (this.isEnabled(index)) {
-            this.alertService
-                .open(`Category spendings: ${tuiFormatNumber(this.data[index])} ₽`, {
+            this.alerts
+                .open(`Category spending: ${tuiFormatNumber(this.data[index])} ₽`, {
                     label: this.labels[index],
                 })
                 .subscribe();

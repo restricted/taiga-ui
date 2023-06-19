@@ -2,7 +2,6 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    Directive,
     ElementRef,
     Inject,
     Input,
@@ -31,7 +30,6 @@ import {
 } from '@taiga-ui/cdk';
 import {
     TEXTFIELD_CONTROLLER_PROVIDER,
-    TUI_TEXTFIELD_APPEARANCE,
     TUI_TEXTFIELD_WATCHED_CONTROLLER,
     TuiDecimal,
     tuiGetFractionPartPadded,
@@ -100,12 +98,10 @@ export class TuiInputRangeComponent
     keySteps: TuiKeySteps | null = null;
 
     @Input()
-    @tuiDefaultProp()
-    leftValueContent: PolymorpheusContent<TuiContextWithImplicit<number>> = '';
+    leftValueContent: PolymorpheusContent<TuiContextWithImplicit<number>>;
 
     @Input()
-    @tuiDefaultProp()
-    rightValueContent: PolymorpheusContent<TuiContextWithImplicit<number>> = '';
+    rightValueContent: PolymorpheusContent<TuiContextWithImplicit<number>>;
 
     @Input()
     @tuiDefaultProp()
@@ -118,16 +114,14 @@ export class TuiInputRangeComponent
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Inject(TUI_IS_MOBILE)
         private readonly isMobile: boolean,
-        @Inject(TUI_TEXTFIELD_APPEARANCE)
-        readonly appearance: string,
-        @Inject(ElementRef) private readonly elementRef: ElementRef,
+        @Inject(ElementRef) private readonly el: ElementRef,
         @Inject(TUI_TEXTFIELD_WATCHED_CONTROLLER)
         readonly controller: TuiTextfieldController,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get leftFocusableElement(): HTMLInputElement | null {
@@ -145,7 +139,11 @@ export class TuiInputRangeComponent
     }
 
     get focused(): boolean {
-        return tuiIsNativeFocusedIn(this.elementRef.nativeElement);
+        return tuiIsNativeFocusedIn(this.el.nativeElement);
+    }
+
+    get appearance(): string {
+        return this.controller.appearance;
     }
 
     get showLeftValueContent(): boolean {
@@ -273,7 +271,7 @@ export class TuiInputRangeComponent
     }
 
     private safelyUpdateValue(value: [number, number]): void {
-        this.updateValue(this.valueGuard(value));
+        this.value = this.valueGuard(value);
     }
 
     private valueGuard([leftValue, rightValue]: [number, number]): [number, number] {
@@ -304,16 +302,3 @@ export class TuiInputRangeComponent
         }
     }
 }
-
-@Directive({
-    selector: '[tuiTextfieldAppearance]',
-    providers: [
-        {
-            provide: TUI_TEXTFIELD_APPEARANCE,
-            deps: [ElementRef],
-            useFactory: ({nativeElement}: ElementRef) =>
-                nativeElement.getAttribute('tuiTextfieldAppearance'),
-        },
-    ],
-})
-export class TuiTextfieldAppearanceDirective {}

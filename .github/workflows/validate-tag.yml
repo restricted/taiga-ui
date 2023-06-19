@@ -1,5 +1,4 @@
-name: Validate release tag
-
+name: ⚙️ Validate release tag
 on:
   push:
     branches: [main, 'release/*']
@@ -8,7 +7,7 @@ jobs:
   validate-tag:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.5.3
         with:
           fetch-depth: 0
 

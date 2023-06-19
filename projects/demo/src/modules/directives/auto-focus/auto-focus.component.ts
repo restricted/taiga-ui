@@ -5,11 +5,13 @@ import {TuiDocExample} from '@taiga-ui/addon-doc';
 @Component({
     selector: 'example-tui-auto-focus',
     templateUrl: './auto-focus.template.html',
+    styleUrls: ['./auto-focus.component.less'],
     changeDetection,
 })
 export class ExampleTuiAutoFocusComponent {
     readonly exampleModule = import('./examples/import/import-module.md?raw');
     readonly exampleHtml = import('./examples/import/insert-template.md?raw');
+    readonly exampleTs = import('./examples/import/insert-component.md?raw');
 
     readonly example1: TuiDocExample = {
         TypeScript: import('./examples/1/index.ts?raw'),

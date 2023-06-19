@@ -6,9 +6,9 @@ import {interval} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
 @Component({
-    selector: `tui-dropdown-example-3`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-dropdown-example-3',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     providers: [TuiDestroyService],
     changeDetection,
     encapsulation,
@@ -16,16 +16,16 @@ import {takeUntil} from 'rxjs/operators';
 export class TuiDropdownExample3 {
     open = false;
 
-    value = `some data`;
+    value = 'some data';
 
     showBigText = false;
 
     constructor(
         @Self() @Inject(TuiDestroyService) destroy$: TuiDestroyService,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
     ) {
         interval(3000)
-            .pipe(tuiWatch(changeDetectorRef), takeUntil(destroy$))
+            .pipe(tuiWatch(cdr), takeUntil(destroy$))
             .subscribe(() => {
                 this.showBigText = !this.showBigText;
             });

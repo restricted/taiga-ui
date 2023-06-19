@@ -9,7 +9,9 @@ import {TuiSelectOptionComponent} from '@taiga-ui/kit/components/select-option';
     styleUrls: ['./multi-select-option.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TuiMultiSelectOptionComponent<T> extends TuiSelectOptionComponent<T> {
+export class TuiMultiSelectOptionComponent<
+    T extends any[],
+> extends TuiSelectOptionComponent<T> {
     get size(): TuiSizeL {
         return this.option.size === 'l' ||
             (this.dataList?.size === 'l' && !this.option.size)
@@ -22,8 +24,8 @@ export class TuiMultiSelectOptionComponent<T> extends TuiSelectOptionComponent<T
 
         return (
             tuiIsPresent(value) &&
-            tuiIsPresent(this.control.value) &&
-            this.control.value.some((item: T) => this.matcher(item, value))
+            tuiIsPresent(this.value) &&
+            this.value.some(item => this.matcher(item, value))
         );
     }
 }

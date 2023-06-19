@@ -13,7 +13,6 @@ import {
     QueryList,
     TemplateRef,
 } from '@angular/core';
-import {INTERSECTION_ROOT} from '@ng-web-apis/intersection-observer';
 import {
     EMPTY_QUERY,
     TUI_IS_MOBILE,
@@ -26,15 +25,9 @@ import {
 
 @Component({
     selector: 'tui-carousel',
-    templateUrl: 'carousel.template.html',
-    styleUrls: ['carousel.style.less'],
+    templateUrl: './carousel.template.html',
+    styleUrls: ['./carousel.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [
-        {
-            provide: INTERSECTION_ROOT,
-            useExisting: ElementRef,
-        },
-    ],
 })
 export class TuiCarouselComponent {
     private translate = 0;
@@ -62,8 +55,8 @@ export class TuiCarouselComponent {
     transitioned = true;
 
     constructor(
-        @Inject(ChangeDetectorRef) private readonly changeDetectorRef: ChangeDetectorRef,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ChangeDetectorRef) private readonly cdr: ChangeDetectorRef,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
         @Inject(TUI_IS_MOBILE) private readonly isMobile: boolean,
     ) {}
 
@@ -125,7 +118,7 @@ export class TuiCarouselComponent {
             return;
         }
 
-        const {clientWidth} = this.elementRef.nativeElement;
+        const {clientWidth} = this.el.nativeElement;
         const min = 1 - this.items.length / this.itemsCount;
 
         this.translate = tuiClamp(x / clientWidth + this.translate, min, 0);
@@ -154,6 +147,6 @@ export class TuiCarouselComponent {
     private updateIndex(index: number): void {
         this.index = tuiClamp(index, 0, this.items.length - 1);
         this.indexChange.emit(this.index);
-        this.changeDetectorRef.markForCheck();
+        this.cdr.markForCheck();
     }
 }

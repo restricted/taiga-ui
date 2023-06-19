@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
+import {MaskitoModule} from '@maskito/angular';
 import {TuiLetModule, TuiPreventDefaultModule} from '@taiga-ui/cdk';
 import {
     TuiCalendarModule,
@@ -9,18 +10,21 @@ import {
     TuiSvgModule,
     TuiTextfieldComponent,
     TuiTextfieldControllerModule,
+    TuiWrapperModule,
 } from '@taiga-ui/core';
-import {TextMaskModule, TuiValueAccessorModule} from '@taiga-ui/kit/directives';
+import {TuiValueAccessorModule} from '@taiga-ui/kit/directives';
 import {PolymorpheusModule} from '@tinkoff/ng-polymorpheus';
 
 import {TuiInputDateComponent} from './input-date.component';
 import {TuiInputDateDirective} from './input-date.directive';
+import {TuiNativeDateDirective} from './native-date/native-date.component';
 
 @NgModule({
     imports: [
         CommonModule,
-        TextMaskModule,
+        MaskitoModule,
         PolymorpheusModule,
+        TuiWrapperModule,
         TuiPreventDefaultModule,
         TuiCalendarModule,
         TuiSvgModule,
@@ -31,7 +35,7 @@ import {TuiInputDateDirective} from './input-date.directive';
         TuiLetModule,
         TuiTextfieldControllerModule,
     ],
-    declarations: [TuiInputDateComponent, TuiInputDateDirective],
+    declarations: [TuiInputDateComponent, TuiInputDateDirective, TuiNativeDateDirective],
     exports: [TuiInputDateComponent, TuiInputDateDirective, TuiTextfieldComponent],
 })
 export class TuiInputDateModule {}

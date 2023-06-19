@@ -9,16 +9,16 @@ import {
     ViewChild,
 } from '@angular/core';
 import {TUI_IS_MOBILE, tuiDefaultProp, TuiDestroyService} from '@taiga-ui/cdk';
-import {TuiDriver} from '@taiga-ui/core/abstract';
 import {
     TUI_HINT_OPTIONS,
+    TuiHintHoverDirective,
     TuiHintOptions,
     TuiHintOptionsDirective,
 } from '@taiga-ui/core/directives';
 import {MODE_PROVIDER} from '@taiga-ui/core/providers';
 import {TUI_MODE} from '@taiga-ui/core/tokens';
 import {TuiBrightness} from '@taiga-ui/core/types';
-import {EMPTY, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
 @Component({
@@ -32,8 +32,8 @@ import {takeUntil} from 'rxjs/operators';
 export class TuiTooltipComponent extends TuiHintOptionsDirective {
     private mode: TuiBrightness | null = null;
 
-    @ViewChild(TuiDriver)
-    readonly driver$: Observable<boolean> = EMPTY;
+    @ViewChild(TuiHintHoverDirective)
+    readonly driver$?: TuiHintHoverDirective;
 
     @Input()
     @tuiDefaultProp()
@@ -58,11 +58,12 @@ export class TuiTooltipComponent extends TuiHintOptionsDirective {
     }
 
     @HostListener('mousedown', ['$event'])
-    @HostListener('click', ['$event'])
     stopOnMobile(event: MouseEvent): void {
         if (this.isMobile) {
             event.preventDefault();
             event.stopPropagation();
         }
+
+        this.driver$?.toggle();
     }
 }

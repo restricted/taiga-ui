@@ -1,16 +1,36 @@
 {
+    "name": "eslint-plugin",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "root": "projects/eslint-plugin",
     "sourceRoot": "projects/eslint-plugin",
     "projectType": "library",
     "prefix": "tui",
     "implicitDependencies": ["!testing"],
-    "architect": {
+    "targets": {
+        "lint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "eslint --no-error-on-unmatched-pattern \"**/projects/eslint-plugin/**/*\""
+            }
+        },
+        "stylelint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "stylelint \"**/eslint-plugin/**/*.{css,less}\" --allow-empty-input"
+            }
+        },
         "test": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "outputs": ["coverage/i18n"],
             "options": {
-                "command": "jest --testMatch '**/projects/eslint-plugin/**/*.spec.ts'",
+                "command": "jest --testMatch \"**/projects/eslint-plugin/**/*.spec.ts\"",
                 "forwardAllArgs": true
+            }
+        },
+        "publish": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "ts-node ./scripts/publish.ts --path ./projects/eslint-plugin --dry-run {args.dry-run} --customVersion {args.customVersion} --customTag {args.customTag}"
             }
         }
     }

@@ -12,8 +12,8 @@ import {AlertExampleWithCustomLabelComponent} from './alert-example-with-custom-
 import {CustomLabelComponent} from './custom-label/custom-label.component';
 
 @Component({
-    selector: `tui-alerts-example-5`,
-    templateUrl: `./index.html`,
+    selector: 'tui-alerts-example-5',
+    templateUrl: './index.html',
     changeDetection,
     encapsulation,
 })
@@ -22,11 +22,11 @@ export class TuiAlertsExampleComponent5 {
     readonly notificationWithCustomLabel: Observable<void>;
 
     constructor(
-        @Inject(TuiAlertService) alertService: TuiAlertService,
+        @Inject(TuiAlertService) alerts: TuiAlertService,
         @Inject(Router) router: Router,
         @Inject(Injector) private readonly injector: Injector,
     ) {
-        this.notification = alertService
+        this.notification = alerts
             .open(
                 new PolymorpheusComponent(
                     AlertExampleWithCustomLabelComponent,
@@ -35,15 +35,15 @@ export class TuiAlertsExampleComponent5 {
                 {
                     label: ({$implicit}: TuiContextWithImplicit<TuiNotification>) =>
                         $implicit === TuiNotification.Error
-                            ? `Error label from function`
-                            : `Info label from function`,
+                            ? 'Error label from function'
+                            : 'Info label from function',
                     status: TuiNotification.Info,
                     autoClose: false,
                 },
             )
             .pipe(takeUntil(router.events));
 
-        this.notificationWithCustomLabel = alertService
+        this.notificationWithCustomLabel = alerts
             .open(
                 new PolymorpheusComponent(
                     AlertExampleWithCustomLabelComponent,

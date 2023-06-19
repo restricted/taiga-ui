@@ -7,23 +7,23 @@ import {PolymorpheusComponent} from '@tinkoff/ng-polymorpheus';
 import {SearchDialogExampleComponent} from './search-example/search-dialog-example.component';
 
 @Component({
-    selector: `tui-dialog-example-7`,
-    templateUrl: `./index.html`,
+    selector: 'tui-dialog-example-7',
+    templateUrl: './index.html',
     changeDetection,
     encapsulation,
 })
 export class TuiDialogExampleComponent7 {
     constructor(
-        @Inject(TuiDialogService) private readonly dialogService: TuiDialogService,
+        @Inject(TuiDialogService) private readonly dialogs: TuiDialogService,
         @Inject(Injector) private readonly injector: Injector,
     ) {}
 
     showDialog(): void {
-        this.dialogService
+        this.dialogs
             .open(
                 new PolymorpheusComponent(SearchDialogExampleComponent, this.injector),
                 {
-                    size: `page`,
+                    size: 'page',
                     closeable: true,
                     dismissible: true,
                 },

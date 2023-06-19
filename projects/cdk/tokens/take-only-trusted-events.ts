@@ -1,4 +1,5 @@
 import {InjectionToken} from '@angular/core';
+import {ALWAYS_TRUE_HANDLER} from '@taiga-ui/cdk/constants';
 
 /**
  * @description:
@@ -7,9 +8,6 @@ import {InjectionToken} from '@angular/core';
  * modified by a script or dispatched via EventTarget.dispatchEvent().
  */
 export const TUI_TAKE_ONLY_TRUSTED_EVENTS: InjectionToken<boolean> =
-    new InjectionToken<boolean>(
-        `[TUI_TAKE_ONLY_TRUSTED_EVENTS]: This token need for override behavior the \`pressedObservable\` function`,
-        {
-            factory: () => true,
-        },
-    );
+    new InjectionToken<boolean>(`[TUI_TAKE_ONLY_TRUSTED_EVENTS]`, {
+        factory: ALWAYS_TRUE_HANDLER,
+    });

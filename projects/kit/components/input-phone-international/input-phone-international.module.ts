@@ -4,12 +4,14 @@ import {FormsModule} from '@angular/forms';
 import {TuiActiveZoneModule, TuiLetModule, TuiMapperPipeModule} from '@taiga-ui/cdk';
 import {
     TuiDataListModule,
+    TuiFlagPipeModule,
     TuiGroupModule,
     TuiHintModule,
     TuiHostedDropdownModule,
     TuiPrimitiveTextfieldModule,
     TuiSvgModule,
     TuiTextfieldControllerModule,
+    TuiWrapperModule,
 } from '@taiga-ui/core';
 import {TuiArrowModule} from '@taiga-ui/kit/components/arrow';
 import {TuiInputPhoneModule} from '@taiga-ui/kit/components/input-phone';
@@ -31,9 +33,11 @@ import {TuiInputPhoneInternationalComponent} from './input-phone-international.c
         TuiHostedDropdownModule,
         TuiDataListModule,
         TuiArrowModule,
+        TuiWrapperModule,
         TuiLetModule,
         TuiMapperPipeModule,
         TuiActiveZoneModule,
+        TuiFlagPipeModule,
     ],
     declarations: [TuiInputPhoneInternationalComponent],
     exports: [TuiInputPhoneInternationalComponent],

@@ -12,7 +12,7 @@ import {tuiDefaultProp, tuiZonefree} from '@taiga-ui/cdk';
 import {MODE_PROVIDER, TUI_MODE, TuiBrightness} from '@taiga-ui/core';
 import {asCallable} from '@tinkoff/ng-event-plugins';
 import {Observable, of, ReplaySubject} from 'rxjs';
-import {debounceTime, map, mapTo, share, switchMap} from 'rxjs/operators';
+import {debounceTime, map, share, switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'tui-underline',
@@ -25,12 +25,15 @@ import {debounceTime, map, mapTo, share, switchMap} from 'rxjs/operators';
     },
 })
 export class TuiUnderlineComponent {
-    private readonly element$ = new ReplaySubject<HTMLElement | null>(1);
+    private readonly el$ = new ReplaySubject<HTMLElement | null>(1);
 
-    private readonly refresh$ = this.element$.pipe(
+    private readonly refresh$ = this.el$.pipe(
         switchMap(element =>
             element
-                ? this.animationFrame$.pipe(mapTo(element), tuiZonefree(this.ngZone))
+                ? this.animationFrame$.pipe(
+                      map(() => element),
+                      tuiZonefree(this.ngZone),
+                  )
                 : of(null),
         ),
         share(),
@@ -39,12 +42,12 @@ export class TuiUnderlineComponent {
     @Input()
     @tuiDefaultProp()
     set element(element: HTMLElement | null) {
-        this.element$.next(element);
+        this.el$.next(element);
     }
 
     @HostListener('$.style.transitionProperty')
     readonly transition$ = asCallable(
-        this.element$.pipe(
+        this.el$.pipe(
             map(element => element && 'all'),
             debounceTime(50),
         ),

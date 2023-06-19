@@ -5,7 +5,7 @@ import {
     Inject,
     Input,
 } from '@angular/core';
-import {tuiDefaultProp, tuiIsNumber} from '@taiga-ui/cdk';
+import {tuiDefaultProp, tuiIsNumber, tuiIsPresent} from '@taiga-ui/cdk';
 import {
     MODE_PROVIDER,
     TUI_MODE,
@@ -14,7 +14,7 @@ import {
     TuiSizeXS,
 } from '@taiga-ui/core';
 import {TuiStatus} from '@taiga-ui/kit/types';
-import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
+import {PolymorpheusPrimitive} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
 
 @Component({
@@ -29,8 +29,7 @@ import {Observable} from 'rxjs';
 })
 export class TuiBadgeComponent {
     @Input()
-    @tuiDefaultProp()
-    value: PolymorpheusContent = '';
+    value: PolymorpheusPrimitive;
 
     @Input()
     @HostBinding('attr.data-size')
@@ -38,7 +37,7 @@ export class TuiBadgeComponent {
     size: TuiSizeL | TuiSizeXS = 'm';
 
     @Input()
-    @HostBinding('attr.data-tui-host-status')
+    @HostBinding('attr.data-status')
     @tuiDefaultProp()
     status: TuiStatus = 'default';
 
@@ -49,7 +48,7 @@ export class TuiBadgeComponent {
 
     constructor(@Inject(TUI_MODE) readonly mode$: Observable<TuiBrightness | null>) {}
 
-    @HostBinding('attr.data-tui-host-padding')
+    @HostBinding('attr.data-padding')
     get padding(): string {
         if (this.isEmpty) {
             return 'none';
@@ -65,12 +64,12 @@ export class TuiBadgeComponent {
             return '99+';
         }
 
-        return String(this.value);
+        return tuiIsPresent(this.value) ? String(this.value) : '';
     }
 
     @HostBinding('class._empty-value')
     get isEmpty(): boolean {
-        return this.value === '';
+        return !this.value && this.value !== 0;
     }
 
     titleText({offsetWidth, scrollWidth}: HTMLElement): string {

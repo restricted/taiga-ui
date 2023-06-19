@@ -2,31 +2,24 @@ import {DOCUMENT} from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
+    ElementRef,
+    HostBinding,
+    HostListener,
     Inject,
-    InjectionToken,
     Self,
 } from '@angular/core';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
-import {TuiNodeViewNgComponent} from '@taiga-ui/addon-editor/extensions/tiptap-node-view';
-import {TuiDestroyService, tuiTypedFromEvent} from '@taiga-ui/cdk';
-import {merge} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {WINDOW} from '@ng-web-apis/common';
+import {AbstractTuiEditorResizable} from '@taiga-ui/addon-editor/components/editor-resizable';
+import {TuiDestroyService} from '@taiga-ui/cdk';
 
-import type {TuiEditableImage} from './image-editor.extension';
-
-export const TUI_EDITOR_MIN_IMAGE_WIDTH = new InjectionToken<number>(
-    '[TUI_EDITOR_MIN_IMAGE_WIDTH]: Min size of resizable image inside editor',
-    {
-        factory: () => 100,
-    },
-);
-
-export const TUI_EDITOR_MAX_IMAGE_WIDTH = new InjectionToken<number>(
-    '[TUI_EDITOR_MAX_IMAGE_WIDTH]: Max size of resizable image inside editor',
-    {
-        factory: () => Infinity,
-    },
-);
+import {
+    TUI_EDITOR_MAX_IMAGE_WIDTH,
+    TUI_EDITOR_MIN_IMAGE_WIDTH,
+    TUI_IMAGE_EDITOR_OPTIONS,
+    TuiEditableImage,
+    TuiImageEditorOptions,
+} from './image-editor.options';
 
 @Component({
     selector: 'tui-image-editor',
@@ -35,19 +28,19 @@ export const TUI_EDITOR_MAX_IMAGE_WIDTH = new InjectionToken<number>(
     providers: [TuiDestroyService],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TuiImageEditorComponent extends TuiNodeViewNgComponent {
-    private _width = 0;
+export class TuiImageEditorComponent extends AbstractTuiEditorResizable<TuiEditableImage> {
+    @HostBinding('attr.contenteditable')
+    contenteditable = true;
 
-    get attrs(): TuiEditableImage {
-        return (this.node?.attrs as TuiEditableImage) || {src: ''};
+    focused = false;
+
+    @HostBinding('attr.data-drag-handle')
+    get dragHandle(): '' | null {
+        return this.attrs.draggable ?? null;
     }
 
-    get src(): SafeResourceUrl {
-        return this.sanitizer.bypassSecurityTrustResourceUrl(this.attrs.src);
-    }
-
-    get width(): number {
-        return this._width || this.attrs.width || 0;
+    override get height(): number | string | null {
+        return null;
     }
 
     get alt(): string {
@@ -58,29 +51,48 @@ export class TuiImageEditorComponent extends TuiNodeViewNgComponent {
         return this.attrs.title || '';
     }
 
+    get src(): SafeResourceUrl {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(this.attrs.src);
+    }
+
     constructor(
-        @Inject(TUI_EDITOR_MIN_IMAGE_WIDTH) readonly minWidth: number,
-        @Inject(TUI_EDITOR_MAX_IMAGE_WIDTH) readonly maxWidth: number,
-        @Inject(DOCUMENT) readonly documentRef: Document,
+        @Inject(TUI_EDITOR_MIN_IMAGE_WIDTH) readonly minWidth: number | null,
+        @Inject(TUI_EDITOR_MAX_IMAGE_WIDTH) readonly maxWidth: number | null,
+        @Inject(TUI_IMAGE_EDITOR_OPTIONS) readonly options: TuiImageEditorOptions,
+        @Inject(DOCUMENT) doc: Document,
         @Inject(DomSanitizer) private readonly sanitizer: DomSanitizer,
         @Self()
         @Inject(TuiDestroyService)
-        readonly destroy$: TuiDestroyService,
+        destroy$: TuiDestroyService,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLDivElement>,
+        @Inject(WINDOW) private readonly win: Window,
     ) {
-        super();
-
-        merge(
-            tuiTypedFromEvent(this.documentRef, 'touchend'),
-            tuiTypedFromEvent(this.documentRef, 'mouseup'),
-        )
-            .pipe(takeUntil(destroy$))
-            .subscribe(() => this.updateAttributes({width: this.width}));
+        super(doc, destroy$);
     }
 
-    onHorizontalDrag([x]: readonly [number, number], direction: number): void {
-        this._width = Math.max(
-            this.minWidth,
-            Math.min(this.maxWidth, this.width + direction * x),
-        );
+    @HostListener('document:click.silent', ['$event.target'])
+    currentTargetIsFocused(node: Node): void {
+        this.focused = this.el.nativeElement.contains(node);
+
+        if (this.focused) {
+            this.selectFakeText();
+        }
+    }
+
+    updateSize([width]: readonly [width: number, height: number]): void {
+        const minWidth = this.minWidth ?? this.options.minWidth;
+        const maxWidth = this.maxWidth ?? this.options.maxWidth;
+
+        this._width = Math.max(minWidth, Math.min(maxWidth, width));
+    }
+
+    private selectFakeText(): void {
+        const range = this.doc.createRange();
+
+        this.el.nativeElement.querySelector('p')?.focus();
+
+        range.selectNode(this.el.nativeElement);
+        this.win.getSelection()?.removeAllRanges();
+        this.win.getSelection()?.addRange(range);
     }
 }

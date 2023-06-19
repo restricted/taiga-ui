@@ -4,6 +4,7 @@ import {
     Inject,
     InjectFlags,
     Injector,
+    OnInit,
     Self,
     ViewEncapsulation,
 } from '@angular/core';
@@ -37,7 +38,7 @@ import {TuiVersionMeta} from './version-manager/versions.constants';
     encapsulation: ViewEncapsulation.None,
     changeDetection,
 })
-export class AppComponent extends AbstractDemoComponent {
+export class AppComponent extends AbstractDemoComponent implements OnInit {
     readonly isLanding$ = this.router.events.pipe(
         map(() => this.router.routerState.snapshot.url === '/'),
         distinctUntilChanged(),
@@ -46,15 +47,15 @@ export class AppComponent extends AbstractDemoComponent {
     constructor(
         @Inject(TUI_IS_CYPRESS) isCypress: boolean,
         @Inject(TUI_DOC_PAGE_LOADED) pageLoaded$: Observable<boolean>,
-        @Inject(TUI_SELECTED_VERSION_META) versionMeta: TuiVersionMeta | null,
+        @Inject(TUI_SELECTED_VERSION_META) selectedVersion: TuiVersionMeta | null,
         @Inject(Router) protected readonly router: Router,
         @Inject(LOCAL_STORAGE) protected readonly storage: Storage,
         @Self() @Inject(TuiDestroyService) private readonly destroy$: Observable<void>,
         @Inject(Injector) private readonly injector: Injector,
-        @Inject(DOCUMENT) private readonly documentRef: Document,
+        @Inject(DOCUMENT) private readonly doc: Document,
         @Inject(APP_BASE_HREF) private readonly appBaseHref: string,
     ) {
-        super(isCypress, pageLoaded$, versionMeta);
+        super(isCypress, pageLoaded$, selectedVersion);
     }
 
     override async ngOnInit(): Promise<void> {
@@ -64,7 +65,7 @@ export class AppComponent extends AbstractDemoComponent {
     }
 
     private enableYandexMetrika(): void {
-        if (!environment.production || this.isCypress) {
+        if (ngDevMode && (!environment.production || this.isCypress)) {
             console.info('Yandex.Metrika disabled for non-production mode.');
 
             return;
@@ -85,7 +86,7 @@ export class AppComponent extends AbstractDemoComponent {
                     metrika?.hit(event.urlAfterRedirects, {referer: event.url});
                 });
         } catch {
-            console.error('You forgot to import MetrikaModule!');
+            ngDevMode && console.error('You forgot to import MetrikaModule!');
         }
     }
 
@@ -95,13 +96,13 @@ export class AppComponent extends AbstractDemoComponent {
      * we use fallback for correct processing of routing
      */
     private setBaseHrefIfNotPresent(): void {
-        if (this.documentRef.getElementsByTagName('base')?.[0]?.href) {
+        if (this.doc.getElementsByTagName('base')?.[0]?.href) {
             return;
         }
 
-        const base = this.documentRef.createElement('base');
+        const base = this.doc.createElement('base');
 
         base.href = this.appBaseHref;
-        this.documentRef.getElementsByTagName('head')?.[0]?.appendChild(base);
+        this.doc.getElementsByTagName('head')?.[0]?.appendChild(base);
     }
 }

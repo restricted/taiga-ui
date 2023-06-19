@@ -32,20 +32,18 @@ export abstract class AbstractTuiDataListWrapper<T> {
         this.itemsHandlers.disabledItemHandler;
 
     @Input()
-    @tuiDefaultProp()
-    emptyContent: PolymorpheusContent = ``;
+    emptyContent: PolymorpheusContent;
 
     @Input()
     @tuiDefaultProp()
     size: TuiSizeL | TuiSizeXS = this.defaultSize;
 
-    protected constructor(
+    constructor(
         protected readonly itemsHandlers: TuiItemsHandlers<T>,
         protected readonly defaultSize: TuiSizeL | TuiSizeXS,
     ) {}
 
     @Input()
-    @tuiDefaultProp()
     itemContent: PolymorpheusContent<TuiValueContentContext<T>> = ({$implicit}) =>
         this.itemsHandlers.stringify($implicit);
 

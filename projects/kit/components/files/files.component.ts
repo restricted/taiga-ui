@@ -2,13 +2,15 @@ import {
     ChangeDetectionStrategy,
     Component,
     ContentChildren,
+    EventEmitter,
     Inject,
     Input,
+    Output,
     QueryList,
     TemplateRef,
     ViewEncapsulation,
 } from '@angular/core';
-import {tuiDefaultProp, TuiItemDirective} from '@taiga-ui/cdk';
+import {EMPTY_QUERY, tuiDefaultProp, TuiItemDirective} from '@taiga-ui/cdk';
 import {TUI_HIDE_TEXT, TUI_SHOW_ALL_TEXT} from '@taiga-ui/kit/tokens';
 import {Observable} from 'rxjs';
 
@@ -21,13 +23,17 @@ import {Observable} from 'rxjs';
 })
 export class TuiFilesComponent {
     @ContentChildren(TuiItemDirective, {read: TemplateRef})
-    readonly items: QueryList<TemplateRef<Record<string, unknown>>> | null = null;
+    readonly items: QueryList<TemplateRef<Record<string, unknown>>> = EMPTY_QUERY;
 
     @Input()
     @tuiDefaultProp()
     max = 0;
 
-    hidden = true;
+    @Input()
+    expanded = false;
+
+    @Output()
+    readonly expandedChange = new EventEmitter<boolean>();
 
     constructor(
         @Inject(TUI_HIDE_TEXT) readonly hideText$: Observable<string>,
@@ -35,10 +41,11 @@ export class TuiFilesComponent {
     ) {}
 
     get hasExtraItems(): boolean {
-        return !!this.max && (this.items?.length || 0) > this.max;
+        return !!this.max && this.items.length > this.max;
     }
 
     toggle(): void {
-        this.hidden = !this.hidden;
+        this.expanded = !this.expanded;
+        this.expandedChange.emit(this.expanded);
     }
 }

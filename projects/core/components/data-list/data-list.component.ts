@@ -18,9 +18,9 @@ import {
     tuiIsElement,
     tuiIsNativeFocusedIn,
     tuiIsPresent,
-    tuiItemsQueryListObservable,
     tuiMoveFocus,
     tuiPure,
+    tuiQueryListChanges,
     tuiSetNativeMouseFocused,
 } from '@taiga-ui/cdk';
 import {
@@ -35,8 +35,6 @@ import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiOptionComponent} from './option/option.component';
 
 // TODO: Consider aria-activedescendant for proper accessibility implementation
@@ -63,8 +61,7 @@ export class TuiDataListComponent<T> implements TuiDataListAccessor<T> {
     role: TuiDataListRole = 'listbox';
 
     @Input()
-    @tuiDefaultProp()
-    emptyContent: PolymorpheusContent = '';
+    emptyContent: PolymorpheusContent;
 
     @Input()
     @HostBinding('attr.data-list-size')
@@ -75,14 +72,14 @@ export class TuiDataListComponent<T> implements TuiDataListAccessor<T> {
         @Optional()
         @Inject(TUI_TEXTFIELD_WATCHED_CONTROLLER)
         private readonly controller: TuiTextfieldController | null,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
         @Inject(TUI_NOTHING_FOUND_MESSAGE)
         readonly defaultEmptyContent$: Observable<string>,
     ) {}
 
     @tuiPure
     get empty$(): Observable<boolean> {
-        return tuiItemsQueryListObservable(this.options).pipe(map(({length}) => !length));
+        return tuiQueryListChanges(this.options).pipe(map(({length}) => !length));
     }
 
     @HostListener('focusin', ['$event.relatedTarget', '$event.currentTarget'])
@@ -106,7 +103,7 @@ export class TuiDataListComponent<T> implements TuiDataListAccessor<T> {
     // TODO: Consider aria-activedescendant for proper accessibility implementation
     @HostListener('wheel.silent.passive')
     @HostListener('mouseleave', ['$event.target'])
-    handleFocusLossIfNecessary(element: Element = this.elementRef.nativeElement): void {
+    handleFocusLossIfNecessary(element: Element = this.el.nativeElement): void {
         if (this.origin && tuiIsNativeFocusedIn(element)) {
             tuiSetNativeMouseFocused(this.origin, true, true);
         }
@@ -131,6 +128,6 @@ export class TuiDataListComponent<T> implements TuiDataListAccessor<T> {
     }
 
     private get elements(): readonly HTMLElement[] {
-        return Array.from(this.elementRef.nativeElement.querySelectorAll('[tuiOption]'));
+        return Array.from(this.el.nativeElement.querySelectorAll('[tuiOption]'));
     }
 }

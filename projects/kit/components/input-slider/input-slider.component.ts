@@ -93,8 +93,7 @@ export class TuiInputSliderComponent
     keySteps: TuiKeySteps | null = null;
 
     @Input()
-    @tuiDefaultProp()
-    valueContent: PolymorpheusContent<TuiContextWithImplicit<number>> = '';
+    valueContent: PolymorpheusContent<TuiContextWithImplicit<number>>;
 
     /** @deprecated use `tuiTextfieldPrefix` from {@link TuiTextfieldControllerModule} instead */
     @Input('prefix')
@@ -111,11 +110,11 @@ export class TuiInputSliderComponent
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Inject(TUI_TEXTFIELD_WATCHED_CONTROLLER)
         readonly controller: TuiTextfieldController,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get prefix(): string {
@@ -178,7 +177,7 @@ export class TuiInputSliderComponent
     }
 
     safelyUpdateValue(value: number | null): void {
-        this.updateValue(this.valueGuard(value ?? this.safeCurrentValue));
+        this.value = this.valueGuard(value ?? this.safeCurrentValue);
     }
 
     onVerticalArrowKeyDown(coefficient: number): void {

@@ -20,8 +20,7 @@ export function tuiCreateAutoCorrectedNumberPipe(
     allowNegative?: boolean,
     isIOS = false,
 ): TuiTextMaskPipeHandler {
-    tuiAssert.assert(Number.isInteger(decimalLimit));
-    tuiAssert.assert(decimalLimit >= 0);
+    ngDevMode && tuiAssert.assert(decimalLimit >= 0);
 
     // Guess for which browser I need this :)
     let previousCaret = -1;
@@ -71,7 +70,7 @@ export function tuiCreateAutoCorrectedNumberPipe(
             });
         }
 
-        if (conformedValue === `` || !decimalLimit) {
+        if (conformedValue === `` || !decimalLimit || !Number.isInteger(decimalLimit)) {
             return {value: conformedValue};
         }
 

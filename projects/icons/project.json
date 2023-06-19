@@ -1,18 +1,40 @@
 {
+    "name": "icons",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "root": "projects/icons",
     "sourceRoot": "projects/icons/src",
     "projectType": "library",
     "prefix": "tui",
     "implicitDependencies": ["!testing"],
-    "architect": {
-        "preprocess": {
-            "builder": "@nrwl/workspace:run-commands",
+    "targets": {
+        "lint": {
+            "executor": "nx:run-commands",
             "options": {
-                "command": "ts-node ./scripts/preprocess-icons.ts"
+                "command": "eslint --no-error-on-unmatched-pattern \"**/projects/icons/**/*\""
+            }
+        },
+        "stylelint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "stylelint \"**/icons/**/*.{css,less}\" --allow-empty-input"
+            }
+        },
+        "build": {
+            "executor": "@angular-devkit/build-angular:ng-packagr",
+            "outputs": ["dist/icons"],
+            "options": {
+                "tsConfig": "tsconfig.build.json",
+                "project": "projects/icons/ng-package.json"
+            }
+        },
+        "preprocess": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "ts-node ./projects/icons/scripts/prepare-feather-icons.ts && ts-node ./scripts/preprocess-icons.ts"
             }
         },
         "prebuild": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "command": "ts-node ./scripts/compile-icons.ts"
             },
@@ -24,31 +46,16 @@
                 }
             ]
         },
-        "build": {
-            "builder": "@angular-devkit/build-angular:ng-packagr",
-            "outputs": ["dist/icons"],
-            "options": {
-                "tsConfig": "tsconfig.build.json",
-                "project": "projects/icons/ng-package.json"
-            },
-            "dependsOn": [
-                {
-                    "target": "prebuild",
-                    "projects": "self",
-                    "params": "forward"
-                }
-            ]
-        },
         "test": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "outputs": ["coverage/icons"],
             "options": {
-                "command": "jest --testMatch '**/projects/icons/**/*.spec.ts'",
+                "command": "jest --testMatch \"**/projects/icons/**/*.spec.ts\"",
                 "forwardAllArgs": true
             }
         },
         "publish": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "command": "ts-node ./scripts/publish.ts --path ./dist/icons --dry-run {args.dry-run} --customVersion {args.customVersion} --customTag {args.customTag}"
             }

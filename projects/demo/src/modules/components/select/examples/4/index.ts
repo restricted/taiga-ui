@@ -5,32 +5,32 @@ import {TuiAlertService} from '@taiga-ui/core';
 import {TuiSelectComponent} from '@taiga-ui/kit';
 
 @Component({
-    selector: `tui-select-example-4`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-select-example-4',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
 export class TuiSelectExample4 {
     readonly pythons = [
-        `de la Concordia «Gabo» García Márquez`,
-        `John Cleese`,
-        `Eric Idle`,
-        `Michael Palin`,
-        `Terry Gilliam`,
-        `Terry Jones`,
-        `Graham Chapman`,
+        'de la Concordia «Gabo» García Márquez',
+        'John Cleese',
+        'Eric Idle',
+        'Michael Palin',
+        'Terry Gilliam',
+        'Terry Jones',
+        'Graham Chapman',
     ];
 
     value = this.pythons[0];
 
     constructor(
         @Inject(TuiAlertService)
-        private readonly alertService: TuiAlertService,
+        private readonly alerts: TuiAlertService,
     ) {}
 
     addMore(select: TuiSelectComponent<unknown>): void {
         select.handleOption(select.value);
-        this.alertService.open(`Add more is clicked`).subscribe();
+        this.alerts.open('Add more is clicked').subscribe();
     }
 }

@@ -11,11 +11,13 @@ import {from, of, Subject} from 'rxjs';
 import {concatMap, delay, takeUntil} from 'rxjs/operators';
 
 @Directive({selector: '[tuiForAsync][tuiForAsyncOf]'})
-export class TuiForAsyncDirective<T> implements OnChanges, OnDestroy {
+export class TuiForAsyncDirective<T extends readonly any[]>
+    implements OnChanges, OnDestroy
+{
     private readonly destroy$ = new Subject<void>();
 
     @Input()
-    tuiForAsyncOf: readonly T[] | null | undefined;
+    tuiForAsyncOf: T | null | undefined;
 
     @Input()
     tuiForAsyncTimeout = 10;
@@ -36,16 +38,26 @@ export class TuiForAsyncDirective<T> implements OnChanges, OnDestroy {
     }
 
     private createAsyncViewForNewNodes(): void {
-        from((this.tuiForAsyncOf || []).entries())
+        from(this.iterableValues)
             .pipe(
-                concatMap(entry => of(entry).pipe(delay(this.tuiForAsyncTimeout))),
+                concatMap(entry =>
+                    this.tuiForAsyncTimeout > 0
+                        ? of(entry).pipe(delay(this.tuiForAsyncTimeout))
+                        : of(entry),
+                ),
                 takeUntil(this.destroy$),
             )
-            .subscribe(([index, item]) =>
-                this.view
-                    .createEmbeddedView(this.template, {$implicit: item, index}, index)
-                    .detectChanges(),
-            );
+            .subscribe(([index, item]) => this.createEmbeddedView(item, index));
+    }
+
+    private get iterableValues(): IterableIterator<[number, T]> {
+        return (this.tuiForAsyncOf ?? []).entries();
+    }
+
+    private createEmbeddedView<T>(item: T, index: number): void {
+        this.view
+            .createEmbeddedView(this.template, {$implicit: item, index}, index)
+            .detectChanges();
     }
 
     private clearViewForOldNodes(): void {

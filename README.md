@@ -1,13 +1,16 @@
 # <img src="projects/demo/src/assets/images/taiga.svg" alt="taiga ui logo" width="48px"> Taiga UI
 
 [![npm version](https://img.shields.io/npm/v/@taiga-ui/cdk.svg)](https://npmjs.com/package/@taiga-ui/cdk)
+[![codecov](https://codecov.io/gh/tinkoff/taiga-ui/branch/main/graphs/badge.svg)](https://app.codecov.io/gh/Tinkoff/taiga-ui/tree/main/projects)
 [![All packages CI](https://github.com/tinkoff/taiga-ui/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/tinkoff/taiga-ui/actions/workflows/build.yml)
+[![Deploy](https://github.com/tinkoff/taiga-ui/actions/workflows/deploy-gh-pages.yml/badge.svg?branch=main)](https://github.com/tinkoff/taiga-ui/actions/workflows/deploy-gh-pages.yml)
+[![Downloads per month](https://img.shields.io/npm/dm/@taiga-ui/cdk?color=dark-green)](https://www.npmjs.com/package/@taiga-ui/cdk)
 [![Discord](https://img.shields.io/discord/748677963142135818?color=7289DA&label=%23taiga-ui&logo=discord&logoColor=white)](https://discord.gg/Us8d8JVaTg)
 [![angular-open-source-starter](https://img.shields.io/badge/made%20with-angular--open--source--starter-d81676?logo=angular)](https://github.com/tinkoff/angular-open-source-starter)
 [![Codeflow](https://img.shields.io/badge/codeflow-pr.new-blue)](https://pr.new/github.com/tinkoff/taiga-ui)
 
 [Website](https://taiga-ui.dev) • [Documentation](https://taiga-ui.dev/getting-started) • [Core team](#core-team) •
-[Figma](https://www.figma.com/community/file/966347242613098831)
+[Figma](https://www.figma.com/community/file/1220308188005380608)
 
 **Taiga UI** is fully-treeshakable Angular UI Kit consisting of multiple base libraries and several add-ons.
 
@@ -41,8 +44,8 @@ See our [Getting started](https://taiga-ui.dev/getting-started) page to start wo
 
 You can also use our [StackBlitz starter](https://taiga-ui.dev/stackblitz) to create a quick sample with Taiga UI
 
-🎨 Check out [Taiga UI Figma library](https://www.figma.com/community/file/966347242613098831/Taiga-UI) which you can
-use to design your app with Taiga UI components.
+🎨 Check out [Taiga UI Figma library](https://www.figma.com/community/file/1220308188005380608) which you can use to
+design your app with Taiga UI components.
 
 ## Community
 
@@ -71,11 +74,11 @@ See our [CONTRIBUTING.md](/CONTRIBUTING.md) guide. Try to
        <td align="center">
             <a href="https://twitter.com/waterplea"
                 ><img
-                    src="https://github.com/waterplea.png?size=100"
+                    src="https://github.com/waterplea.png?size=200"
                     width="100"
                     style="margin-bottom: -4px; border-radius: 8px;"
                     alt="Alex Inkin"
-                /><br /><b>Alex Inkin</b></a
+                /><br /><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Alex&nbsp;Inkin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></a
             >
             <div style="margin-top: 4px">
                 <a
@@ -102,11 +105,11 @@ See our [CONTRIBUTING.md](/CONTRIBUTING.md) guide. Try to
         <td align="center">
             <a href="http://marsibarsi.me"
                 ><img
-                    src="https://github.com/marsibarsi.png?size=100"
+                    src="https://github.com/marsibarsi.png?size=200"
                     width="100"
                     style="margin-bottom: -4px; border-radius: 8px;"
                     alt="Roman Sedov"
-                /><br /><b>Roman Sedov</b></a
+                /><br /><b>&nbsp;Roman&nbsp;Sedov&nbsp;</b></a
             >
             <div style="margin-top: 4px">
                 <a
@@ -135,11 +138,11 @@ See our [CONTRIBUTING.md](/CONTRIBUTING.md) guide. Try to
         <td align="center">
             <a href="https://github.com/vladimirpotekhin"
                 ><img
-                    src="./.github/team/vova.jpg"
+                    src="https://github.com/vladimirpotekhin.png?size=200"
                     width="100"
                     style="margin-bottom: -4px; border-radius: 8px;"
                     alt="Vladimir Potekhin"
-                /><br /><b>Vladimir Potekhin</b></a
+                /><br /><b>Vladimir&nbsp;Potekhin</b></a
             >
             <div style="margin-top: 4px">
                 <a
@@ -168,13 +171,20 @@ See our [CONTRIBUTING.md](/CONTRIBUTING.md) guide. Try to
         <td align="center">
             <a href="https://www.linkedin.com/in/nsbarsukov/"
                 ><img
-                    src="./.github/team/nikita.jpg"
+                    src="https://github.com/nsbarsukov.png?size=200"
                     width="100"
                     style="margin-bottom: -4px; border-radius: 8px;"
                     alt="Nikita Barsukov"
-                /><br /><b>Nikita Barsukov</b></a
+                /><br /><b>Nikita&nbsp;Barsukov</b></a
             >
             <div style="margin-top: 4px">
+                <a
+                    href="https://twitter.com/nsbarsukov"
+                    title="Twitter"
+                    ><img
+                        width="16"
+                        src="https://raw.githubusercontent.com/MarsiBarsi/readme-icons/main/twitter.svg"
+                /></a>
                 <a
                     href="https://github.com/nsbarsukov"
                     title="GitHub"
@@ -184,6 +194,39 @@ See our [CONTRIBUTING.md](/CONTRIBUTING.md) guide. Try to
                 /></a>
                 <a
                     href="https://t.me/nsbarsukov"
+                    title="Telegram"
+                    ><img
+                        width="16"
+                        src="https://raw.githubusercontent.com/MarsiBarsi/readme-icons/main/send.svg"
+                /></a>
+            </div>
+        </td>
+        <td align="center">
+            <a href="https://github.com/splincode"
+                ><img
+                    src="https://github.com/splincode.png?size=200"
+                    width="100"
+                    style="margin-bottom: -4px; border-radius: 8px;"
+                    alt="Maksim Ivanov"
+                /><br /><b>Maksim&nbsp;Ivanov</b></a
+            >
+            <div style="margin-top: 4px">
+                <a
+                    href="https://twitter.com/splincodewd"
+                    title="Twitter"
+                    ><img
+                        width="16"
+                        src="https://raw.githubusercontent.com/MarsiBarsi/readme-icons/main/twitter.svg"
+                /></a>
+                <a
+                    href="https://github.com/splincode"
+                    title="GitHub"
+                    ><img
+                        width="16"
+                        src="https://raw.githubusercontent.com/MarsiBarsi/readme-icons/main/github.svg"
+                /></a>
+                <a
+                    href="https://t.me/splincode"
                     title="Telegram"
                     ><img
                         width="16"

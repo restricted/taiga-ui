@@ -18,8 +18,8 @@ import {Observable} from 'rxjs';
 export const STATUS_ICON = {
     info: 'tuiIconInfo',
     success: 'tuiIconCheckCircle',
-    error: 'tuiIconCancel',
-    warning: 'tuiIconAttention',
+    error: 'tuiIconXCircle',
+    warning: 'tuiIconAlertCircle',
 } as const;
 
 @Component({
@@ -35,11 +35,16 @@ export class TuiNotificationComponent {
     hasIcon = this.options.hasIcon;
 
     @Input()
-    @HostBinding('attr.data-tui-host-status')
+    @HostBinding('attr.data-status')
     @tuiDefaultProp()
     status: 'error' | 'info' | 'success' | 'warning' = this.options.status;
 
+    @Input()
+    @tuiDefaultProp()
+    hideClose = false;
+
     @Output()
+    // eslint-disable-next-line @angular-eslint/no-output-native
     readonly close = new EventEmitter<void>();
 
     constructor(
@@ -54,6 +59,6 @@ export class TuiNotificationComponent {
 
     @HostBinding('class._has-close-button')
     get hasClose(): boolean {
-        return tuiIsObserved(this.close);
+        return !this.hideClose && tuiIsObserved(this.close);
     }
 }

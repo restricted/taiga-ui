@@ -5,26 +5,26 @@ import {TuiPreviewDialogService} from '@taiga-ui/addon-preview';
 import {tuiIsPresent} from '@taiga-ui/cdk';
 import {TuiDialogContext} from '@taiga-ui/core';
 import {BehaviorSubject, Observable, of, timer} from 'rxjs';
-import {filter, map, mapTo, startWith, switchMap} from 'rxjs/operators';
+import {filter, map, startWith, switchMap} from 'rxjs/operators';
 
 @Component({
-    selector: `tui-preview-example-3`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-preview-example-3',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
 export class TuiPreviewExample3 {
-    @ViewChild(`preview`)
-    readonly preview?: TemplateRef<TuiDialogContext<void>>;
+    @ViewChild('preview')
+    readonly preview?: TemplateRef<TuiDialogContext>;
 
     readonly items = [
         {
-            title: `some table.xlsx`,
+            title: 'some table.xlsx',
             hasPreview: false,
         },
         {
-            title: `Content #2`,
+            title: 'Content #2',
             hasPreview: true,
         },
     ];
@@ -42,11 +42,11 @@ export class TuiPreviewExample3 {
 
     readonly imageSrc$ = this.item$.pipe(
         switchMap(item =>
-            item.hasPreview ? this.emulateBackendRequest().pipe(startWith(``)) : of(null),
+            item.hasPreview ? this.emulateBackendRequest().pipe(startWith('')) : of(null),
         ),
     );
 
-    readonly loading$ = this.imageSrc$.pipe(map(src => src === ``));
+    readonly loading$ = this.imageSrc$.pipe(map(src => src === ''));
 
     constructor(
         @Inject(TuiPreviewDialogService)
@@ -54,16 +54,16 @@ export class TuiPreviewExample3 {
     ) {}
 
     show(): void {
-        this.previewDialogService.open(this.preview || ``).subscribe();
+        this.previewDialogService.open(this.preview || '').subscribe();
     }
 
     download(): void {
-        console.info(`downloading...`);
+        console.info('downloading...');
     }
 
     emulateBackendRequest(): Observable<string> {
         return timer(1500).pipe(
-            mapTo(`https://ng-web-apis.github.io/dist/assets/images/web-api.svg`),
+            map(() => 'https://ng-web-apis.github.io/dist/assets/images/web-api.svg'),
         );
     }
 }

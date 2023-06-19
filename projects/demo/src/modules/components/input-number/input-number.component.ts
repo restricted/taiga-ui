@@ -33,6 +33,7 @@ export class ExampleTuiInputNumberComponent extends AbstractExampleTuiControl {
     readonly example2: TuiDocExample = {
         HTML: import('./examples/2/index.html?raw'),
         TypeScript: import('./examples/2/index.ts?raw'),
+        LESS: import('./examples/2/index.less?raw'),
     };
 
     readonly example3: TuiDocExample = {
@@ -49,6 +50,11 @@ export class ExampleTuiInputNumberComponent extends AbstractExampleTuiControl {
     readonly example5: TuiDocExample = {
         TypeScript: import('./examples/5/index.ts?raw'),
         HTML: import('./examples/5/index.html?raw'),
+    };
+
+    readonly example6: TuiDocExample = {
+        TypeScript: import('./examples/6/index.ts?raw'),
+        HTML: import('./examples/6/index.html?raw'),
     };
 
     readonly minVariants: readonly number[] = [-Infinity, -500, 5, 25];
@@ -72,9 +78,11 @@ export class ExampleTuiInputNumberComponent extends AbstractExampleTuiControl {
 
     override cleaner = false;
 
-    readonly precisionVariants: readonly number[] = [2, 3, 4];
+    readonly precisionVariants: readonly number[] = [2, 3, 4, Infinity];
 
     precision = this.precisionVariants[0];
 
     readonly control = new FormControl(6432, Validators.required);
+
+    step = 0;
 }

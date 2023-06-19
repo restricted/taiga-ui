@@ -2,6 +2,7 @@ import {Component, Inject} from '@angular/core';
 import {changeDetection} from '@demo/emulate/change-detection';
 import {encapsulation} from '@demo/emulate/encapsulation';
 import {
+    TUI_IS_CYPRESS,
     TuiDay,
     TuiDayLike,
     TuiDayRange,
@@ -14,9 +15,9 @@ import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 @Component({
-    selector: `tui-line-days-chart-example-1`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-line-days-chart-example-1',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
@@ -38,6 +39,7 @@ export class TuiLineDaysChartExample1 {
 
     constructor(
         @Inject(TUI_MONTHS) private readonly months$: Observable<readonly string[]>,
+        @Inject(TUI_IS_CYPRESS) readonly isCypress: boolean,
     ) {}
 
     get value(): ReadonlyArray<[TuiDay, number]> {
@@ -57,7 +59,7 @@ export class TuiLineDaysChartExample1 {
     }
 
     readonly yStringify: TuiStringHandler<number> = y =>
-        `${(10 * y).toLocaleString(`en-US`, {maximumFractionDigits: 0})} $`;
+        `${(10 * y).toLocaleString('en-US', {maximumFractionDigits: 0})} $`;
 
     @tuiPure
     private computeValue({from, to}: TuiDayRange): ReadonlyArray<[TuiDay, number]> {
@@ -68,7 +70,9 @@ export class TuiLineDaysChartExample1 {
                     ...array,
                     [
                         from.append({day: i}),
-                        (i ? array[i - 1][1] : 100) + Math.random() * 10 - 5,
+                        this.isCypress
+                            ? 100
+                            : (i ? array[i - 1][1] : 100) + Math.random() * 10 - 5,
                     ],
                 ],
                 [],

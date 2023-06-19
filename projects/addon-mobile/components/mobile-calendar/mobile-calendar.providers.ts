@@ -13,9 +13,13 @@ import {takeUntil} from 'rxjs/operators';
 
 import {TuiMobileCalendarStrategy} from './mobile-calendar.strategy';
 
+/**
+ * Stream for updating value
+ */
 export const TUI_VALUE_STREAM = new InjectionToken<Observable<TuiDayRange | null>>(
-    `[TUI_VALUE_STREAM]: Stream for updating value`,
+    `[TUI_VALUE_STREAM]`,
 );
+
 export const TUI_MOBILE_CALENDAR_PROVIDERS: Provider[] = [
     TuiDestroyService,
     TuiScrollService,
@@ -34,12 +38,9 @@ export const TUI_MOBILE_CALENDAR_PROVIDERS: Provider[] = [
         useFactory: (
             value$: Observable<TuiDayRange | null> | null,
             destroy$: Observable<void>,
-            changeDetectorRef: ChangeDetectorRef,
+            cdr: ChangeDetectorRef,
         ): Observable<TuiDayRange | null> => {
-            return (value$ || EMPTY).pipe(
-                tuiWatch(changeDetectorRef),
-                takeUntil(destroy$),
-            );
+            return (value$ || EMPTY).pipe(tuiWatch(cdr), takeUntil(destroy$));
         },
     },
 ];

@@ -1,5 +1,5 @@
 import {
-    AfterContentInit,
+    AfterViewInit,
     ContentChildren,
     Directive,
     ElementRef,
@@ -15,26 +15,31 @@ import {TuiLineChartHintContext} from '@taiga-ui/addon-charts/interfaces';
 import {
     EMPTY_QUERY,
     TuiContextWithImplicit,
-    tuiDefaultProp,
     TuiDestroyService,
     TuiHoveredService,
     tuiPure,
+    tuiQueryListChanges,
     tuiZonefree,
 } from '@taiga-ui/cdk';
 import {TuiPoint} from '@taiga-ui/core';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {combineLatest, Observable} from 'rxjs';
-import {distinctUntilChanged, filter, map, startWith, takeUntil} from 'rxjs/operators';
+import {
+    distinctUntilChanged,
+    filter,
+    map,
+    startWith,
+    switchMap,
+    takeUntil,
+} from 'rxjs/operators';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiLineChartComponent} from './line-chart.component';
 
 @Directive({
     selector: '[tuiLineChartHint]',
     providers: [TuiDestroyService, TuiHoveredService],
 })
-export class TuiLineChartHintDirective implements AfterContentInit {
+export class TuiLineChartHintDirective implements AfterViewInit {
     @ContentChildren(forwardRef(() => TuiLineChartComponent))
     private readonly charts: QueryList<TuiLineChartComponent> = EMPTY_QUERY;
 
@@ -42,8 +47,7 @@ export class TuiLineChartHintDirective implements AfterContentInit {
     private readonly chartsRef: QueryList<ElementRef<HTMLElement>> = EMPTY_QUERY;
 
     @Input('tuiLineChartHint')
-    @tuiDefaultProp()
-    hint: PolymorpheusContent<TuiContextWithImplicit<readonly TuiPoint[]>> = '';
+    hint: PolymorpheusContent<TuiContextWithImplicit<readonly TuiPoint[]>>;
 
     constructor(
         @Inject(Renderer2) private readonly renderer: Renderer2,
@@ -52,11 +56,10 @@ export class TuiLineChartHintDirective implements AfterContentInit {
         @Inject(TuiHoveredService) private readonly hovered$: Observable<boolean>,
     ) {}
 
-    ngAfterContentInit(): void {
+    ngAfterViewInit(): void {
         combineLatest([tuiLineChartDrivers(this.charts), this.hovered$])
             .pipe(
-                map(([drivers, hovered]) => !drivers && !hovered),
-                filter(Boolean),
+                filter(result => !result.some(Boolean)),
                 tuiZonefree(this.ngZone),
                 takeUntil(this.destroy$),
             )
@@ -104,10 +107,14 @@ export function tuiLineChartDrivers(
     charts: QueryList<{drivers: QueryList<Observable<boolean>>}>,
 ): Observable<boolean> {
     return combineLatest(
-        charts
-            .map(({drivers}) => drivers.map(driver => driver.pipe(startWith(false))))
-            .reduce((acc, drivers) => acc.concat(drivers), []),
+        charts.map(({drivers}) =>
+            tuiQueryListChanges(drivers).pipe(
+                map(drivers => drivers.map(driver => driver.pipe(startWith(false)))),
+            ),
+        ),
     ).pipe(
+        map(all => all.reduce((acc, drivers) => acc.concat(drivers), [])),
+        switchMap(drivers => combineLatest(drivers)),
         map(values => values.some(Boolean)),
         distinctUntilChanged(),
     );

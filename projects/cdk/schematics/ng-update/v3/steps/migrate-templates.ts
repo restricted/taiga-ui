@@ -34,11 +34,13 @@ import {
     getTemplateFromTemplateResource,
     getTemplateOffset,
 } from '../../../utils/templates/template-resource';
-import {TemplateResource} from '../../interfaces/template-resourse';
+import {TemplateResource} from '../../interfaces/template-resource';
+import {replaceAttrValues} from '../../utils/templates/replace-attr-values';
 import {
     ATTR_TO_DIRECTIVE,
     ATTRS_TO_REPLACE,
     INPUTS_TO_REMOVE,
+    REPLACE_ATTR_VALUE,
     TAGS_TO_REPLACE,
     TEMPLATE_COMMENTS,
     TRUTHY_BOOLEAN_INPUT_TO_HTML_BINARY_ATTRIBUTE,
@@ -437,48 +439,11 @@ function replaceInputValues({
     recorder: UpdateRecorder;
     fileSystem: DevkitFileSystem;
 }): void {
-    const template = getTemplateFromTemplateResource(resource, fileSystem);
-    const templateOffset = getTemplateOffset(resource);
-
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const ATTR_VALUES = [
-        {
-            attrName: `tuiHintDirection`,
-            values: [
-                {from: `bottom-middle`, to: `bottom`},
-                {from: `top-middle`, to: `top`},
-            ],
-        },
-    ] as const;
-
-    ATTR_VALUES.forEach(({attrName, values}) => {
-        const elements = [...findElementsWithAttribute(template, attrName)];
-
-        elements.forEach(element => {
-            const {name, value} =
-                element.attrs.find(attr => attr.name === attrName.toLowerCase()) || {};
-
-            if (!name || !value) {
-                return;
-            }
-
-            values.forEach(({from, to}) => {
-                if (value === from) {
-                    const {startOffset, endOffset} = element.sourceCodeLocation?.attrs?.[
-                        name
-                    ] || {startOffset: 0, endOffset: 0};
-
-                    recorder.remove(
-                        templateOffset + startOffset,
-                        endOffset - startOffset,
-                    );
-                    recorder.insertRight(
-                        templateOffset + startOffset,
-                        `${attrName}="${to}"`,
-                    );
-                }
-            });
-        });
+    replaceAttrValues({
+        resource,
+        recorder,
+        fileSystem,
+        replaceableItems: REPLACE_ATTR_VALUE,
     });
 }
 

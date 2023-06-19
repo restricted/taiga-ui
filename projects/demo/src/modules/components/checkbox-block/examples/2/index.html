@@ -1,9 +1,4 @@
-<h3
-    i18n
-    class="title"
->
-    Horizontal group
-</h3>
+<h3 class="title">Horizontal group</h3>
 <form
     class="group"
     [formGroup]="testForm"
@@ -14,35 +9,29 @@
         [collapsed]="true"
     >
         <tui-checkbox-block
-            i18n
             contentAlign="right"
             formControlName="testValue1"
             size="l"
         >
-            Title
+            Oranges
         </tui-checkbox-block>
         <tui-checkbox-block
             contentAlign="right"
             formControlName="testValue2"
             size="l"
         >
-            Title
+            Apples
         </tui-checkbox-block>
         <tui-checkbox-block
             contentAlign="right"
             formControlName="testValue3"
             size="l"
         >
-            Title
+            Pineapples
         </tui-checkbox-block>
     </div>
 </form>
-<h3
-    i18n
-    class="title"
->
-    Vertical group
-</h3>
+<h3 class="title">Vertical group</h3>
 <form [formGroup]="testForm">
     <div
         tuiGroup
@@ -55,21 +44,57 @@
             formControlName="testValue1"
             size="l"
         >
-            Title
+            Oranges
         </tui-checkbox-block>
         <tui-checkbox-block
             contentAlign="right"
             formControlName="testValue2"
             size="l"
         >
-            Title
+            Apples
         </tui-checkbox-block>
         <tui-checkbox-block
             contentAlign="right"
             formControlName="testValue3"
             size="l"
         >
-            Title
+            Pineapples
+        </tui-checkbox-block>
+    </div>
+</form>
+<h3 class="title">Group without checkbox indicators</h3>
+<form
+    class="group"
+    [formGroup]="testForm"
+>
+    <div
+        tuiGroup
+        class="group"
+        [collapsed]="true"
+    >
+        <tui-checkbox-block
+            contentAlign="right"
+            formControlName="testValue1"
+            size="l"
+            [hideCheckbox]="true"
+        >
+            Oranges
+        </tui-checkbox-block>
+        <tui-checkbox-block
+            contentAlign="right"
+            formControlName="testValue2"
+            size="l"
+            [hideCheckbox]="true"
+        >
+            Apples
+        </tui-checkbox-block>
+        <tui-checkbox-block
+            contentAlign="right"
+            formControlName="testValue3"
+            size="l"
+            [hideCheckbox]="true"
+        >
+            Pineapples
         </tui-checkbox-block>
     </div>
 </form>

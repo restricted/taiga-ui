@@ -1,4 +1,5 @@
 import {
+    AfterViewInit,
     ChangeDetectorRef,
     Directive,
     EventEmitter,
@@ -14,8 +15,6 @@ import {TUI_MODE, TuiBrightness, TuiSizeL, TuiSizeS} from '@taiga-ui/core';
 import {Observable} from 'rxjs';
 
 import {TUI_STUCK} from '../providers/stuck.provider';
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TUI_TABLE_PROVIDERS} from '../providers/table.providers';
 
 @Directive({
@@ -27,9 +26,10 @@ import {TUI_TABLE_PROVIDERS} from '../providers/table.providers';
         style: 'border-collapse: separate',
     },
 })
-export class TuiTableDirective<
-    T extends Partial<Record<keyof T, any>>,
-> extends AbstractTuiController {
+export class TuiTableDirective<T extends Partial<Record<keyof T, any>>>
+    extends AbstractTuiController
+    implements AfterViewInit
+{
     @Input()
     @tuiDefaultProp()
     columns: ReadonlyArray<string | keyof T> = [];
@@ -54,7 +54,7 @@ export class TuiTableDirective<
         readonly entries$: Observable<IntersectionObserverEntry[]>,
         @Inject(TUI_MODE) readonly mode$: Observable<TuiBrightness | null>,
         @Inject(TUI_STUCK) readonly stuck$: Observable<boolean>,
-        @Inject(ChangeDetectorRef) private readonly changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) private readonly cdr: ChangeDetectorRef,
     ) {
         super();
     }
@@ -73,7 +73,7 @@ export class TuiTableDirective<
     }
 
     ngAfterViewInit(): void {
-        this.changeDetectorRef.detectChanges();
+        this.cdr.detectChanges();
     }
 
     updateSorter(sorter: TuiComparator<T> | null): void {

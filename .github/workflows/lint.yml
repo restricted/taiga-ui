@@ -1,71 +1,101 @@
-name: Lint
-
+name: ⚙️ Lint
 on:
   pull_request:
   push:
-    branches:
-      - main
-      - '!release/**'
-
-env:
-  NX_BRANCH: ${{ github.event.number }}
-  NX_CLOUD_AUTH_TOKEN: ${{ secrets.NX_CLOUD_AUTH_TOKEN }}
-  IS_FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
-  IS_DEPENDABOT: ${{ github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]' }}
-  IS_MAIN_BRANCH: ${{ github.ref == 'refs/heads/main' }}
+    branches: [main]
 
 jobs:
-  lint:
+  typecheck:
     if: ${{ !contains(github.head_ref, 'release/') }}
-    name: Format
     runs-on: ubuntu-latest
-    env:
-      FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
     steps:
-      - name: Fetch from origin repo
-        if: ${{ env.IS_FORK == 'false' && env.IS_DEPENDABOT == 'false' }}
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3.5.3
+      - name: Setup Node.js and Cache
+        uses: ./.github/actions/nodejs
+      - name: Typecheck
+        run: npm run typecheck
+
+  cspell:
+    if: ${{ !contains(github.head_ref, 'release/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.5.3
+      - name: Setup Node.js and Cache
+        uses: ./.github/actions/nodejs
+      - name: Spell checks code
+        run: npm run cspell -- --no-progress
+
+  prettier:
+    if: ${{ !contains(github.head_ref, 'release/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.5.3
+      - name: Setup global variables
+        uses: ./.github/actions/variables
+
+      - uses: actions/checkout@v3.5.3
+        if: env.SUPPORT_AUTO_PUSH == 'true'
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.TINKOFF_BOT_PAT }}
-          fetch-depth: 2
-      - name: Fetch from forked repo
-        if: ${{ env.IS_FORK == 'true' || env.IS_DEPENDABOT == 'true' }}
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
 
       - name: Setup Node.js and Cache
         uses: ./.github/actions/nodejs
 
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Auto format files only in PR of maintainers
-        if: ${{ env.IS_FORK == 'false' && env.IS_MAIN_BRANCH == 'false' && env.IS_DEPENDABOT == 'false' }}
-        run: |
-          npm run prettier -- --write
-          npm run lint -- . --fix
-          npm run stylelint -- --fix
-
-      - name: Only linting files in fork or main branch
-        if: ${{ env.IS_FORK == 'true' || env.IS_MAIN_BRANCH == 'true' || env.IS_DEPENDABOT == 'true' }}
-        run: |
-          npm run prettier -- --check
-          npm run lint -- .
-          npm run stylelint
+      - name: Run prettier
+        run: npm run prettier ${{ env.SUPPORT_AUTO_PUSH == 'true' && '-- --write' || '-- --check' }}
 
       - name: Apply changes after linting
-        uses: stefanzweifel/git-auto-commit-action@v4
-        if: ${{ env.IS_MAIN_BRANCH == 'false' && env.IS_FORK == 'false' && env.IS_DEPENDABOT == 'false' }}
+        if: env.SUPPORT_AUTO_PUSH == 'true'
+        uses: ./.github/actions/auto-push
+
+  stylelint:
+    if: ${{ !contains(github.head_ref, 'release/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.5.3
+      - name: Setup global variables
+        uses: ./.github/actions/variables
+
+      - uses: actions/checkout@v3.5.3
+        if: env.SUPPORT_AUTO_PUSH == 'true'
         with:
-          commit_user_name: 'tinkoff-bot'
-          commit_user_email: 'tinkoff-bot@users.noreply.github.com'
-          commit_author: 'tinkoff-bot <tinkoff-bot@users.noreply.github.com>'
-          commit_message: 'chore: apply changes after linting [tinkoff-bot]'
-          status_options: '--untracked-files=no'
-          commit_options: '--no-verify'
-          skip_fetch: true
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.TINKOFF_BOT_PAT }}
+
+      - name: Setup Node.js and Cache
+        uses: ./.github/actions/nodejs
+
+      - name: Run stylelint
+        run: npm run stylelint ${{ env.SUPPORT_AUTO_PUSH == 'true' && '-- --fix' || '' }}
+
+      - name: Apply changes after linting
+        if: env.SUPPORT_AUTO_PUSH == 'true'
+        uses: ./.github/actions/auto-push
+
+  eslint:
+    if: ${{ !contains(github.head_ref, 'release/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.5.3
+      - name: Setup global variables
+        uses: ./.github/actions/variables
+
+      - uses: actions/checkout@v3.5.3
+        if: env.SUPPORT_AUTO_PUSH == 'true'
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.TINKOFF_BOT_PAT }}
+
+      - name: Setup Node.js and Cache
+        uses: ./.github/actions/nodejs
+
+      - name: Run eslint
+        run: npm run lint ${{ env.RUN_AUTOFIX == 'true' && '-- --fix' || '' }}
+
+      - name: Apply changes after linting
+        if: env.SUPPORT_AUTO_PUSH == 'true'
+        uses: ./.github/actions/auto-push
 
 concurrency:
   group: lint-${{ github.workflow }}-${{ github.ref }}

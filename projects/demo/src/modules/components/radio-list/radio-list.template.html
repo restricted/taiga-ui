@@ -4,11 +4,10 @@
     type="components"
 >
     <ng-template pageTab>
-        <p i18n>Component for fast showing many radio buttons. It supports also custom content</p>
+        <p>Component for fast showing many radio buttons. It supports also custom content</p>
 
         <tui-doc-example
             id="base"
-            i18n-heading
             heading="Basic"
             [content]="example1"
         >
@@ -17,7 +16,6 @@
 
         <tui-doc-example
             id="large"
-            i18n-heading
             heading="Big size"
             [content]="example2"
         >
@@ -54,8 +52,7 @@
         </ng-template>
         <tui-doc-documentation>
             <ng-template
-                i18n
-                documentationPropertyName=""
+                documentationPropertyName="disabled"
                 documentationPropertyType="boolean"
                 [(documentationPropertyValue)]="disabled"
             >
@@ -64,7 +61,6 @@
                 )
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="disabledItemHandler"
                 documentationPropertyMode="input"
                 documentationPropertyType="TuiBooleanHandler<T>"
@@ -76,17 +72,15 @@
                 <strong>Must be a pure function</strong>
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="orientation"
                 documentationPropertyMode="input"
-                documentationPropertyType="TuiOrientationT"
+                documentationPropertyType="TuiOrientation"
                 [documentationPropertyValues]="orientationVariants"
                 [(documentationPropertyValue)]="orientation"
             >
                 Direction of group
             </ng-template>
             <ng-template
-                i18n
                 documentationPropertyName="size"
                 documentationPropertyMode="input"
                 documentationPropertyType="TuiSizeL"
@@ -96,13 +90,16 @@
                 Size
             </ng-template>
         </tui-doc-documentation>
-        <inherited-documentation></inherited-documentation>
+        <inherited-documentation
+            [withHint]="false"
+            [withTextFieldController]="false"
+        ></inherited-documentation>
     </ng-template>
 
     <ng-template pageTab>
         <ol class="b-demo-steps">
             <li>
-                <p i18n>
+                <p>
                     Import an Angular module for forms and
                     <code>TuiRadioListModule</code>
                     in the same module where you want to use our component:
@@ -115,7 +112,7 @@
             </li>
 
             <li>
-                <p i18n>
+                <p>
                     Declare a form (
                     <code>FormGroup</code>
                     ) or a control (
@@ -130,7 +127,7 @@
             </li>
 
             <li>
-                <p i18n>Add to the template:</p>
+                <p>Add to the template:</p>
 
                 <tui-doc-code
                     filename="myComponent.template.html"

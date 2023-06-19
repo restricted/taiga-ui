@@ -9,8 +9,7 @@ import {
     Optional,
 } from '@angular/core';
 import {TuiComparator} from '@taiga-ui/addon-table/types';
-import {tuiDefaultSort} from '@taiga-ui/addon-table/utils';
-import {tuiDefaultProp, TuiTableSortKeyException} from '@taiga-ui/cdk';
+import {tuiDefaultProp, tuiDefaultSort, TuiTableSortKeyException} from '@taiga-ui/cdk';
 import {TUI_ELEMENT_REF} from '@taiga-ui/core';
 
 import {TuiHeadDirective} from '../directives/head.directive';
@@ -69,7 +68,13 @@ export class TuiThComponent<T extends Partial<Record<keyof T, any>>> {
     }
 
     get icon(): string {
-        return this.isCurrent ? 'tuiIconSortDown' : 'tuiIconSortOff';
+        if (this.isCurrent) {
+            return this.table?.direction === 1
+                ? 'tuiIconSortDescending'
+                : 'tuiIconSortAscending';
+        }
+
+        return 'tuiIconSortOff';
     }
 
     onResized(width: number): void {

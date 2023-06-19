@@ -15,7 +15,7 @@
     </ng-container>
     <tui-expand
         *ngIf="hasExtraItems"
-        [expanded]="!hidden"
+        [expanded]="expanded"
     >
         <div class="t-extra-items">
             <ng-container *ngFor="let item of items; let index = index">
@@ -31,10 +31,11 @@
         tuiButton
         appearance="outline"
         size="m"
+        type="button"
         class="t-button"
-        [class.t-button_collapsed]="hidden"
+        [class.t-button_collapsed]="!expanded"
         (click)="toggle()"
     >
-        {{ (hidden ? showAllText$ : hideText$) | async }}
+        {{ (expanded ? hideText$ : showAllText$) | async }}
     </button>
 </section>

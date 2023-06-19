@@ -7,8 +7,8 @@ import {TuiAlertService} from '@taiga-ui/core';
 import {switchMap} from 'rxjs/operators';
 
 @Component({
-    selector: `tui-mobile-dialog-example-1`,
-    templateUrl: `./index.html`,
+    selector: 'tui-mobile-dialog-example-1',
+    templateUrl: './index.html',
     changeDetection,
     encapsulation,
     providers: [
@@ -21,25 +21,23 @@ import {switchMap} from 'rxjs/operators';
 export class TuiMobileDialogExample1 {
     constructor(
         @Inject(TuiMobileDialogService)
-        private readonly dialogService: TuiMobileDialogService,
+        private readonly dialogs: TuiMobileDialogService,
         @Inject(TuiAlertService)
-        private readonly alertService: TuiAlertService,
+        private readonly alerts: TuiAlertService,
     ) {}
 
     show(): void {
-        const actions = [`No thanks`, `Remind me later`, `Rate now`];
+        const actions = ['No thanks', 'Remind me later', 'Rate now'];
 
-        this.dialogService
+        this.dialogs
             .open(
-                `If you like this app, please take a moment to leave a positive rating.`,
+                'If you like this app, please take a moment to leave a positive rating.',
                 {
-                    label: `What do you think?`,
+                    label: 'What do you think?',
                     actions,
                 },
             )
-            .pipe(
-                switchMap(index => this.alertService.open(`Selected: ${actions[index]}`)),
-            )
+            .pipe(switchMap(index => this.alerts.open(`Selected: ${actions[index]}`)))
             .subscribe();
     }
 }

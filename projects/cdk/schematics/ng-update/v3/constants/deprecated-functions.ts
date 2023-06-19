@@ -193,7 +193,7 @@ export const DEPRECATED_FUNCTIONS: readonly TypeToRename[] = [
     },
     {
         from: `itemsQueryListObservable`,
-        to: `tuiItemsQueryListObservable`,
+        to: `tuiQueryListChanges`,
         moduleSpecifier: [`@taiga-ui/cdk`],
     },
     {
@@ -354,11 +354,6 @@ export const DEPRECATED_FUNCTIONS: readonly TypeToRename[] = [
     {
         from: `moveFocus`,
         to: `tuiMoveFocus`,
-        moduleSpecifier: [`@taiga-ui/cdk`],
-    },
-    {
-        from: `setNativeFocused`,
-        to: `tuiSetNativeFocused`,
         moduleSpecifier: [`@taiga-ui/cdk`],
     },
     {

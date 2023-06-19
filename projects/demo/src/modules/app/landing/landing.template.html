@@ -43,9 +43,9 @@
                     />
                 </tui-input-date>
                 <tui-calendar
-                    tuiPreventDefault="mousedown"
                     class="calendar"
                     [value]="date"
+                    (event.prevent.silent)="(0)"
                     (dayClick)="onDay($event)"
                 ></tui-calendar>
             </div>
@@ -82,9 +82,10 @@
                     <button
                         tuiIconButton
                         appearance=""
-                        icon="tuiIconSoundOffLarge"
+                        icon="tuiIconVolumeXLarge"
                         title="Mute speaker"
                         shape="rounded"
+                        type="button"
                         class="button"
                     ></button>
                     <button
@@ -93,12 +94,14 @@
                         icon="tuiIconMicOffLarge"
                         title="Mute microphone"
                         shape="rounded"
+                        type="button"
                         class="button"
                     ></button>
                     <button
                         tuiIconButton
                         appearance=""
-                        icon="tuiIconCallTransferLarge"
+                        type="button"
+                        icon="tuiIconPhoneForwardedLarge"
                         title="Forward call"
                         shape="rounded"
                         class="error"
@@ -156,6 +159,7 @@
             We use these components in our work ourselves, so we often release updates. Contributions are welcome —
             <a
                 href="https://github.com/tinkoff/taiga-ui"
+                rel="noreferrer"
                 target="_blank"
                 class="link"
             >
@@ -239,6 +243,7 @@
     </a>
     <a
         tuiButton
+        tuiAutoFocus
         appearance="accent"
         routerLink="/getting-started"
         class="browse browse_desktop"

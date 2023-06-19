@@ -85,6 +85,33 @@ export class ExampleTuiDialogComponent {
         ),
     };
 
+    readonly example8: TuiDocExample = {
+        TypeScript: import('./examples/8/index.ts?raw'),
+        HTML: import('./examples/8/index.html?raw'),
+    };
+
+    readonly example9: TuiDocExample = {
+        TypeScript: import('./examples/9/index.ts?raw'),
+        HTML: import('./examples/9/index.html?raw'),
+        LESS: import('./examples/9/index.less?raw'),
+        'helpers/mock-cards.ts': import('./examples/9/helpers/mock-cards.ts?raw'),
+        'helpers/models.ts': import('./examples/9/helpers/models.ts?raw'),
+        'helpers/pay.service.ts': import('./examples/9/helpers/pay.service.ts?raw'),
+        'helpers/validator.ts': import('./examples/9/helpers/validator.ts?raw'),
+        'pay-modal/pay-modal.component.ts': import(
+            './examples/9/pay-modal/pay-modal.component.ts?raw'
+        ),
+        'pay-modal/pay-modal.component.less': import(
+            './examples/9/pay-modal/pay-modal.component.less?raw'
+        ),
+        'pay-modal/pay-modal.component.html': import(
+            './examples/9/pay-modal/pay-modal.component.html?raw'
+        ),
+        'pay-modal/pay-modal.module.ts': import(
+            './examples/9/pay-modal/pay-modal.module.ts?raw'
+        ),
+    };
+
     readonly exampleServiceUsage = import('./examples/import/service-usage.md?raw');
 
     readonly exampleCustomDialog = import('./examples/import/custom-dialog.md?raw');
@@ -116,17 +143,17 @@ export class ExampleTuiDialogComponent {
 
     constructor(
         @Inject(TuiAlertService)
-        private readonly alertService: TuiAlertService,
+        private readonly alerts: TuiAlertService,
         @Inject(TuiDialogService)
-        private readonly dialogService: TuiDialogService,
+        private readonly dialogs: TuiDialogService,
     ) {}
 
     showDialog(content: TemplateRef<TuiDialogContext<number, number>>): void {
         const {data, label, required, closeable, dismissible, size} = this;
 
-        this.dialogService
+        this.dialogs
             .open(content, {data, label, required, closeable, dismissible, size})
-            .pipe(switchMap(response => this.alertService.open(String(response))))
+            .pipe(switchMap(response => this.alerts.open(String(response))))
             .subscribe();
     }
 }

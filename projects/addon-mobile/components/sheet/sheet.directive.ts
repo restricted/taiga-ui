@@ -6,10 +6,10 @@ import {
     Output,
     TemplateRef,
 } from '@angular/core';
-import {tuiDefaultProp, tuiRequiredSetter} from '@taiga-ui/cdk';
+import {tuiDefaultProp, tuiIfMap, tuiRequiredSetter} from '@taiga-ui/cdk';
 import {PolymorpheusTemplate} from '@tinkoff/ng-polymorpheus';
-import {EMPTY, Subject} from 'rxjs';
-import {endWith, ignoreElements, switchMap} from 'rxjs/operators';
+import {Subject} from 'rxjs';
+import {endWith, ignoreElements, share} from 'rxjs/operators';
 
 import {TuiSheet} from './sheet';
 import {TuiSheetService} from './sheet.service';
@@ -32,21 +32,18 @@ export class TuiSheetDirective extends PolymorpheusTemplate<TuiSheet<never>> {
     }
 
     @Output()
-    tuiSheetChange = this.open$.pipe(
-        switchMap(open =>
-            open
-                ? this.service
-                      .open(this, this.options)
-                      .pipe(ignoreElements(), endWith(false))
-                : EMPTY,
+    readonly tuiSheetChange = this.open$.pipe(
+        tuiIfMap(() =>
+            this.service.open(this, this.options).pipe(ignoreElements(), endWith(false)),
         ),
+        share(),
     );
 
     constructor(
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Inject(TemplateRef) templateRef: TemplateRef<TuiSheet<never>>,
         @Inject(TuiSheetService) private readonly service: TuiSheetService,
     ) {
-        super(templateRef, changeDetectorRef);
+        super(templateRef, cdr);
     }
 }

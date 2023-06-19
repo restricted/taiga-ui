@@ -1,7 +1,5 @@
 import {ChildNode, Element, parseFragment} from 'parse5';
 
-const ALWAYS_TRUE_HANDLER = (): true => true;
-
 export function findElementsByFn(
     nodes: ChildNode[],
     predicateFn: (el: Element) => boolean,
@@ -63,6 +61,26 @@ export function findElementsWithAttribute(
 }
 
 /**
+ * Parses a HTML fragment and traverses all AST nodes in order find elements that include the specified attribute and tag name.
+ * @param html
+ * @param attributeName
+ */
+export function findElementsWithAttributeOnTag(
+    html: string,
+    attributeNames: string[],
+    tagNames: string[] = [],
+): Element[] {
+    return findElementsInTemplateByFn(
+        html,
+        el =>
+            el.attrs?.some(attr =>
+                attributeNames.map(name => name.toLowerCase()).includes(attr.name),
+            ) &&
+            (tagNames.includes(el.tagName) || !tagNames.length),
+    );
+}
+
+/**
  * Finds elements with explicit tag names that also contain the specified attribute. Returns the
  * attribute start offset based on the specified HTML.
  */
@@ -70,7 +88,8 @@ export function findAttributeOnElementWithTag(
     html: string,
     name: string,
     tagNames: string[],
-    filterFn: (element: Element) => boolean = ALWAYS_TRUE_HANDLER,
+    // eslint-disable-next-line no-restricted-syntax
+    filterFn: (element: Element) => boolean = () => true,
 ): number[] {
     return findElementsWithAttribute(html, name)
         .filter(
@@ -89,7 +108,8 @@ export function findAttributeOnElementWithAttrs(
     html: string,
     name: string,
     attrs: string[],
-    filterFn: (element: Element) => boolean = ALWAYS_TRUE_HANDLER,
+    // eslint-disable-next-line no-restricted-syntax
+    filterFn: (element: Element) => boolean = () => true,
 ): number[] {
     return findElementsWithAttribute(html, name)
         .filter(

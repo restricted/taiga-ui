@@ -27,7 +27,6 @@ import {
     MODE_PROVIDER,
     TEXTFIELD_CONTROLLER_PROVIDER,
     TUI_MODE,
-    TUI_TEXTFIELD_APPEARANCE,
     TUI_TEXTFIELD_WATCHED_CONTROLLER,
     TuiBrightness,
     tuiGetBorder,
@@ -88,8 +87,7 @@ export class TuiTextAreaComponent
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
-        @Inject(TUI_TEXTFIELD_APPEARANCE) readonly appearance: string,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Inject(TUI_IS_IOS) readonly isIOS: boolean,
         @Inject(TUI_MODE) readonly mode$: Observable<TuiBrightness | null>,
         @Inject(TUI_TEXTFIELD_WATCHED_CONTROLLER)
@@ -98,7 +96,7 @@ export class TuiTextAreaComponent
         @Inject(TuiHintOptionsDirective)
         readonly hintOptions: TuiHintOptionsDirective | null,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     @HostBinding('class._label-outside')
@@ -120,14 +118,28 @@ export class TuiTextAreaComponent
         return tuiIsNativeFocused(this.nativeFocusableElement);
     }
 
+    get appearance(): string {
+        return this.controller.appearance;
+    }
+
     @HostBinding('attr.data-size')
     get size(): TuiSizeL | TuiSizeS {
         return this.controller.size;
     }
 
+    @HostBinding('style.--border-start.rem')
+    get borderStart(): number {
+        return this.iconLeftContent ? 1.75 : 0;
+    }
+
     @HostBinding('style.--border-end.rem')
-    get border(): number {
-        return tuiGetBorder(false, this.hasCleaner, this.hasTooltip);
+    get borderEnd(): number {
+        return tuiGetBorder(
+            !!this.iconContent,
+            this.hasCleaner,
+            this.hasTooltip,
+            this.hasCustomContent,
+        );
     }
 
     get hasCleaner(): boolean {
@@ -136,7 +148,10 @@ export class TuiTextAreaComponent
 
     @HostBinding('class._has-tooltip')
     get hasTooltip(): boolean {
-        return !!this.hintOptions?.content && !this.computedDisabled;
+        return (
+            !!this.hintOptions?.content &&
+            (this.controller.options.hintOnDisabled || !this.computedDisabled)
+        );
     }
 
     @HostBinding('class._has-value')
@@ -151,6 +166,20 @@ export class TuiTextAreaComponent
 
     get hasPlaceholder(): boolean {
         return this.placeholderRaisable || (!this.hasValue && !this.hasExampleText);
+    }
+
+    get hasCustomContent(): boolean {
+        return !!this.controller.customContent;
+    }
+
+    get iconLeftContent(): PolymorpheusContent<
+        TuiContextWithImplicit<TuiSizeL | TuiSizeS>
+    > {
+        return this.controller.iconLeft;
+    }
+
+    get iconContent(): PolymorpheusContent<TuiContextWithImplicit<TuiSizeL | TuiSizeS>> {
+        return this.controller.icon;
     }
 
     get iconCleaner(): PolymorpheusContent<TuiContextWithImplicit<TuiSizeL | TuiSizeS>> {
@@ -192,7 +221,7 @@ export class TuiTextAreaComponent
     }
 
     onValueChange(value: string): void {
-        this.updateValue(value);
+        this.value = value;
     }
 
     onMouseDown(event: MouseEvent): void {

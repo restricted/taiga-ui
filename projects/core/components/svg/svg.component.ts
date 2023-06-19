@@ -14,25 +14,27 @@ import {WINDOW} from '@ng-web-apis/common';
 import {
     tuiAssert,
     tuiGetDocumentOrShadowRoot,
-    TuiInjectionTokenType,
     tuiIsString,
     tuiPure,
     tuiRequiredSetter,
+    TuiSafeHtml,
     TuiStaticRequestService,
     TuiStringHandler,
 } from '@taiga-ui/cdk';
-import {TUI_ICON_ERROR} from '@taiga-ui/core/constants';
+import {TUI_CACHE_BUSTING_PAYLOAD, TUI_ICON_ERROR} from '@taiga-ui/core/constants';
 import {TuiIconError} from '@taiga-ui/core/interfaces';
 import {TuiSvgService} from '@taiga-ui/core/services';
-import {
-    TUI_ICONS_PATH,
-    TUI_SANITIZER,
-    TUI_SVG_CONTENT_PROCESSOR,
-    TUI_SVG_SRC_PROCESSOR,
-} from '@taiga-ui/core/tokens';
+import {TUI_SANITIZER} from '@taiga-ui/core/tokens';
 import {tuiIsPresumedHTMLString} from '@taiga-ui/core/utils/miscellaneous';
 import {Observable, of, ReplaySubject} from 'rxjs';
 import {catchError, map, startWith, switchMap} from 'rxjs/operators';
+
+import {
+    TUI_SVG_OPTIONS,
+    TUI_SVG_SRC_INTERCEPTORS,
+    TuiSvgInterceptorHandler,
+    TuiSvgOptions,
+} from './svg-options';
 
 const UNDEFINED_NAMED_ICON = 'Attempted to use undefined named icon';
 const MISSING_EXTERNAL_ICON = 'External icon is missing on the given URL';
@@ -47,13 +49,17 @@ const FAILED_EXTERNAL_ICON = 'Failed to load external SVG';
 })
 export class TuiSvgComponent {
     private readonly src$ = new ReplaySubject<void>(1);
-    private icon: SafeHtml | string = '';
+    private icon: TuiSafeHtml = '';
+
     readonly innerHTML$: Observable<SafeHtml>;
 
     constructor(
-        @Inject(DOCUMENT) private readonly documentRef: Document,
-        @Inject(WINDOW) private readonly windowRef: Window,
-        @Inject(TUI_ICONS_PATH) private readonly iconsPath: TuiStringHandler<string>,
+        @Inject(DOCUMENT) private readonly doc: Document,
+        @Inject(WINDOW) private readonly win: Window,
+        @Inject(TUI_SVG_OPTIONS) private readonly options: TuiSvgOptions,
+        @Optional()
+        @Inject(TUI_SVG_SRC_INTERCEPTORS)
+        private readonly srcInterceptors: readonly TuiSvgInterceptorHandler[] | null,
         @Optional()
         @Inject(TUI_SANITIZER)
         private readonly tuiSanitizer: Sanitizer | null,
@@ -61,15 +67,7 @@ export class TuiSvgComponent {
         @Inject(TuiStaticRequestService)
         private readonly staticRequestService: TuiStaticRequestService,
         @Inject(DomSanitizer) private readonly sanitizer: DomSanitizer,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<Element>,
-        @Inject(TUI_SVG_SRC_PROCESSOR)
-        private readonly srcProcessor: TuiInjectionTokenType<
-            typeof TUI_SVG_SRC_PROCESSOR
-        >,
-        @Inject(TUI_SVG_CONTENT_PROCESSOR)
-        private readonly contentProcessor: TuiInjectionTokenType<
-            typeof TUI_SVG_CONTENT_PROCESSOR
-        >,
+        @Inject(ElementRef) private readonly el: ElementRef<Element>,
     ) {
         this.innerHTML$ = this.src$.pipe(
             switchMap(() => {
@@ -87,12 +85,20 @@ export class TuiSvgComponent {
 
     @Input()
     @tuiRequiredSetter()
-    set src(src: SafeHtml | string) {
-        this.icon = this.srcProcessor(src);
+    set src(src: TuiSafeHtml) {
+        const deprecated = this.options.deprecated(String(src));
+
+        ngDevMode && tuiAssert.assert(!deprecated, deprecated);
+
+        this.icon = (this.srcInterceptors ?? []).reduce(
+            (newSrc, interceptor) => interceptor(newSrc, this.options),
+            this.options.srcProcessor(src),
+        );
+
         this.src$.next();
     }
 
-    get src(): SafeHtml | string {
+    get src(): TuiSafeHtml {
         return this.icon;
     }
 
@@ -100,7 +106,7 @@ export class TuiSvgComponent {
         if (tuiIsString(this.icon)) {
             return this.icon.includes('.svg#')
                 ? this.icon
-                : this.resolveName(this.icon, this.iconsPath);
+                : this.resolveName(this.icon, this.options.path);
         }
 
         return '';
@@ -116,13 +122,11 @@ export class TuiSvgComponent {
     }
 
     private get isShadowDOM(): boolean {
-        return (
-            tuiGetDocumentOrShadowRoot(this.elementRef.nativeElement) !== this.documentRef
-        );
+        return tuiGetDocumentOrShadowRoot(this.el.nativeElement) !== this.doc;
     }
 
     private get isUse(): boolean {
-        return this.use.includes('.svg#');
+        return this.use.replace(TUI_CACHE_BUSTING_PAYLOAD, '').includes('.svg#');
     }
 
     private get isExternal(): boolean {
@@ -130,7 +134,10 @@ export class TuiSvgComponent {
     }
 
     private get isUrl(): boolean {
-        return tuiIsString(this.icon) && this.icon.endsWith('.svg');
+        return (
+            tuiIsString(this.icon) &&
+            this.icon.replace(TUI_CACHE_BUSTING_PAYLOAD, '').endsWith('.svg')
+        );
     }
 
     private get isSrc(): boolean {
@@ -142,13 +149,10 @@ export class TuiSvgComponent {
     }
 
     private get isCrossDomain(): boolean {
-        const {use, isUse, windowRef} = this;
+        const {use, isUse, win} = this;
 
         return (
-            isUse &&
-            use.startsWith('http') &&
-            !!windowRef.origin &&
-            !use.startsWith(windowRef.origin)
+            isUse && use.startsWith('http') && !!win.origin && !use.startsWith(win.origin)
         );
     }
 
@@ -162,8 +166,8 @@ export class TuiSvgComponent {
             },
         });
 
-        tuiAssert.assert(false, message, icon);
-        this.elementRef.nativeElement.dispatchEvent(event);
+        ngDevMode && tuiAssert.assert(false, message, icon);
+        this.el.nativeElement.dispatchEvent(event);
     }
 
     @tuiPure
@@ -186,8 +190,8 @@ export class TuiSvgComponent {
         return !this.isShadowDOM || !this.isName ? '' : this.sanitize(icon || '');
     }
 
-    private sanitize(src: SafeHtml | string): SafeHtml | string {
-        src = this.contentProcessor(src);
+    private sanitize(src: TuiSafeHtml): TuiSafeHtml {
+        src = this.options.contentProcessor(src);
 
         return this.tuiSanitizer && tuiIsString(src)
             ? this.sanitizer.bypassSecurityTrustHtml(

@@ -1,5 +1,6 @@
 export * from './autocomplete';
 export * from './date-mode';
+export * from './deep-partial';
 export * from './dialog';
 export * from './event-with';
 export * from './handler';
@@ -9,4 +10,5 @@ export * from './input-type';
 export * from './mapper';
 export * from './matcher';
 export * from './overscroll-mode';
+export * from './rounding';
 export * from './time-mode';

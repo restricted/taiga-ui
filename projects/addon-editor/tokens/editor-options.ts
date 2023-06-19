@@ -2,23 +2,34 @@ import {InjectionToken, ValueProvider} from '@angular/core';
 import {
     defaultEditorColors,
     EDITOR_BLANK_COLOR,
+    TUI_DEFAULT_LINK_OPTIONS,
     tuiDefaultFontOptionsHandler,
+    TuiEditorLinkOptions,
 } from '@taiga-ui/addon-editor/constants';
 
 export interface TuiEditorOptions {
+    readonly translate: 'no' | 'yes';
+    readonly spellcheck: boolean;
     readonly blankColor: string;
     readonly colors: ReadonlyMap<string, string>;
     readonly fontOptions: typeof tuiDefaultFontOptionsHandler;
+    readonly linkOptions?: TuiEditorLinkOptions;
 }
 
 export const TUI_EDITOR_DEFAULT_OPTIONS: TuiEditorOptions = {
+    translate: `no`,
+    spellcheck: false,
     colors: defaultEditorColors,
     blankColor: EDITOR_BLANK_COLOR,
+    linkOptions: TUI_DEFAULT_LINK_OPTIONS,
     fontOptions: tuiDefaultFontOptionsHandler,
 };
 
+/**
+ * Default Editor colors
+ */
 export const TUI_EDITOR_OPTIONS = new InjectionToken<TuiEditorOptions>(
-    `[TUI_EDITOR_OPTIONS]: Default Editor colors`,
+    `[TUI_EDITOR_OPTIONS]`,
     {
         factory: () => TUI_EDITOR_DEFAULT_OPTIONS,
     },

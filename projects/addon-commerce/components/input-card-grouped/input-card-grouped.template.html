@@ -27,6 +27,7 @@
                 inputmode="numeric"
                 translate="no"
                 class="t-input t-input_card"
+                [tuiAutoFocus]="false"
                 [class.t-input_inert]="cardPrefilled"
                 [class.t-input_hidden]="!card.length && focused"
                 [attr.id]="idCard"
@@ -35,7 +36,7 @@
                 [autocomplete]="autocompleteCard"
                 [disabled]="computedDisabled"
                 [readOnly]="readOnly"
-                [textMask]="maskCard"
+                [maskito]="maskCard"
                 [tuiFocusable]="cardFocusable"
                 [ngModel]="formattedCard"
                 (ngModelChange)="onCardChange($event)"
@@ -47,11 +48,12 @@
                 class="t-collapsed"
                 [attr.data-before]="masked"
                 [class.t-collapsed_enable-mask]="isCardCollapsed"
+                (tuiResize)="(0)"
             >
                 <span
                     #ghost
                     class="t-ghost"
-                    [innerText]="formattedCard.slice(-tailLength)"
+                    [textContent]="formattedCard.slice(-tailLength)"
                 ></span>
 
                 <span class="t-collapsed-wrapper">
@@ -83,6 +85,7 @@
                 inputmode="numeric"
                 translate="no"
                 class="t-input"
+                [tuiAutoFocus]="false"
                 [class.t-input_inert]="!expireFocusable"
                 [attr.id]="idExpire"
                 [attr.name]="name"
@@ -90,7 +93,7 @@
                 [disabled]="computedDisabled"
                 [readOnly]="readOnly"
                 [tuiFocusable]="expireFocusable"
-                [textMask]="maskExpire"
+                [maskito]="maskExpire"
                 [ngModel]="expire"
                 (ngModelChange)="onExpireChange($event)"
                 (focus)="(0)"
@@ -115,13 +118,14 @@
                 inputmode="numeric"
                 translate="no"
                 class="t-input"
+                [tuiAutoFocus]="false"
                 [class.t-input_prefilled]="cvcPrefilled"
                 [placeholder]="cvcPrefilled ? '•••' : exampleTextCVC"
                 [attr.id]="idCVC"
                 [disabled]="computedDisabled"
                 [readOnly]="readOnly || cvcPrefilled"
                 [autocomplete]="autocompleteCVC"
-                [textMask]="maskCVC"
+                [maskito]="maskCVC"
                 [tuiFocusable]="cvcFocusable"
                 [ngModel]="cvc"
                 (ngModelChange)="onCVCChange($event)"
@@ -149,12 +153,16 @@
         </div>
         <tui-svg
             *ngIf="hasCleaner"
+            tuiWrapper
+            appearance="icon"
             src="tuiIconCloseLarge"
             class="t-icon"
             (click)="clear()"
         ></tui-svg>
         <tui-svg
             *ngIf="hasDropdown"
+            tuiWrapper
+            appearance="icon"
             src="tuiIconChevronDownLarge"
             class="t-icon"
             [class.t-icon_rotated]="open"

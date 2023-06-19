@@ -15,6 +15,7 @@ import {
     AbstractTuiControl,
     tuiAsControl,
     tuiAsFocusableItemAccessor,
+    tuiClamp,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
     tuiIsNativeFocused,
@@ -61,11 +62,11 @@ export class TuiRatingComponent
         @Inject(NgControl)
         ngControl: NgControl | null,
         @Inject(ChangeDetectorRef)
-        changeDetectorRef: ChangeDetectorRef,
+        cdr: ChangeDetectorRef,
         @Inject(TUI_RATING_OPTIONS)
         private readonly options: TuiRatingOptions,
     ) {
-        super(ngControl, changeDetectorRef);
+        super(ngControl, cdr);
     }
 
     get nativeFocusableElement(): HTMLInputElement | null {
@@ -83,7 +84,7 @@ export class TuiRatingComponent
     }
 
     get percent(): number {
-        return (100 * this.value) / this.max;
+        return tuiClamp((100 * this.value) / this.max, 0, 100);
     }
 
     @HostListener('focusin', ['true'])
@@ -93,11 +94,17 @@ export class TuiRatingComponent
     }
 
     setRateByReverseIndex(index: number): void {
-        this.updateValue(this.max - index);
+        const reversedIndex = this.max - index;
+
+        if (reversedIndex <= this.min) {
+            return;
+        }
+
+        this.value = reversedIndex;
     }
 
     setRate(value: number): void {
-        this.updateValue(value);
+        this.value = value;
     }
 
     protected getFallbackValue(): number {

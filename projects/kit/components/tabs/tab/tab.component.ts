@@ -24,6 +24,15 @@ import {TUI_TAB_EVENT, TUI_TAB_PROVIDERS} from './tab.providers';
     providers: TUI_TAB_PROVIDERS,
     host: {
         '($.data-mode.attr)': 'mode$',
+        /**
+         * SSR hack - problem with the Domino renderer that Angular uses for its server-side DOM implementation.
+         * Domino doesn't support CSS variables and some CSS properties like clip-path.
+         * Read more: https://github.com/Tinkoff/taiga-ui/issues/3210#issuecomment-1375788017
+         * ___
+         * TODO: drop this line after Angular team switch over to a new JavaScript DOM API
+         * https://github.com/angular/angular/issues/42170
+         */
+        '[style.cursor]': '"pointer"',
         '[style.--tui-tab-margin.px]': 'margin',
         type: 'button',
     },
@@ -36,7 +45,7 @@ export class TuiTabComponent implements OnDestroy {
         @Optional()
         @Inject(RouterLinkActive)
         private readonly routerLinkActive: RouterLinkActive | null,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
         @Inject(TUI_MODE) readonly mode$: Observable<TuiBrightness | null>,
         @Inject(TUI_TAB_EVENT) readonly event$: Observable<Event>,
         @Inject(TUI_TAB_MARGIN) readonly margin: number,
@@ -53,8 +62,8 @@ export class TuiTabComponent implements OnDestroy {
     }
 
     ngOnDestroy(): void {
-        if (tuiIsNativeFocused(this.elementRef.nativeElement)) {
-            this.elementRef.nativeElement.blur();
+        if (tuiIsNativeFocused(this.el.nativeElement)) {
+            this.el.nativeElement.blur();
         }
     }
 }

@@ -22,7 +22,7 @@
         tuiMaskAccessor
         automation-id="tui-primitive-textfield__native-input"
         class="t-input"
-        [attr.disabled]="computedDisabled || null"
+        [disabled]="computedDisabled"
         [attr.name]="name"
         [attr.aria-invalid]="computedInvalid"
         [id]="id"
@@ -41,10 +41,12 @@
     <div class="t-content">
         <div
             *ngIf="iconLeftContent"
-            class="t-icon t-icon_left"
+            class="t-icon t-icon_left t-textfield-icon"
         >
             <tui-svg
                 *polymorpheusOutlet="iconLeftContent as src; context: {$implicit: size}"
+                tuiWrapper
+                appearance="icon"
                 [src]="src"
             ></tui-svg>
         </div>
@@ -82,6 +84,8 @@
         </div>
         <span
             *ngIf="hasCleaner"
+            tuiWrapper
+            appearance="icon"
             automation-id="tui-primitive-textfield__cleaner"
             class="t-cleaner"
             (click.stop)="clear()"
@@ -92,21 +96,20 @@
             ></tui-svg>
         </span>
         <tui-tooltip
-            *ngIf="hintOptions && hintOptions.content && !computedDisabled"
+            *ngIf="showHint"
             automation-id="tui-primitive-textfield__tooltip"
+            class="t-tooltip"
             [describeId]="computedId"
-            [content]="hintOptions.content"
-            [direction]="hintOptions.direction"
-            [appearance]="hintOptions.appearance"
-            [showDelay]="hintOptions.showDelay"
-            [hideDelay]="hintOptions.hideDelay"
+            [content]="hintOptions?.content"
         ></tui-tooltip>
         <div
             *ngIf="iconContent"
-            class="t-icon"
+            class="t-icon t-textfield-icon"
         >
             <tui-svg
                 *polymorpheusOutlet="iconContent as src; context: {$implicit: size}"
+                tuiWrapper
+                appearance="icon"
                 [src]="src"
             ></tui-svg>
         </div>

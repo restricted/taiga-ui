@@ -10,14 +10,14 @@ import {
 } from '@angular/core';
 import {tuiDefaultProp} from '@taiga-ui/cdk';
 import {
+    TuiDropdownAlign,
     TuiDropdownWidth,
-    TuiHorizontalDirection,
     TuiVerticalDirection,
 } from '@taiga-ui/core/types';
 import {tuiOverrideOptions} from '@taiga-ui/core/utils';
 
 export interface TuiDropdownOptions {
-    readonly align: TuiHorizontalDirection;
+    readonly align: TuiDropdownAlign;
     readonly direction: TuiVerticalDirection | null;
     readonly limitWidth: TuiDropdownWidth;
     readonly minHeight: number;
@@ -35,8 +35,11 @@ export const TUI_DROPDOWN_DEFAULT_OPTIONS: TuiDropdownOptions = {
     offset: 4,
 };
 
+/**
+ * Default parameters for dropdown directive
+ */
 export const TUI_DROPDOWN_OPTIONS = new InjectionToken<TuiDropdownOptions>(
-    '[TUI_DROPDOWN_OPTIONS] Default parameters for dropdown directive',
+    '[TUI_DROPDOWN_OPTIONS]',
     {
         factory: () => TUI_DROPDOWN_DEFAULT_OPTIONS,
     },

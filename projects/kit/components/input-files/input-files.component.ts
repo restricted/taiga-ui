@@ -5,12 +5,14 @@ import {
     ContentChild,
     ElementRef,
     EventEmitter,
+    forwardRef,
     HostListener,
     Inject,
     Input,
     Optional,
     Output,
     Self,
+    TemplateRef,
     ViewChild,
     ViewEncapsulation,
 } from '@angular/core';
@@ -20,6 +22,7 @@ import {
     EMPTY_ARRAY,
     TUI_IS_MOBILE,
     tuiAsFocusableItemAccessor,
+    TuiContextWithImplicit,
     tuiDefaultProp,
     TuiFocusableElementAccessor,
     tuiIsNativeFocused,
@@ -55,8 +58,11 @@ export class TuiInputFilesComponent
 
     private dataTransfer: DataTransfer | null = null;
 
-    @ContentChild(TuiInputFilesDirective, {read: TuiInputFilesDirective})
+    @ContentChild(forwardRef(() => TuiInputFilesDirective))
     readonly nativeInput?: TuiInputFilesDirective;
+
+    @ContentChild(TemplateRef)
+    readonly template?: TemplateRef<TuiContextWithImplicit<boolean>>;
 
     @ViewChild('formatRejection')
     readonly formatRejection!: PolymorpheusContent;
@@ -65,12 +71,10 @@ export class TuiInputFilesComponent
     readonly maxSizeRejection!: PolymorpheusContent;
 
     @Input()
-    @tuiDefaultProp()
-    link: PolymorpheusContent = '';
+    link: PolymorpheusContent;
 
     @Input()
-    @tuiDefaultProp()
-    label: PolymorpheusContent = '';
+    label: PolymorpheusContent;
 
     /**
      * @deprecated: use `<input tuiInputFiles accept="image/*" />`
@@ -95,7 +99,7 @@ export class TuiInputFilesComponent
     maxFileSize = this.options.maxFileSize;
 
     @Output()
-    reject = new EventEmitter<TuiFileLike | readonly TuiFileLike[]>();
+    readonly reject = new EventEmitter<TuiFileLike | readonly TuiFileLike[]>();
 
     constructor(
         @Optional()
@@ -103,7 +107,7 @@ export class TuiInputFilesComponent
         @Inject(NgControl)
         control: NgControl | null,
         @Inject(ChangeDetectorRef)
-        changeDetectorRef: ChangeDetectorRef,
+        cdr: ChangeDetectorRef,
         @Inject(TUI_IS_MOBILE)
         readonly isMobile: boolean,
         @Inject(TUI_INPUT_FILE_TEXTS)
@@ -123,7 +127,7 @@ export class TuiInputFilesComponent
         @Inject(TUI_INPUT_FILES_OPTIONS)
         readonly options: TuiInputFilesOptions,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get computedMultiple(): boolean {
@@ -195,11 +199,9 @@ export class TuiInputFilesComponent
     }
 
     removeFile(removedFile: TuiFileLike): void {
-        this.updateValue(
-            this.computedMultiple
-                ? this.arrayValue.filter(file => file !== removedFile)
-                : null,
-        );
+        this.value = this.computedMultiple
+            ? this.arrayValue.filter(file => file !== removedFile)
+            : null;
     }
 
     @tuiPure
@@ -212,7 +214,7 @@ export class TuiInputFilesComponent
             ? of('')
             : this.inputFileTexts$.pipe(
                   map(texts =>
-                      multiple && link === ''
+                      multiple && !link
                           ? texts.defaultLinkMultiple
                           : link || texts.defaultLinkSingle,
                   ),
@@ -238,7 +240,7 @@ export class TuiInputFilesComponent
 
         return this.inputFileTexts$.pipe(
             map(texts =>
-                multiple && label === ''
+                multiple && !label
                     ? texts.defaultLabelMultiple
                     : label || texts.defaultLabelSingle,
             ),
@@ -296,11 +298,9 @@ export class TuiInputFilesComponent
             ]);
         }
 
-        this.updateValue(
-            this.computedMultiple
-                ? [...this.arrayValue, ...acceptedFiles]
-                : acceptedFiles[0] || null,
-        );
+        this.value = this.computedMultiple
+            ? [...this.arrayValue, ...acceptedFiles]
+            : acceptedFiles[0] || null;
     }
 
     private isFormatAcceptable(file: File): boolean {

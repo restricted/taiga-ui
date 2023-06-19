@@ -1,9 +1,9 @@
 <div
-    *tuiLet="!!(open$ | async) as isOpen"
+    *tuiLet="(open$ | async) ?? openChange.value as isOpen"
     #activeZone="tuiActiveZone"
+    tuiAccessorProxy
     class="t-wrapper"
     [tuiDropdownSided]="sided"
-    [tuiDropdownHost]="host"
     [tuiDropdown]="dropdown"
     [tuiDropdownManual]="isOpen && canOpen"
     [tuiObscuredEnabled]="isOpen"
@@ -17,7 +17,6 @@
     >
         <div
             #wrapper
-            (keydown.esc)="onKeyDownEsc($event)"
             (keydown)="onKeydown($event)"
         >
             <ng-container

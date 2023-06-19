@@ -14,7 +14,6 @@ import {
     EMPTY_QUERY,
     TuiContextWithImplicit,
     TuiDay,
-    tuiDefaultProp,
     TuiDestroyService,
     TuiHoveredService,
     tuiPure,
@@ -23,10 +22,8 @@ import {
 import {TuiPoint} from '@taiga-ui/core';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {combineLatest, Observable} from 'rxjs';
-import {filter, map, takeUntil} from 'rxjs/operators';
+import {filter, takeUntil} from 'rxjs/operators';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiLineDaysChartComponent} from './line-days-chart.component';
 
 // TODO: Consider extending TuiLineChartHintDirective
@@ -39,8 +36,7 @@ export class TuiLineDaysChartHintDirective implements AfterContentInit {
     private readonly charts: QueryList<TuiLineDaysChartComponent> = EMPTY_QUERY;
 
     @Input('tuiLineChartHint')
-    @tuiDefaultProp()
-    hint: PolymorpheusContent<TuiContextWithImplicit<readonly TuiPoint[]>> = '';
+    hint: PolymorpheusContent<TuiContextWithImplicit<readonly TuiPoint[]>>;
 
     constructor(
         @Self() @Inject(TuiDestroyService) private readonly destroy$: TuiDestroyService,
@@ -49,10 +45,12 @@ export class TuiLineDaysChartHintDirective implements AfterContentInit {
     ) {}
 
     ngAfterContentInit(): void {
-        combineLatest([tuiLineChartDrivers(this.charts), this.hovered$])
+        combineLatest([
+            ...this.charts.map(({charts}) => tuiLineChartDrivers(charts)),
+            this.hovered$,
+        ])
             .pipe(
-                map(([drivers, hovered]) => !drivers && !hovered),
-                filter(Boolean),
+                filter(result => !result.some(Boolean)),
                 tuiZonefree(this.ngZone),
                 takeUntil(this.destroy$),
             )

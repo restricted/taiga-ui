@@ -2,13 +2,13 @@ import {DOCUMENT} from '@angular/common';
 import {ElementRef, Inject, Injectable} from '@angular/core';
 import {tuiTypedFromEvent} from '@taiga-ui/cdk/observables';
 import {merge, Observable} from 'rxjs';
-import {filter, map, pairwise, repeat, switchMapTo, takeUntil} from 'rxjs/operators';
+import {filter, map, pairwise, repeat, switchMap, takeUntil} from 'rxjs/operators';
 
 @Injectable()
 export class TuiPanService extends Observable<readonly [number, number]> {
     constructor(
         @Inject(ElementRef) {nativeElement}: ElementRef<Element>,
-        @Inject(DOCUMENT) documentRef: Document,
+        @Inject(DOCUMENT) doc: Document,
     ) {
         super(subscriber => {
             merge(
@@ -16,15 +16,15 @@ export class TuiPanService extends Observable<readonly [number, number]> {
                 tuiTypedFromEvent(nativeElement, `mousedown`),
             )
                 .pipe(
-                    switchMapTo(
+                    switchMap(() =>
                         merge(
-                            tuiTypedFromEvent(documentRef, `touchmove`, {
+                            tuiTypedFromEvent(doc, `touchmove`, {
                                 passive: true,
                             }).pipe(
                                 filter(({touches}) => touches.length < 2),
                                 map(({touches}) => touches[0]),
                             ),
-                            tuiTypedFromEvent(documentRef, `mousemove`),
+                            tuiTypedFromEvent(doc, `mousemove`),
                         ),
                     ),
                     pairwise(),
@@ -37,8 +37,8 @@ export class TuiPanService extends Observable<readonly [number, number]> {
                     // eslint-disable-next-line rxjs/no-unsafe-takeuntil
                     takeUntil(
                         merge(
-                            tuiTypedFromEvent(documentRef, `touchend`),
-                            tuiTypedFromEvent(documentRef, `mouseup`),
+                            tuiTypedFromEvent(doc, `touchend`),
+                            tuiTypedFromEvent(doc, `mouseup`),
                         ),
                     ),
                     repeat(),

@@ -42,7 +42,7 @@ export class ExampleTuiComboBoxComponent extends AbstractExampleTuiControl {
     @ViewChild('valueTemplateContent')
     private readonly valueTemplateRef: PolymorpheusContent<
         TuiValueContentContext<Account>
-    > = '';
+    >;
 
     readonly exampleForm = import('./examples/import/declare-form.md?raw');
 
@@ -101,7 +101,7 @@ export class ExampleTuiComboBoxComponent extends AbstractExampleTuiControl {
 
     selectedValueTemplate = '';
 
-    readonly iconVariants = ['', 'tuiIconPiechartLarge', 'tuiIconCardsLarge'];
+    readonly iconVariants = ['', 'tuiIconPieChartLarge', 'tuiIconCreditCardLarge'];
 
     override iconLeft = this.iconVariants[0];
 

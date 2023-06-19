@@ -20,6 +20,7 @@ import {TuiPrimitiveTextfield} from '../primitive-textfield-types';
     templateUrl: './value-decoration.template.html',
     styleUrls: ['./value-decoration.style.less'],
     // It follows Change Detection of PrimitiveTextfield
+    // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
     changeDetection: ChangeDetectionStrategy.Default,
 })
 export class TuiValueDecorationComponent implements DoCheck {
@@ -81,7 +82,7 @@ export class TuiValueDecorationComponent implements DoCheck {
     }
 
     private get decorationsVisible(): boolean {
-        return !!this.value || this.focused;
+        return !!this.value || (this.focused && !this.placeholder);
     }
 
     private get focused(): boolean {

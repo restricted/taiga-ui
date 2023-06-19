@@ -4,6 +4,7 @@ import {changeDetection} from '@demo/emulate/change-detection';
 import {TuiDocExample, tuiDocExcludeProperties} from '@taiga-ui/addon-doc';
 import {
     ALWAYS_FALSE_HANDLER,
+    ALWAYS_TRUE_HANDLER,
     TUI_DEFAULT_STRINGIFY,
     TuiBooleanHandler,
     TuiContextWithImplicit,
@@ -95,6 +96,11 @@ export class ExampleTuiMultiSelectComponent extends AbstractExampleTuiControl {
         HTML: import('./examples/9/index.html?raw'),
     };
 
+    readonly example10: TuiDocExample = {
+        TypeScript: import('./examples/10/index.ts?raw'),
+        HTML: import('./examples/10/index.html?raw'),
+    };
+
     override labelOutside = true;
 
     readonly items = [
@@ -107,6 +113,8 @@ export class ExampleTuiMultiSelectComponent extends AbstractExampleTuiControl {
 
     expandable = true;
 
+    rows = 100;
+
     editable = true;
 
     search: string | null = '';
@@ -116,8 +124,8 @@ export class ExampleTuiMultiSelectComponent extends AbstractExampleTuiControl {
     readonly iconVariants = [
         '',
         'tuiIconSearchLarge',
-        'tuiIconPiechartLarge',
-        'tuiIconCardsLarge',
+        'tuiIconPieChartLarge',
+        'tuiIconCreditCardLarge',
     ];
 
     override iconLeft = '';
@@ -137,6 +145,14 @@ export class ExampleTuiMultiSelectComponent extends AbstractExampleTuiControl {
     ];
 
     identityMatcher = this.identityMatcherVariants[0];
+
+    tagValidatorVariants: ReadonlyArray<TuiBooleanHandler<Account>> = [
+        ALWAYS_TRUE_HANDLER,
+        item => item.balance > 300,
+        item => !item.name.startsWith('Pounds'),
+    ];
+
+    tagValidator = this.tagValidatorVariants[0];
 
     override readonly maxLengthVariants: readonly number[] = [10];
 

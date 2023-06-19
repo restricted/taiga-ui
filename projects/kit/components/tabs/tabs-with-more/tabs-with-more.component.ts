@@ -49,13 +49,10 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
     private maxIndex = Infinity;
 
     @Input()
-    @tuiDefaultProp()
-    moreContent: PolymorpheusContent = '';
+    moreContent: PolymorpheusContent;
 
     @Input()
-    @tuiDefaultProp()
-    dropdownContent: PolymorpheusContent<TuiContextWithImplicit<TuiActiveZoneDirective>> =
-        '';
+    dropdownContent: PolymorpheusContent<TuiContextWithImplicit<TuiActiveZoneDirective>>;
 
     @Input()
     @HostBinding('class._underline')
@@ -82,15 +79,15 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
         @Inject(TUI_TABS_OPTIONS) private readonly options: TuiTabsOptions,
         @Inject(TUI_TAB_MARGIN) private readonly margin: number,
         @Inject(TUI_TABS_REFRESH) private readonly refresh$: Observable<unknown>,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
-        @Inject(ChangeDetectorRef) private readonly changeDetectorRef: ChangeDetectorRef,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
+        @Inject(ChangeDetectorRef) private readonly cdr: ChangeDetectorRef,
         @Inject(TUI_MORE_WORD) readonly moreWord$: Observable<string>,
     ) {}
 
     // TODO: Improve performance
     get tabs(): readonly HTMLElement[] {
         return Array.from<HTMLElement>(
-            this.elementRef.nativeElement.querySelectorAll('[tuiTab]'),
+            this.el.nativeElement.querySelectorAll('[tuiTab]'),
         );
     }
 
@@ -143,7 +140,7 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
             )
             .subscribe(maxIndex => {
                 this.maxIndex = maxIndex;
-                this.changeDetectorRef.detectChanges();
+                this.cdr.detectChanges();
             });
     }
 
@@ -208,14 +205,15 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
             return 0;
         }
 
-        const {clientWidth} = this.elementRef.nativeElement;
+        const {exposeActive, minMoreWidth} = this.options;
+        const {clientWidth} = this.el.nativeElement;
         const activeWidth = tabs[activeItemIndex] ? tabs[activeItemIndex].scrollWidth : 0;
-        const moreWidth = tabs[tabs.length - 1].scrollWidth;
+        const moreWidth = Math.max(tabs[tabs.length - 1].scrollWidth, minMoreWidth);
         let maxIndex = tabs.length - 2;
         let total =
             tabs.reduce((acc, {scrollWidth}) => acc + scrollWidth, 0) +
             maxIndex * margin -
-            moreWidth;
+            tabs[tabs.length - 1].scrollWidth;
 
         if (total <= clientWidth) {
             return Infinity;
@@ -225,8 +223,7 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
             total -= tabs[maxIndex].scrollWidth + margin;
             maxIndex--;
 
-            const activeDisplaced =
-                this.options.exposeActive && activeItemIndex > maxIndex;
+            const activeDisplaced = exposeActive && activeItemIndex > maxIndex;
             const activeOffset = activeDisplaced ? activeWidth + margin : 0;
             const currentWidth = total + activeOffset + moreWidth + margin;
             // Needed for different rounding of visible and hidden elements scrollWidth
@@ -241,10 +238,6 @@ export class TuiTabsWithMoreComponent implements AfterViewInit {
     }
 
     private updateActiveItemIndex(activeItemIndex: number): void {
-        if (this.activeItemIndex === activeItemIndex) {
-            return;
-        }
-
         this.activeItemIndex = activeItemIndex;
         this.activeItemIndexChange.emit(activeItemIndex);
         this.maxIndex = this.getMaxIndex();

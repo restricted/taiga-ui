@@ -29,9 +29,7 @@ import {
     TuiTextfieldController,
     TuiTextfieldOptions,
 } from '@taiga-ui/core/directives/textfield-controller';
-import {MODE_PROVIDER} from '@taiga-ui/core/providers';
-import {TUI_MODE, TUI_TEXTFIELD_APPEARANCE} from '@taiga-ui/core/tokens';
-import {TuiBrightness, TuiSizeL, TuiSizeS} from '@taiga-ui/core/types';
+import {TuiSizeL, TuiSizeS} from '@taiga-ui/core/types';
 import {tuiGetBorder} from '@taiga-ui/core/utils/miscellaneous';
 import {PolymorpheusContent, PolymorpheusOutletDirective} from '@tinkoff/ng-polymorpheus';
 import {fromEvent, Observable} from 'rxjs';
@@ -39,8 +37,8 @@ import {map} from 'rxjs/operators';
 
 import {TuiPrimitiveTextfield} from './primitive-textfield-types';
 
-const ICON_PADDING = 1.75;
-const ICON_PADDING_S = 1.5;
+const ICON_PADDING_L = 1.75;
+const ICON_PADDING = 1.625;
 
 @Component({
     selector: 'tui-primitive-textfield',
@@ -50,10 +48,8 @@ const ICON_PADDING_S = 1.5;
     providers: [
         tuiAsFocusableItemAccessor(TuiPrimitiveTextfieldComponent),
         TEXTFIELD_CONTROLLER_PROVIDER,
-        MODE_PROVIDER,
     ],
     host: {
-        '($.data-mode.attr)': 'mode$',
         '[class._autofilled]': 'autofilled',
         '[class._label-outside]': 'controller.labelOutside',
     },
@@ -118,8 +114,6 @@ export class TuiPrimitiveTextfieldComponent
     autofilled = false;
 
     constructor(
-        @Inject(TUI_MODE) readonly mode$: Observable<TuiBrightness | null>,
-        @Inject(TUI_TEXTFIELD_APPEARANCE) readonly appearance: string,
         @Inject(TUI_TEXTFIELD_WATCHED_CONTROLLER)
         readonly controller: TuiTextfieldController,
         @Optional()
@@ -127,7 +121,7 @@ export class TuiPrimitiveTextfieldComponent
         readonly hintOptions: TuiHintOptionsDirective | null,
         @Inject(TUI_TEXTFIELD_OPTIONS)
         readonly options: TuiTextfieldOptions,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
     ) {
         super();
     }
@@ -156,7 +150,11 @@ export class TuiPrimitiveTextfieldComponent
     }
 
     get focused(): boolean {
-        return tuiIsNativeFocusedIn(this.elementRef.nativeElement);
+        return tuiIsNativeFocusedIn(this.el.nativeElement);
+    }
+
+    get appearance(): string {
+        return this.controller.appearance;
     }
 
     @HostBinding('attr.data-size')
@@ -195,27 +193,19 @@ export class TuiPrimitiveTextfieldComponent
         return !!this.controller.customContent;
     }
 
-    get showOnlyPlaceholder(): boolean {
-        return (
-            this.focused &&
-            this.placeholderVisible &&
-            (this.size === 's' || (this.size === 'm' && !this.placeholderRaisable))
-        );
-    }
-
     get placeholderVisible(): boolean {
         const hasDecor =
-            this.nativeFocusableElement?.placeholder || this.prefix || this.postfix;
+            this.nativeFocusableElement?.placeholder ||
+            this.prefix ||
+            this.postfix ||
+            this.filler;
         const showDecor = hasDecor && !this.readOnly && this.computedFocused;
 
         return !this.hasValue && !showDecor;
     }
 
     get hasPlaceholder(): boolean {
-        return (
-            !this.showOnlyPlaceholder &&
-            (this.placeholderRaisable || this.placeholderVisible)
-        );
+        return this.placeholderRaisable || this.placeholderVisible;
     }
 
     get placeholderRaised(): boolean {
@@ -248,6 +238,13 @@ export class TuiPrimitiveTextfieldComponent
         TuiContextWithImplicit<TuiSizeL | TuiSizeS>
     > {
         return this.controller.iconLeft;
+    }
+
+    get showHint(): boolean {
+        return (
+            !!this.hintOptions?.content &&
+            (this.options.hintOnDisabled || !this.computedDisabled)
+        );
     }
 
     // Safari expiration date autofill workaround
@@ -300,7 +297,7 @@ export class TuiPrimitiveTextfieldComponent
     }
 
     private get iconPaddingLeft(): number {
-        return this.size === 's' ? ICON_PADDING_S : ICON_PADDING;
+        return this.size === 'l' ? ICON_PADDING_L : ICON_PADDING;
     }
 
     private get placeholderRaisable(): boolean {

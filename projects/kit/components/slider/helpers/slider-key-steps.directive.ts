@@ -23,8 +23,6 @@ import {
     tuiPercentageToKeyStepValue,
 } from '@taiga-ui/kit/utils';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiSliderComponent} from '../slider.component';
 
 @Directive({
@@ -33,6 +31,7 @@ import {TuiSliderComponent} from '../slider.component';
         '[attr.aria-valuenow]': 'safeCurrentValue',
         '[attr.aria-valuemin]': 'min',
         '[attr.aria-valuemax]': 'max',
+        '[disabled]': 'computedDisabled',
     },
 })
 export class TuiSliderKeyStepsDirective
@@ -43,7 +42,7 @@ export class TuiSliderKeyStepsDirective
     keySteps!: TuiKeySteps;
 
     get nativeFocusableElement(): HTMLInputElement | null {
-        return this.computedDisabled ? null : this.elementRef.nativeElement;
+        return this.computedDisabled ? null : this.el.nativeElement;
     }
 
     get focused(): boolean {
@@ -63,19 +62,20 @@ export class TuiSliderKeyStepsDirective
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLInputElement>,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLInputElement>,
         @Inject(forwardRef(() => TuiSliderComponent))
         private readonly slider: TuiSliderComponent,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     @HostListener('input')
     @HostListener('change')
     updateControlValue(): void {
-        this.updateValue(
-            tuiPercentageToKeyStepValue(this.slider.valuePercentage, this.keySteps),
+        this.value = tuiPercentageToKeyStepValue(
+            this.slider.valuePercentage,
+            this.keySteps,
         );
     }
 
@@ -86,10 +86,11 @@ export class TuiSliderKeyStepsDirective
 
         const clampedControlValue = tuiClamp(controlValue, this.min, this.max);
 
-        tuiAssert.assert(
-            controlValue === clampedControlValue,
-            '\n[SliderKeySteps]: You cannot programmatically set value which is less/more than min/max',
-        );
+        ngDevMode &&
+            tuiAssert.assert(
+                controlValue === clampedControlValue,
+                '\n[SliderKeySteps]: You cannot programmatically set value which is less/more than min/max',
+            );
 
         this.slider.value = this.transformToNativeValue(clampedControlValue);
     }

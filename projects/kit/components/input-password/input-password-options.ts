@@ -14,14 +14,16 @@ export interface TuiInputPasswordOptions {
 export const TUI_INPUT_PASSWORD_DEFAULT_OPTIONS: TuiInputPasswordOptions = {
     icons: {
         hide: ({$implicit}) =>
-            $implicit === `s` ? `tuiIconEyeClosed` : `tuiIconHideLarge`,
-        show: ({$implicit}) =>
-            $implicit === `s` ? `tuiIconEyeOpen` : `tuiIconShowLarge`,
+            $implicit === `s` ? `tuiIconEyeOff` : `tuiIconEyeOffLarge`,
+        show: ({$implicit}) => ($implicit === `s` ? `tuiIconEye` : `tuiIconEyeLarge`),
     },
 };
 
+/**
+ * Default parameters for input password component
+ */
 export const TUI_INPUT_PASSWORD_OPTIONS = new InjectionToken<TuiInputPasswordOptions>(
-    `[TUI_INPUT_PASSWORD_OPTIONS]: Default parameters for input password component`,
+    `[TUI_INPUT_PASSWORD_OPTIONS]`,
     {
         factory: () => TUI_INPUT_PASSWORD_DEFAULT_OPTIONS,
     },

@@ -46,12 +46,12 @@ export class TuiCheckboxBlockComponent
     private readonly checkbox?: TuiCheckboxComponent;
 
     @Input()
-    @HostBinding('attr.data-tui-host-align')
+    @HostBinding('attr.data-align')
     @tuiDefaultProp()
     contentAlign: TuiHorizontalDirection = 'right';
 
     @Input()
-    @HostBinding('class._hidden_checkbox')
+    @HostBinding('class._hidden_input')
     @tuiDefaultProp()
     hideCheckbox = false;
 
@@ -65,12 +65,12 @@ export class TuiCheckboxBlockComponent
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Optional()
         @Inject(TuiModeDirective)
         private readonly modeDirective: TuiModeDirective | null,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): TuiNativeFocusableElement | null {
@@ -108,7 +108,8 @@ export class TuiCheckboxBlockComponent
         this.updateFocusVisible(focusVisible);
     }
 
+    /** @deprecated use 'value' setter */
     onModelChange(value: boolean): void {
-        this.updateValue(value);
+        this.value = value;
     }
 }

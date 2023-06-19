@@ -24,7 +24,7 @@ import {
     tuiZoneOptimized,
 } from '@taiga-ui/cdk';
 import {
-    TuiDriver,
+    TuiHintHoverDirective,
     TuiHintOptionsDirective,
     tuiHintOptionsProvider,
     TuiPoint,
@@ -33,23 +33,22 @@ import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable, Subject} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiLineChartHintDirective} from './line-chart-hint.directive';
+import {TUI_LINE_CHART_OPTIONS, TuiLineChartOptions} from './line-chart-options';
 
 @Component({
     selector: 'tui-line-chart',
     templateUrl: './line-chart.template.html',
     styleUrls: ['./line-chart.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    viewProviders: [tuiHintOptionsProvider({direction: 'top'})],
+    viewProviders: [tuiHintOptionsProvider({direction: 'top', hideDelay: 0})],
 })
 export class TuiLineChartComponent {
     private readonly _hovered$ = new Subject<number>();
 
     private readonly autoIdString: string;
 
-    @ViewChildren(TuiDriver)
+    @ViewChildren(TuiHintHoverDirective)
     readonly drivers: QueryList<Observable<boolean>> = EMPTY_QUERY;
 
     @Input('value')
@@ -79,7 +78,7 @@ export class TuiLineChartComponent {
         (smoothingFactor: number) => tuiInRange(smoothingFactor, 0, 100),
         'smoothingFactor must be between 0 and 100',
     )
-    smoothingFactor = 0;
+    smoothingFactor = this.options.smoothingFactor;
 
     @Input()
     @tuiDefaultProp()
@@ -91,11 +90,11 @@ export class TuiLineChartComponent {
 
     @Input()
     @tuiDefaultProp()
-    filled = false;
+    filled = this.options.filled;
 
     @Input()
     @tuiDefaultProp()
-    dots = false;
+    dots = this.options.dots;
 
     value: readonly TuiPoint[] = [];
 
@@ -110,6 +109,7 @@ export class TuiLineChartComponent {
         @Optional()
         @Inject(TuiHintOptionsDirective)
         readonly hintOptions: TuiHintOptionsDirective | null,
+        @Inject(TUI_LINE_CHART_OPTIONS) private readonly options: TuiLineChartOptions,
     ) {
         this.autoIdString = idService.generate();
     }

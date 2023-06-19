@@ -8,17 +8,22 @@ import {
     Output,
 } from '@angular/core';
 import {DomSanitizer, SafeValue} from '@angular/platform-browser';
-import {TUI_IS_MOBILE, tuiDefaultProp, tuiIsObserved, tuiPure} from '@taiga-ui/cdk';
+import {
+    tuiDefaultProp,
+    TuiInjectionTokenType,
+    tuiIsObserved,
+    tuiPure,
+} from '@taiga-ui/cdk';
 import {TuiSizeL} from '@taiga-ui/core';
+import {TuiLanguage} from '@taiga-ui/i18n';
 import {TuiFileLike} from '@taiga-ui/kit/interfaces';
 import {TUI_DIGITAL_INFORMATION_UNITS, TUI_FILE_TEXTS} from '@taiga-ui/kit/tokens';
 import {TuiFileState} from '@taiga-ui/kit/types';
-import {tuiFormatSize} from '@taiga-ui/kit/utils/files';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 import {Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 
-type FileTexts = 'loadingError' | 'preview' | 'remove';
+import {TUI_FILE_OPTIONS} from './file-options';
 
 @Component({
     selector: 'tui-file',
@@ -48,8 +53,7 @@ export class TuiFileComponent {
     showSize = true;
 
     @Input()
-    @tuiDefaultProp()
-    leftContent: PolymorpheusContent = '';
+    leftContent: PolymorpheusContent;
 
     @Output()
     readonly removed = new EventEmitter<void>();
@@ -58,12 +62,15 @@ export class TuiFileComponent {
     focused = false;
 
     constructor(
-        @Inject(TUI_IS_MOBILE) readonly isMobile: boolean,
         @Inject(DomSanitizer) private readonly sanitizer: DomSanitizer,
         @Inject(TUI_FILE_TEXTS)
-        readonly fileTexts$: Observable<Record<FileTexts, string>>,
+        readonly fileTexts$: TuiInjectionTokenType<typeof TUI_FILE_TEXTS>,
+        @Inject(TUI_FILE_OPTIONS)
+        private readonly options: TuiInjectionTokenType<typeof TUI_FILE_OPTIONS>,
         @Inject(TUI_DIGITAL_INFORMATION_UNITS)
-        private readonly units$: Observable<[string, string, string]>,
+        private readonly units$: TuiInjectionTokenType<
+            typeof TUI_DIGITAL_INFORMATION_UNITS
+        >,
     ) {}
 
     get preview(): SafeValue {
@@ -92,7 +99,7 @@ export class TuiFileComponent {
 
     get icon(): string {
         if (this.state === 'normal' && this.isBig) {
-            return 'tuiIconDefaultDocLarge';
+            return 'tuiIconFileLarge';
         }
 
         switch (this.state) {
@@ -138,7 +145,7 @@ export class TuiFileComponent {
     private calculateContent$(
         state: TuiFileState,
         file: TuiFileLike,
-        fileTexts$: Observable<Record<'loadingError' | 'preview' | 'remove', string>>,
+        fileTexts$: Observable<Record<keyof TuiLanguage['fileTexts'], string>>,
     ): Observable<PolymorpheusContent> {
         return state === 'error' && !file.content
             ? fileTexts$.pipe(map(texts => texts.loadingError))
@@ -150,7 +157,7 @@ export class TuiFileComponent {
         file: TuiFileLike,
         units$: Observable<[string, string, string]>,
     ): Observable<string | null> {
-        return units$.pipe(map(units => tuiFormatSize(units, file.size)));
+        return units$.pipe(map(units => this.options.formatSize(units, file.size)));
     }
 
     @tuiPure

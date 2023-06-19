@@ -32,7 +32,7 @@ import {TuiRadioComponent} from '@taiga-ui/kit/components/radio';
 @Component({
     selector: 'tui-radio-block',
     templateUrl: './radio-block.template.html',
-    styleUrls: ['./radio-block.style.less'],
+    styleUrls: ['../checkbox-block/checkbox-block.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         tuiAsFocusableItemAccessor(TuiRadioBlockComponent),
@@ -54,7 +54,7 @@ export class TuiRadioBlockComponent<T>
     identityMatcher: TuiIdentityMatcher<T> = TUI_DEFAULT_IDENTITY_MATCHER;
 
     @Input()
-    @HostBinding('attr.data-tui-host-align')
+    @HostBinding('attr.data-align')
     @tuiDefaultProp()
     contentAlign: TuiHorizontalDirection = 'right';
 
@@ -64,7 +64,7 @@ export class TuiRadioBlockComponent<T>
     size: TuiSizeL | TuiSizeS = 'l';
 
     @Input()
-    @HostBinding('class._hidden_radio')
+    @HostBinding('class._hidden_input')
     @tuiDefaultProp()
     hideRadio = false;
 
@@ -77,12 +77,12 @@ export class TuiRadioBlockComponent<T>
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Optional()
         @Inject(TuiModeDirective)
         private readonly modeDirective: TuiModeDirective | null,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): TuiNativeFocusableElement | null {
@@ -100,7 +100,7 @@ export class TuiRadioBlockComponent<T>
 
     @HostBinding('class._active')
     get checked(): boolean {
-        return this.value === this.item && this.hideRadio;
+        return !!this.radio?.checked && this.hideRadio;
     }
 
     get checkboxSize(): TuiSizeL {
@@ -125,7 +125,8 @@ export class TuiRadioBlockComponent<T>
         this.updateFocusVisible(focusVisible);
     }
 
+    /** @deprecated use 'value' setter */
     onModelChange(value: T): void {
-        this.updateValue(value);
+        this.value = value;
     }
 }

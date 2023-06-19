@@ -1,5 +1,6 @@
 import {ComponentRef, EmbeddedViewRef, TemplateRef} from '@angular/core';
 import {AbstractTuiPortalHostComponent} from '@taiga-ui/cdk';
+import {tuiSwitchNgDevMode} from '@taiga-ui/testing';
 import {PolymorpheusComponent} from '@tinkoff/ng-polymorpheus';
 
 import {TuiDropdownPortalService} from '../dropdown-portal.service';
@@ -31,22 +32,46 @@ describe(`PortalService`, () => {
         expect(called).toEqual(1);
     });
 
-    it(`throws an error with no host`, () => {
-        let actual = ``;
-        const a = null as unknown as PolymorpheusComponent<unknown, any>;
+    describe(`production mode`, () => {
+        it(`throws an error with no host`, () => {
+            let actual = ``;
+            const a = null as unknown as PolymorpheusComponent<unknown>;
 
-        try {
-            service.add(a);
-        } catch (err) {
-            actual = err.message;
-        }
+            try {
+                service.add(a);
+            } catch (err) {
+                actual = err.message;
+            }
 
-        expect(actual).toEqual(`Portals cannot be used without TuiPortalHostComponent`);
+            expect(actual).toEqual(``);
+        });
+    });
+
+    describe(`dev mode`, () => {
+        beforeEach(() => tuiSwitchNgDevMode(true));
+
+        it(`throws an error with no host`, () => {
+            let actual = ``;
+            const a = null as unknown as PolymorpheusComponent<unknown>;
+
+            try {
+                service.add(a);
+            } catch (err) {
+                actual = err.message;
+            }
+
+            expect(actual).toEqual(
+                `Portals cannot be used without TuiPortalHostComponent`,
+            );
+        });
+
+        afterEach(() => tuiSwitchNgDevMode(false));
     });
 
     it(`addTemplateChild with host attached`, () => {
         const a: TemplateRef<unknown> = null as unknown as TemplateRef<unknown>;
-        const result: EmbeddedViewRef<unknown> = {} as EmbeddedViewRef<unknown>;
+        const result: EmbeddedViewRef<unknown> =
+            {} as unknown as EmbeddedViewRef<unknown>;
         const componentPortalStub: AbstractTuiPortalHostComponent = {
             addTemplateChild: () => result,
         } as unknown as AbstractTuiPortalHostComponent;

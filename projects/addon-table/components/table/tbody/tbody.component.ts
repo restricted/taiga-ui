@@ -17,8 +17,6 @@ import {TuiRowDirective} from '../directives/row.directive';
 import {TuiTableDirective} from '../directives/table.directive';
 import {TuiTableSortPipe} from '../pipes/table-sort.pipe';
 import {TUI_TABLE_PROVIDER} from '../providers/table.provider';
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiTrComponent} from '../tr/tr.component';
 
 @Component({
@@ -34,8 +32,7 @@ export class TuiTbodyComponent<T extends Partial<Record<keyof T, any>>> {
     data: readonly T[] = [];
 
     @Input()
-    @tuiDefaultProp()
-    heading: PolymorpheusContent = '';
+    heading: PolymorpheusContent;
 
     @Input()
     @tuiDefaultProp()

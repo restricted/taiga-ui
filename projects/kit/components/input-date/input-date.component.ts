@@ -12,8 +12,11 @@ import {
     ViewChild,
 } from '@angular/core';
 import {NgControl} from '@angular/forms';
+import {MASKITO_DEFAULT_OPTIONS, MaskitoOptions} from '@maskito/core';
+import {maskitoDateOptionsGenerator} from '@maskito/kit';
 import {
     AbstractTuiNullableControl,
+    AbstractTuiValueTransformer,
     ALWAYS_FALSE_HANDLER,
     changeDateSeparator,
     DATE_FILLER_LENGTH,
@@ -25,7 +28,6 @@ import {
     tuiAsFocusableItemAccessor,
     TuiBooleanHandler,
     TuiContextWithImplicit,
-    TuiControlValueTransformer,
     tuiDateClamp,
     TuiDateMode,
     TuiDay,
@@ -33,6 +35,7 @@ import {
     TuiFocusableElementAccessor,
     TuiMonth,
     tuiNullableSame,
+    tuiPure,
 } from '@taiga-ui/cdk';
 import {
     TUI_DEFAULT_MARKER_HANDLER,
@@ -43,11 +46,10 @@ import {
     TuiSizeL,
     TuiSizeS,
     TuiTextfieldSizeDirective,
-    TuiTextMaskOptions,
     TuiWithOptionalMinMax,
 } from '@taiga-ui/core';
 import {TuiNamedDay} from '@taiga-ui/kit/classes';
-import {EMPTY_MASK} from '@taiga-ui/kit/constants';
+import {TUI_DATE_MODE_MASKITO_ADAPTER} from '@taiga-ui/kit/constants';
 import {
     TUI_DATE_TEXTS,
     TUI_DATE_VALUE_TRANSFORMER,
@@ -56,10 +58,6 @@ import {
     tuiDateStreamWithTransformer,
     TuiInputDateOptions,
 } from '@taiga-ui/kit/tokens';
-import {
-    tuiCreateAutoCorrectedDatePipe,
-    tuiCreateDateMask,
-} from '@taiga-ui/kit/utils/mask';
 import {PolymorpheusComponent} from '@tinkoff/ng-polymorpheus';
 import {Observable} from 'rxjs';
 import {map, takeUntil} from 'rxjs/operators';
@@ -83,12 +81,6 @@ export class TuiInputDateComponent
     private readonly textfield?: TuiPrimitiveTextfieldComponent;
 
     private month: TuiMonth | null = null;
-
-    private readonly textMaskOptions: TuiTextMaskOptions = {
-        mask: tuiCreateDateMask(this.dateFormat, this.dateSeparator),
-        pipe: tuiCreateAutoCorrectedDatePipe(this),
-        guide: false,
-    };
 
     @Input()
     @tuiDefaultProp()
@@ -129,10 +121,10 @@ export class TuiInputDateComponent
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Inject(Injector) private readonly injector: Injector,
-        @Inject(TUI_IS_MOBILE) private readonly isMobile: boolean,
-        @Inject(TuiDialogService) private readonly dialogService: TuiDialogService,
+        @Inject(TUI_IS_MOBILE) readonly isMobile: boolean,
+        @Inject(TuiDialogService) private readonly dialogs: TuiDialogService,
         @Optional()
         @Inject(TUI_MOBILE_CALENDAR)
         private readonly mobileCalendar: Type<Record<string, any>> | null,
@@ -144,11 +136,11 @@ export class TuiInputDateComponent
         readonly dateTexts$: Observable<Record<TuiDateMode, string>>,
         @Optional()
         @Inject(TUI_DATE_VALUE_TRANSFORMER)
-        override readonly valueTransformer: TuiControlValueTransformer<TuiDay | null> | null,
+        override readonly valueTransformer: AbstractTuiValueTransformer<TuiDay | null> | null,
         @Inject(TUI_INPUT_DATE_OPTIONS)
         private readonly options: TuiInputDateOptions,
     ) {
-        super(control, changeDetectorRef, valueTransformer);
+        super(control, cdr, valueTransformer);
     }
 
     get nativeFocusableElement(): HTMLInputElement | null {
@@ -160,7 +152,11 @@ export class TuiInputDateComponent
     }
 
     get computedMobile(): boolean {
-        return this.isMobile && !!this.mobileCalendar;
+        return this.isMobile && (!!this.mobileCalendar || this.nativePicker);
+    }
+
+    get nativePicker(): boolean {
+        return this.options.nativePicker;
     }
 
     get calendarIcon(): TuiInputDateOptions['icon'] {
@@ -205,8 +201,15 @@ export class TuiInputDateComponent
         return this.interactive && !this.computedMobile;
     }
 
-    get computedMask(): TuiTextMaskOptions {
-        return this.activeItem ? EMPTY_MASK : this.textMaskOptions;
+    get computedMask(): MaskitoOptions {
+        return this.activeItem
+            ? MASKITO_DEFAULT_OPTIONS
+            : this.computeMaskOptions(
+                  this.dateFormat,
+                  this.dateSeparator,
+                  this.min,
+                  this.max,
+              );
     }
 
     get activeItem(): TuiNamedDay | null {
@@ -230,12 +233,21 @@ export class TuiInputDateComponent
         return this.activeItem ? '' : filler;
     }
 
+    // noinspection JSUnusedGlobalSymbols
+    /**
+     * TODO: Remove in 4.0
+     * @deprecated: use {@link onIconClick} instead
+     */
+    onMobileClick(): void {
+        this.onIconClick();
+    }
+
     onIconClick(): void {
         if (!this.computedMobile || !this.mobileCalendar) {
             return;
         }
 
-        this.dialogService
+        this.dialogs
             .open<TuiDay>(new PolymorpheusComponent(this.mobileCalendar, this.injector), {
                 size: 'fullscreen',
                 closeable: false,
@@ -248,7 +260,7 @@ export class TuiInputDateComponent
             })
             .pipe(takeUntil(this.destroy$))
             .subscribe(value => {
-                this.updateValue(value);
+                this.value = value;
             });
     }
 
@@ -261,15 +273,14 @@ export class TuiInputDateComponent
             this.onOpenChange(true);
         }
 
-        this.updateValue(
+        this.value =
             value.length !== DATE_FILLER_LENGTH
                 ? null
-                : TuiDay.normalizeParse(value, this.dateFormat),
-        );
+                : TuiDay.normalizeParse(value, this.dateFormat);
     }
 
     onDayClick(value: TuiDay): void {
-        this.updateValue(value);
+        this.value = value;
         this.open = false;
     }
 
@@ -300,5 +311,20 @@ export class TuiInputDateComponent
         newValue: TuiDay | null,
     ): boolean {
         return tuiNullableSame(oldValue, newValue, (a, b) => a.daySame(b));
+    }
+
+    @tuiPure
+    private computeMaskOptions(
+        mode: TuiDateMode,
+        separator: string,
+        min: TuiDay,
+        max: TuiDay,
+    ): MaskitoOptions {
+        return maskitoDateOptionsGenerator({
+            separator,
+            mode: TUI_DATE_MODE_MASKITO_ADAPTER[mode],
+            min: min.toLocalNativeDate(),
+            max: max.toLocalNativeDate(),
+        });
     }
 }

@@ -23,13 +23,11 @@ export class TuiTabsDirective implements AfterViewChecked {
     @Output()
     readonly activeItemIndexChange = new EventEmitter<number>();
 
-    constructor(
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
-    ) {}
+    constructor(@Inject(ElementRef) private readonly el: ElementRef<HTMLElement>) {}
 
     get tabs(): readonly HTMLElement[] {
         return Array.from(
-            this.elementRef.nativeElement.querySelectorAll<HTMLElement>('[tuiTab]'),
+            this.el.nativeElement.querySelectorAll<HTMLElement>('[tuiTab]'),
         );
     }
 
@@ -37,9 +35,11 @@ export class TuiTabsDirective implements AfterViewChecked {
         return this.tabs[this.activeItemIndex] || null;
     }
 
-    @HostListener(`${TUI_TAB_ACTIVATE}.stop`, ['$event.target'])
-    onActivate(element: HTMLElement): void {
+    @HostListener(TUI_TAB_ACTIVATE, ['$event', '$event.target'])
+    onActivate(event: Event, element: HTMLElement): void {
         const index = this.tabs.findIndex(tab => tab === element);
+
+        event.stopPropagation();
 
         if (index === this.activeItemIndex) {
             return;

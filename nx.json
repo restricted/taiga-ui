@@ -1,6 +1,5 @@
 {
     "implicitDependencies": {
-        "angular.json": "*",
         "package.json": {
             "dependencies": "*",
             "devDependencies": "*"
@@ -8,23 +7,19 @@
         "package-lock.json": "*",
         ".eslintrc.js": "*",
         "nx.json": "*",
-        "jest.config.ts": "*",
         "setup-jest.ts": "*",
         "tsconfig.*.json": "*",
         "tsconfig.json": "*",
-        "scripts/*.ts": "*",
+        "*.config.ts": "*",
+        "scripts/**/*": "*",
+        "*.yml": "*",
         "*.md": "*"
-    },
-    "targetDefaults": {
-        "build": {
-            "inputs": ["!{projectRoot}/**/*.spec.ts"]
-        }
     },
     "tasksRunnerOptions": {
         "default": {
             "runner": "@nrwl/nx-cloud",
             "options": {
-                "cacheableOperations": ["build", "test", "lint"],
+                "cacheableOperations": ["stylelint", "lint", "test", "build", "e2e"],
                 "parallel": 1
             }
         }
@@ -38,6 +33,5 @@
     },
     "cli": {
         "analytics": "ce6ae05d-f6ae-4271-89e4-40e616f7090f"
-    },
-    "defaultProject": "demo"
+    }
 }

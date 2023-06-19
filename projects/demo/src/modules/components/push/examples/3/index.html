@@ -1,5 +1,6 @@
 <button
     tuiButton
+    type="button"
     (click)="toggle(true)"
 >
     Show push
@@ -11,16 +12,18 @@
     type="Dr. Henry Walton Jones, Jr."
     (close)="toggle(false)"
 >
-    <tui-svg src="tuiIconCommentLarge"></tui-svg>
+    <tui-svg src="tuiIconMessageSquareLarge"></tui-svg>
     I have a bad feeling about this...
     <button
         tuiButton
+        type="button"
         (click)="toggle(false)"
     >
         Fortune
     </button>
     <button
         tuiLink
+        type="button"
         (click)="toggle(false)"
     >
         Glory

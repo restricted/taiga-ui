@@ -11,9 +11,9 @@ import {Observable} from 'rxjs';
 import {map, startWith, withLatestFrom} from 'rxjs/operators';
 
 @Component({
-    selector: `tui-mobile-calendar-example-1`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-mobile-calendar-example-1',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
@@ -29,7 +29,7 @@ export class TuiMobileCalendarExample1 {
     );
 
     constructor(
-        @Inject(TuiDialogService) dialogService: TuiDialogService,
+        @Inject(TuiDialogService) dialogs: TuiDialogService,
         @Inject(Injector) injector: Injector,
         @Inject(TUI_MONTHS) private readonly months: Observable<string[]>,
     ) {
@@ -48,8 +48,8 @@ export class TuiMobileCalendarExample1 {
             computedInjector,
         );
 
-        this.dialog$ = dialogService.open(content, {
-            size: `fullscreen`,
+        this.dialog$ = dialogs.open(content, {
+            size: 'fullscreen',
             closeable: false,
             data: {
                 min: TuiDay.currentLocal(),
@@ -63,7 +63,7 @@ export class TuiMobileCalendarExample1 {
 
     getParsed(value: TuiDay | null, months: string[]): string {
         if (!value) {
-            return `Choose a date`;
+            return 'Choose a date';
         }
 
         const {month, day, year} = value;

@@ -7,8 +7,6 @@ import {
 } from '@angular/core';
 import {POLYMORPHEUS_CONTEXT} from '@tinkoff/ng-polymorpheus';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TUI_DEFAULT_TREE_CONTROLLER} from '../../misc/tree.constants';
 import type {TuiTreeController, TuiTreeItemContext} from '../../misc/tree.interfaces';
 // eslint-disable-next-line import/no-cycle
@@ -16,8 +14,8 @@ import {TUI_TREE_CONTROLLER} from '../../misc/tree.tokens';
 
 @Component({
     selector: 'tui-tree-item-content',
-    templateUrl: 'tree-item-content.template.html',
-    styleUrls: ['tree-item-content.style.less'],
+    templateUrl: './tree-item-content.template.html',
+    styleUrls: ['./tree-item-content.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TuiTreeItemContentComponent {

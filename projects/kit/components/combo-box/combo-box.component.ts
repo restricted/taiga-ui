@@ -86,8 +86,7 @@ export class TuiComboBoxComponent<T>
         this.itemsHandlers.identityMatcher;
 
     @Input()
-    @tuiDefaultProp()
-    valueContent: PolymorpheusContent<TuiValueContentContext<T>> = '';
+    valueContent: PolymorpheusContent<TuiValueContentContext<T>>;
 
     @Input()
     @tuiDefaultProp()
@@ -103,7 +102,7 @@ export class TuiComboBoxComponent<T>
     @ContentChild(TuiDataListDirective, {read: TemplateRef})
     readonly datalist: PolymorpheusContent<
         TuiContextWithImplicit<TuiActiveZoneDirective>
-    > = '';
+    >;
 
     open = false;
 
@@ -112,13 +111,13 @@ export class TuiComboBoxComponent<T>
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Inject(TUI_ARROW_MODE)
         private readonly arrowMode: TuiArrowMode,
         @Inject(TUI_ITEMS_HANDLERS)
         private readonly itemsHandlers: TuiItemsHandlers<T>,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get arrow(): PolymorpheusContent<
@@ -128,7 +127,7 @@ export class TuiComboBoxComponent<T>
     }
 
     get nativeFocusableElement(): HTMLInputElement | null {
-        return this.textfield ? this.textfield.nativeFocusableElement : null;
+        return this.textfield?.nativeFocusableElement ?? null;
     }
 
     get focused(): boolean {
@@ -159,16 +158,19 @@ export class TuiComboBoxComponent<T>
             return;
         }
 
-        this.updateValue(option);
+        this.value = option;
         this.updateSearch(null);
     }
 
     handleOption(item: T): void {
-        this.setNativeValue(this.stringify(item));
         this.focusInput();
         this.close();
         this.updateSearch(null);
-        this.updateValue(item);
+        this.value = item;
+
+        if (this.value) {
+            this.setNativeValue(this.stringify(item));
+        }
     }
 
     onFieldKeyDownEnter(event: Event): void {
@@ -182,7 +184,7 @@ export class TuiComboBoxComponent<T>
             return;
         }
 
-        this.updateValue(options[0]);
+        this.value = options[0];
         this.updateSearch(null);
         this.close();
     }
@@ -193,19 +195,20 @@ export class TuiComboBoxComponent<T>
         const match = this.accessor?.getOptions().find(item => this.isStrictMatch(item));
 
         if (match !== undefined) {
-            this.updateValue(match);
+            this.value = match;
             this.updateSearch(null);
 
             return;
         }
 
         if (this.strict || this.search === '') {
-            this.updateValue(null);
+            this.value = null;
         }
 
         this.hostedDropdown?.updateOpen(true);
     }
 
+    /** @deprecated use 'value' setter */
     override updateValue(value: T | null): void {
         super.updateValue(value);
     }

@@ -1,6 +1,16 @@
 import {CHAR_PLUS} from '@taiga-ui/cdk';
 
 /**
+ * TODO: delete in v4.0
+ * @deprecated Use {@link https://tinkoff.github.io/maskito/core-concepts/transformer maskitoTransform} instead<br/>
+ * @example
+ * import {maskitoTransform} from '@maskito/core';
+ *
+ * const mask = {
+ *     mask: ['+', '1', ' ', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
+ * };
+ * maskitoTransform('12125552368', mask); // +1 (212) 555-2368
+ * ___
  * Formats a string with the phone format +7XXXXXXXXXXXX or XXXXXXXXXXXX,
  * adding parentheses and hyphens.
  *
@@ -35,16 +45,16 @@ export function tuiFormatPhone(
         return result;
     }
 
-    for (let i = 0; i < splitPhoneMask.length; i++) {
+    for (const mask of splitPhoneMask) {
         if (splitValue.length === 0) {
             break;
         }
 
-        if (splitPhoneMask[i] === `#`) {
+        if (mask === `#`) {
             result += splitValue[0] || ``;
             splitValue.splice(0, 1);
         } else {
-            result += splitPhoneMask[i];
+            result += mask;
         }
     }
 

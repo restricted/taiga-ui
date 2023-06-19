@@ -1,6 +1,7 @@
 <ng-container *ngIf="zoomTexts$ | async as texts">
     <section class="t-zoom">
         <button
+            type="button"
             tuiIconButton
             tuiPreviewAction
             icon="tuiIconMinus"
@@ -33,6 +34,7 @@
             />
         </label>
         <button
+            type="button"
             tuiIconButton
             tuiPreviewAction
             icon="tuiIconPlus"
@@ -44,14 +46,15 @@
     </section>
 
     <button
+        type="button"
         tuiIconButton
         tuiPreviewAction
-        icon="tuiIconCollapse"
+        icon="tuiIconMinimize"
         tuiHintDirection="top-right"
         tuiHintAppearance="onDark"
+        tuiHintDescribe
         class="t-reset-button"
         [tuiHint]="texts.reset"
-        [tuiHintDescribe]="''"
         [class.t-invisible]="!collapseVisible"
         (click)="onReset()"
     ></button>

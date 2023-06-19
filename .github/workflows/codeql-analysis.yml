@@ -1,5 +1,4 @@
-name: CodeQL
-
+name: ⚙️ CodeQL
 on:
   push:
     branches: [main]
@@ -18,7 +17,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.5.3
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
         with:

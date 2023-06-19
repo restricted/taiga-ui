@@ -8,6 +8,10 @@ import {
 
 const ASSERTION = `Correction function must return single char or null`;
 
+/**
+ * TODO: delete in v4.0
+ * @deprecated Use {@link https://tinkoff.github.io/maskito/core-concepts/processors processors} from {@link https://github.com/Tinkoff/maskito Maskito}
+ */
 export function tuiCreateCorrectionMask(
     allowed: RegExp,
     correctionHandler: TuiTextMaskCorrectionHandler,
@@ -16,7 +20,8 @@ export function tuiCreateCorrectionMask(
         const mask = rawValue.split(``).reduce<TuiTextMaskList>((result, char, index) => {
             const corrected = correctionHandler(char, index);
 
-            tuiAssert.assert(corrected === null || corrected.length === 1, ASSERTION);
+            ngDevMode &&
+                tuiAssert.assert(corrected === null || corrected.length === 1, ASSERTION);
 
             if (!allowed.test(char) && !corrected) {
                 return result;

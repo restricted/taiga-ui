@@ -1,12 +1,26 @@
 {
+    "name": "kit",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "root": "projects/kit",
     "sourceRoot": "projects/kit",
     "projectType": "library",
     "prefix": "tui",
     "implicitDependencies": ["!testing"],
-    "architect": {
+    "targets": {
+        "lint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "eslint --no-error-on-unmatched-pattern \"**/projects/kit/**/*\""
+            }
+        },
+        "stylelint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "stylelint \"**/kit/**/*.{css,less}\" --allow-empty-input"
+            }
+        },
         "build": {
-            "builder": "@angular-devkit/build-angular:ng-packagr",
+            "executor": "@angular-devkit/build-angular:ng-packagr",
             "outputs": ["dist/kit"],
             "options": {
                 "tsConfig": "tsconfig.build.json",
@@ -21,14 +35,14 @@
             ]
         },
         "test": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "outputs": ["coverage/kit"],
             "options": {
-                "command": "jest --testMatch '**/projects/kit/**/*.spec.ts' jest --testMatch '**/projects/kit/**/*.spec.ts' --collect-coverage --collect-coverage-from '**/projects/kit/**/*.ts' --coverage-directory=coverage/kit"
+                "command": "jest --testMatch \"**/projects/kit/**/*.spec.ts\" --collect-coverage --collect-coverage-from \"**/projects/kit/**/*.ts\" --coverage-directory=coverage/kit"
             }
         },
         "publish": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "command": "ts-node ./scripts/publish.ts --path ./dist/kit --dry-run {args.dry-run} --customVersion {args.customVersion} --customTag {args.customTag}"
             }

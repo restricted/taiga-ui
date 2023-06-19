@@ -3,7 +3,11 @@ import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {TuiInputCardModule, TuiMoneyModule} from '@taiga-ui/addon-commerce';
-import {TuiAddonDocModule, tuiGenerateRoutes} from '@taiga-ui/addon-doc';
+import {
+    TuiAddonDocModule,
+    tuiGenerateRoutes,
+    TuiTextCodeModule,
+} from '@taiga-ui/addon-doc';
 import {TuiTableModule} from '@taiga-ui/addon-table';
 import {TuiLetModule, TuiMapperPipeModule, TuiRepeatTimesModule} from '@taiga-ui/cdk';
 import {
@@ -42,6 +46,7 @@ import {TuiInputExample6} from './examples/6';
 import {TuiInputExample7} from './examples/7';
 import {TuiInputExample8} from './examples/8';
 import {TuiInputExample9} from './examples/9';
+import {TuiInputExample10} from './examples/10';
 import {ExampleTuiInputComponent} from './input.component';
 
 @NgModule({
@@ -80,6 +85,7 @@ import {ExampleTuiInputComponent} from './input.component';
         TuiAddonDocModule,
         RouterModule.forChild(tuiGenerateRoutes(ExampleTuiInputComponent)),
         TextMaskModule,
+        TuiTextCodeModule,
     ],
     declarations: [
         ExampleTuiInputComponent,
@@ -92,6 +98,7 @@ import {ExampleTuiInputComponent} from './input.component';
         TuiInputExample7,
         TuiInputExample8,
         TuiInputExample9,
+        TuiInputExample10,
     ],
     exports: [ExampleTuiInputComponent],
 })

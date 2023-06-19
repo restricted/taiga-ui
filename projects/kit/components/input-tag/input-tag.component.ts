@@ -34,15 +34,11 @@ import {
     tuiGetClipboardDataText,
     tuiIsElement,
     tuiIsNativeFocusedIn,
-    tuiPreventDefault,
-    TuiScrollService,
-    tuiTypedFromEvent,
 } from '@taiga-ui/cdk';
 import {
     MODE_PROVIDER,
     TEXTFIELD_CONTROLLER_PROVIDER,
     TUI_MODE,
-    TUI_TEXTFIELD_APPEARANCE,
     TUI_TEXTFIELD_WATCHED_CONTROLLER,
     tuiAsDataListHost,
     TuiBrightness,
@@ -60,12 +56,11 @@ import {TuiStringifiableItem} from '@taiga-ui/kit/classes';
 import {FIXED_DROPDOWN_CONTROLLER_PROVIDER} from '@taiga-ui/kit/providers';
 import {TuiStatus} from '@taiga-ui/kit/types';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
-import {merge, Observable, Subject} from 'rxjs';
-import {filter, map, mapTo, switchMap, takeUntil} from 'rxjs/operators';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 import {TUI_INPUT_TAG_OPTIONS, TuiInputTagOptions} from './input-tag-options';
 
-const EVENT_Y_TO_X_COEFFICIENT = 3;
 const TAG_SIZE_REM = {
     s: 1.25,
     m: 1.5,
@@ -114,9 +109,6 @@ export class TuiInputTagComponent
     @ViewChild(TuiScrollbarComponent, {read: ElementRef})
     private readonly scrollBar?: ElementRef<HTMLElement>;
 
-    private readonly scrollToStart$ = new Subject<void>();
-    private readonly scrollToEnd$ = new Subject<void>();
-
     @Input()
     @tuiDefaultProp()
     separator: RegExp | string = this.options.separator;
@@ -131,7 +123,9 @@ export class TuiInputTagComponent
 
     @Input()
     @tuiDefaultProp()
-    tagValidator: TuiBooleanHandler<string> = ALWAYS_TRUE_HANDLER;
+    tagValidator:
+        | TuiBooleanHandler<string>
+        | TuiBooleanHandler<TuiStringifiableItem<unknown> | string> = ALWAYS_TRUE_HANDLER;
 
     // TODO: 4.0 Consider removing and use rows = 1 instead
     @Input()
@@ -160,13 +154,17 @@ export class TuiInputTagComponent
 
     @Input()
     @tuiDefaultProp()
+    removable = true;
+
+    @Input()
+    @tuiDefaultProp()
     disabledItemHandler: TuiBooleanHandler<TuiStringifiableItem<any> | string> =
         ALWAYS_FALSE_HANDLER;
 
     @Input('pseudoFocused')
     set pseudoFocusedSetter(value: boolean | null) {
         if (!value && !this.focused) {
-            this.scrollToStart$.next();
+            this.scrollTo(0);
         }
 
         this.pseudoFocus = value;
@@ -181,11 +179,6 @@ export class TuiInputTagComponent
     @ViewChild('errorIcon')
     readonly errorIconTemplate?: TemplateRef<Record<string, unknown>>;
 
-    @ViewChild(TuiScrollbarComponent)
-    set scrollerSetter(scroller: TuiScrollbarComponent | null) {
-        this.initScrollerSubscription(scroller);
-    }
-
     status$: Observable<TuiStatus> = this.mode$.pipe(map(() => this.status));
 
     open = false;
@@ -195,10 +188,8 @@ export class TuiInputTagComponent
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
-        @Inject(TuiScrollService) private readonly tuiScrollService: TuiScrollService,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
-        @Inject(TUI_TEXTFIELD_APPEARANCE) readonly appearance: string,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
         @Optional()
         @Inject(TuiModeDirective)
         private readonly modeDirective: TuiModeDirective | null,
@@ -215,7 +206,7 @@ export class TuiInputTagComponent
         @Inject(TuiHostedDropdownComponent)
         private readonly parentHostedDropdown?: TuiHostedDropdownComponent,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): HTMLInputElement | null {
@@ -226,9 +217,12 @@ export class TuiInputTagComponent
 
     get focused(): boolean {
         return (
-            tuiIsNativeFocusedIn(this.elementRef.nativeElement) ||
-            !!this.hostedDropdown?.focused
+            tuiIsNativeFocusedIn(this.el.nativeElement) || !!this.hostedDropdown?.focused
         );
+    }
+
+    get appearance(): string {
+        return this.controller.appearance;
     }
 
     @HostBinding('attr.data-size')
@@ -298,6 +292,13 @@ export class TuiInputTagComponent
         );
     }
 
+    get showHint(): boolean {
+        return (
+            !!this.hintOptions?.content &&
+            (this.controller.options.hintOnDisabled || !this.computedDisabled)
+        );
+    }
+
     get status(): TuiStatus {
         return this.modeDirective?.mode ? 'default' : this.options.tagStatus;
     }
@@ -328,8 +329,8 @@ export class TuiInputTagComponent
         this.addTag();
         this.updateFocused(active);
 
-        if (!this.computedFocused) {
-            this.scrollToStart$.next();
+        if (!active && !this.computedFocused) {
+            this.scrollTo(0);
         }
     }
 
@@ -371,7 +372,7 @@ export class TuiInputTagComponent
 
     onFieldKeyDownEnter(): void {
         this.addTag();
-        this.scrollToEnd$.next();
+        this.scrollTo();
     }
 
     onTagKeyDownArrowLeft(currentIndex: number): void {
@@ -390,7 +391,7 @@ export class TuiInputTagComponent
 
     onTagEdited(value: string, index: number): void {
         this.focusInput();
-        this.updateValue(
+        this.value = this.filterValue(
             this.value
                 .map((tag, tagIndex) =>
                     tagIndex !== index
@@ -410,9 +411,9 @@ export class TuiInputTagComponent
     handleOption(item: string): void {
         this.focusInput();
         this.updateSearch('');
-        this.updateValue(this.value.concat(item));
+        this.value = this.filterValue(this.value.concat(item));
         this.open = false;
-        this.scrollToEnd$.next();
+        this.scrollTo();
     }
 
     onInput(value: string): void {
@@ -424,7 +425,7 @@ export class TuiInputTagComponent
 
         if (array.length > 1) {
             this.updateSearch(this.clippedValue(array[array.length - 1].trim()));
-            this.updateValue([...this.value, ...validated]);
+            this.value = this.filterValue([...this.value, ...validated]);
         } else {
             this.updateSearch(this.clippedValue(value));
         }
@@ -454,18 +455,24 @@ export class TuiInputTagComponent
         return tag.toString();
     }
 
-    protected override updateValue(value: string[]): void {
+    private scrollTo(scrollLeft = this.scrollBar?.nativeElement.scrollWidth): void {
+        // Allow change detection to run and add new tag to DOM
+        setTimeout(() => {
+            if (this.scrollBar) {
+                this.scrollBar.nativeElement.scrollLeft = scrollLeft || 0;
+            }
+        });
+    }
+
+    private filterValue(value: string[]): string[] {
         const seen = new Set();
 
-        super.updateValue(
-            value
-                .reverse()
-                .filter(
-                    item =>
-                        !this.uniqueTags || (!!item && !seen.has(item) && seen.add(item)),
-                )
-                .reverse(),
-        );
+        return value
+            .reverse()
+            .filter(
+                item => !this.uniqueTags || (item && !seen.has(item) && seen.add(item)),
+            )
+            .reverse();
     }
 
     private onScrollKeyDown(currentIndex: number, flag: number): void {
@@ -488,37 +495,6 @@ export class TuiInputTagComponent
         }
     }
 
-    private initScrollerSubscription(scroller: TuiScrollbarComponent | null): void {
-        if (!scroller?.browserScrollRef) {
-            return;
-        }
-
-        const {nativeElement} = scroller.browserScrollRef;
-
-        const wheel$ = tuiTypedFromEvent(nativeElement, 'wheel', {passive: false}).pipe(
-            filter(event => event.deltaX === 0 && this.shouldScroll(nativeElement)),
-            tuiPreventDefault(),
-            map(({deltaY}) =>
-                Math.max(nativeElement.scrollLeft + deltaY * EVENT_Y_TO_X_COEFFICIENT, 0),
-            ),
-        );
-        const start$ = this.scrollToStart$.pipe(mapTo(0));
-        const end$ = this.scrollToEnd$.pipe(map(() => nativeElement.scrollWidth));
-
-        merge(wheel$, start$, end$)
-            .pipe(
-                switchMap(left =>
-                    this.tuiScrollService.scroll$(
-                        nativeElement,
-                        nativeElement.scrollHeight,
-                        left,
-                    ),
-                ),
-                takeUntil(this.destroy$),
-            )
-            .subscribe();
-    }
-
     private updateSearch(value: string): void {
         if (this.focusableElement) {
             this.focusableElement.nativeElement.value = value;
@@ -526,10 +502,6 @@ export class TuiInputTagComponent
 
         this.search = value;
         this.searchChange.emit(value);
-    }
-
-    private shouldScroll({scrollWidth, offsetWidth}: HTMLElement): boolean {
-        return scrollWidth > offsetWidth;
     }
 
     private addTag(): void {
@@ -540,13 +512,13 @@ export class TuiInputTagComponent
         }
 
         this.updateSearch('');
-        this.updateValue(this.value.concat(inputValue));
+        this.value = this.filterValue(this.value.concat(inputValue));
     }
 
     private deleteLastEnabledItem(): void {
         for (let index = this.value.length - 1; index >= 0; index--) {
             if (!this.disabledItemHandler(this.value[index])) {
-                this.updateValue(tuiArrayRemove(this.value, index));
+                this.value = tuiArrayRemove(this.value, index);
 
                 break;
             }

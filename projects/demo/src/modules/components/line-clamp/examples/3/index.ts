@@ -4,17 +4,17 @@ import {encapsulation} from '@demo/emulate/encapsulation';
 import {WINDOW} from '@ng-web-apis/common';
 
 @Component({
-    selector: `tui-line-clamp-example-3`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-line-clamp-example-3',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
 export class TuiLineClampExample3 {
-    constructor(@Inject(WINDOW) private readonly windowRef: Window) {}
+    constructor(@Inject(WINDOW) private readonly win: Window) {}
 
     getDynamicLineHeight(element: HTMLDivElement): number {
-        return parseInt(this.windowRef.getComputedStyle(element).lineHeight, 10);
+        return parseInt(this.win.getComputedStyle(element).lineHeight, 10);
     }
 
     getDynamicLineLimit(element: HTMLDivElement): number {

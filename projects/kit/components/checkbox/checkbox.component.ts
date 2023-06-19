@@ -50,9 +50,9 @@ export class TuiCheckboxComponent
         control: NgControl | null,
         @Inject(TUI_CHECKBOX_OPTIONS)
         private readonly options: TuiCheckboxOptions,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): HTMLInputElement | null {
@@ -69,8 +69,9 @@ export class TuiCheckboxComponent
         return this.interactive && this.focusable;
     }
 
+    /** @deprecated use 'value' setter */
     onChecked(checked: boolean): void {
-        this.updateValue(checked);
+        this.value = checked;
     }
 
     onFocused(focused: boolean): void {

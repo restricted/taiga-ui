@@ -1,11 +1,19 @@
 {
+    "name": "taiga-schematics",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "root": "projects/taiga-schematics",
     "sourceRoot": "projects/taiga-schematics",
     "projectType": "library",
     "implicitDependencies": ["!testing"],
-    "architect": {
+    "targets": {
+        "lint": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "eslint --no-error-on-unmatched-pattern \"**/projects/taiga-schematics/**/*\""
+            }
+        },
         "build": {
-            "builder": "@angular-devkit/build-angular:ng-packagr",
+            "executor": "@angular-devkit/build-angular:ng-packagr",
             "outputs": ["dist/taiga-schematics"],
             "options": {
                 "tsConfig": "tsconfig.build.json",
@@ -20,7 +28,7 @@
             ]
         },
         "publish": {
-            "builder": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "command": "ts-node ./scripts/publish.ts --path ./dist/taiga-schematics --dry-run {args.dry-run} --customVersion {args.customVersion} --customTag {args.customTag}"
             }

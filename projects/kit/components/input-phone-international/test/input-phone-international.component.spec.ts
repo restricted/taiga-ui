@@ -3,7 +3,7 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {By} from '@angular/platform-browser';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {TUI_ICONS_PATH, TuiRootModule} from '@taiga-ui/core';
+import {TuiRootModule, tuiSvgOptionsProvider} from '@taiga-ui/core';
 import {
     TUI_ENGLISH_LANGUAGE,
     TUI_LANGUAGE,
@@ -66,10 +66,9 @@ describe(`InputPhoneInternational`, () => {
                 ],
                 declarations: [TestComponent],
                 providers: [
-                    {
-                        provide: TUI_ICONS_PATH,
-                        useValue: (_: string) => `path/tuiIcon.svg#tuiIcon`,
-                    },
+                    tuiSvgOptionsProvider({
+                        path: (_: string) => `path/tuiIcon.svg#tuiIcon`,
+                    }),
                     {
                         provide: TUI_LANGUAGE,
                         useValue: of(language),
@@ -84,26 +83,6 @@ describe(`InputPhoneInternational`, () => {
         testComponent = fixture.componentInstance;
         component = testComponent.component;
         fixture.detectChanges();
-    });
-
-    describe(`flag paths`, () => {
-        initializeTestModule();
-
-        it(`resolves path from TUI_ICONS_PATH`, () => {
-            expect(component.countryFlagPath).toContain(`path/`);
-        });
-
-        it(`calculates countryFlagPath to flag from TUI_ICONS_PATH`, () => {
-            component.countryIsoCode = TuiCountryIsoCode.RU;
-
-            expect(component.countryFlagPath).toBe(`path/${TuiCountryIsoCode.RU}.png`);
-        });
-
-        it(`calculates flag path from isoCode`, () => {
-            expect(component.getFlagPath(TuiCountryIsoCode.AD)).toBe(
-                `path/${TuiCountryIsoCode.AD}.png`,
-            );
-        });
     });
 
     describe(`country codes`, () => {
@@ -160,6 +139,24 @@ describe(`InputPhoneInternational`, () => {
             component.onPaste(pasteEvent);
 
             expect(component.countryIsoCode).toBe(TuiCountryIsoCode.RU);
+        });
+
+        describe(`should set KZ country code on paste event`, () => {
+            for (const phone of [`+7(600)555-3535`, `+7 7272 588300`]) {
+                it(phone, () => {
+                    const data = new DataTransfer();
+
+                    data.setData(`text/plain`, phone);
+
+                    const pasteEvent = new ClipboardEvent(`paste`, {
+                        clipboardData: data as unknown as DataTransfer,
+                    });
+
+                    component.onPaste(pasteEvent);
+
+                    expect(component.countryIsoCode).toBe(TuiCountryIsoCode.KZ);
+                });
+            }
         });
 
         it(`should replace code 8 on paste event`, () => {

@@ -3,8 +3,8 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    DoCheck,
     ElementRef,
-    HostBinding,
     HostListener,
     Inject,
     Input,
@@ -16,6 +16,7 @@ import {
 import {
     tuiDefaultProp,
     tuiIsCurrentTarget,
+    tuiPx,
     tuiTypedFromEvent,
     tuiZonefree,
 } from '@taiga-ui/cdk';
@@ -25,7 +26,7 @@ import {BehaviorSubject, Observable, of, Subject, timer} from 'rxjs';
 import {
     distinctUntilChanged,
     filter,
-    mapTo,
+    map,
     pairwise,
     startWith,
     switchMap,
@@ -46,7 +47,7 @@ import {TUI_LINE_CLAMP_OPTIONS, TuiLineClampOptions} from './line-clamp-options'
         },
     ],
 })
-export class TuiLineClampComponent implements AfterViewInit {
+export class TuiLineClampComponent implements DoCheck, AfterViewInit {
     @ViewChild(TuiHintDirective, {read: ElementRef})
     private readonly outlet?: ElementRef<HTMLElement>;
 
@@ -65,8 +66,7 @@ export class TuiLineClampComponent implements AfterViewInit {
     lineHeight = 24;
 
     @Input()
-    @tuiDefaultProp()
-    content: PolymorpheusContent = '';
+    content: PolymorpheusContent;
 
     @Output()
     readonly overflownChange: Observable<boolean> = this.isOverflown$.pipe(
@@ -79,15 +79,15 @@ export class TuiLineClampComponent implements AfterViewInit {
         switchMap(([prev, next]) =>
             next >= prev
                 ? of(next)
-                : tuiTypedFromEvent(this.elementRef.nativeElement, 'transitionend').pipe(
+                : tuiTypedFromEvent(this.el.nativeElement, 'transitionend').pipe(
                       filter(tuiIsCurrentTarget),
-                      mapTo(next),
+                      map(() => next),
                   ),
         ),
     );
 
     constructor(
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
         @Inject(Renderer2) private readonly renderer: Renderer2,
         @Inject(ChangeDetectorRef) private readonly cd: ChangeDetectorRef,
         @Inject(NgZone) private readonly ngZone: NgZone,
@@ -102,7 +102,7 @@ export class TuiLineClampComponent implements AfterViewInit {
         }
 
         const {scrollHeight, scrollWidth} = this.outlet.nativeElement;
-        const {clientHeight, clientWidth} = this.elementRef.nativeElement;
+        const {clientHeight, clientWidth} = this.el.nativeElement;
 
         // 4px buffer for IE/Edge incorrectly rounding scrollHeight
         return scrollHeight - clientHeight > 4 || scrollWidth - clientWidth > 0;
@@ -110,16 +110,6 @@ export class TuiLineClampComponent implements AfterViewInit {
 
     get computedContent(): PolymorpheusContent {
         return this.options.showHint && this.overflown ? this.content : '';
-    }
-
-    @HostBinding('style.maxHeight.px')
-    get maxHeight(): number | null {
-        return this.initialized ? this.lineHeight * this.linesLimit$.value : null;
-    }
-
-    @HostBinding('style.height.px')
-    get height(): number | null {
-        return !this.outlet ? 0 : this.outlet.nativeElement.scrollHeight + 4 || null;
     }
 
     @HostListener('transitionend')
@@ -132,6 +122,7 @@ export class TuiLineClampComponent implements AfterViewInit {
     }
 
     ngDoCheck(): void {
+        this.update();
         this.isOverflown$.next(this.overflown);
     }
 
@@ -139,8 +130,26 @@ export class TuiLineClampComponent implements AfterViewInit {
         timer(0)
             .pipe(tuiZonefree(this.ngZone))
             .subscribe(() => {
-                this.renderer.addClass(this.elementRef.nativeElement, '_initialized');
+                this.renderer.addClass(this.el.nativeElement, '_initialized');
                 this.cd.detectChanges();
             });
+    }
+
+    private update(): void {
+        if (this.outlet) {
+            this.renderer.setStyle(
+                this.el.nativeElement,
+                'height',
+                tuiPx(this.outlet.nativeElement.scrollHeight + 4),
+            );
+        }
+
+        if (this.initialized) {
+            this.renderer.setStyle(
+                this.el.nativeElement,
+                'max-height',
+                tuiPx(this.lineHeight * this.linesLimit$.value),
+            );
+        }
     }
 }

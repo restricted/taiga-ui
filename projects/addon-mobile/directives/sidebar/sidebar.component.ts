@@ -14,8 +14,6 @@ import {
 } from '@taiga-ui/core';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiSidebarDirective} from './sidebar.directive';
 
 @Component({
@@ -27,13 +25,13 @@ import {TuiSidebarDirective} from './sidebar.directive';
 })
 export class TuiSidebarComponent implements DoCheck {
     private readonly left = {
-        value: 'left',
         ...this.options,
+        value: 'left',
     } as const;
 
     private readonly right = {
-        value: 'right',
         ...this.options,
+        value: 'right',
     } as const;
 
     constructor(

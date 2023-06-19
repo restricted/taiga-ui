@@ -1,17 +1,16 @@
 <tui-doc-page
     header="ColorPicker"
     package="ADDON-editor"
-    type="components"
+    path="addon-editor/components/color-selector/color-picker"
 >
     <ng-template pageTab>
-        <p i18n>
+        <p>
             ColorPicker allows to pick a color and its transparency. InputColor and ColorSelector are made with
             ColorPicker
         </p>
 
         <tui-doc-example
             id="input"
-            i18n-heading
             heading="InputColor"
             [content]="example1"
         >
@@ -19,8 +18,27 @@
         </tui-doc-example>
 
         <tui-doc-example
+            id="native"
+            heading="Native InputColor"
+            [content]="example4"
+        >
+            <tui-notification class="b-form tui-space_bottom-3">
+                You can easily integrative native color picker into input using interactive icon content and
+                <a
+                    tuiLink
+                    href="https://github.com/Tinkoff/maskito"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Maskito
+                </a>
+                for masking
+            </tui-notification>
+            <tui-color-picker-example-4 class="b-form"></tui-color-picker-example-4>
+        </tui-doc-example>
+
+        <tui-doc-example
             id="dropdown"
-            i18n-heading
             heading="ColorSelector in dropdown"
             [content]="example2"
         >
@@ -29,7 +47,6 @@
 
         <tui-doc-example
             id="palette"
-            i18n-heading
             heading="Palette in dropdown"
             [content]="example3"
         >
@@ -43,7 +60,6 @@
         </tui-doc-demo>
         <tui-doc-documentation>
             <ng-template
-                i18n
                 documentationPropertyName="color"
                 documentationPropertyMode="input-output"
                 documentationPropertyType="[number, number, number, number]"
@@ -56,7 +72,7 @@
     <ng-template>
         <ol class="b-demo-steps">
             <li>
-                <p i18n>
+                <p>
                     Import
                     <code>TuiColorPickerModule</code>
                     into a module where you want to use our component
@@ -69,7 +85,7 @@
             </li>
 
             <li>
-                <p i18n>Add to the template:</p>
+                <p>Add to the template:</p>
 
                 <tui-doc-code
                     filename="myComponent.template.html"

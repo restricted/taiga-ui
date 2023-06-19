@@ -3,8 +3,8 @@ import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
-    HostBinding,
     Inject,
+    OnDestroy,
     Optional,
     Self,
 } from '@angular/core';
@@ -15,59 +15,78 @@ import {
     tuiGetClosestFocusable,
     tuiPx,
 } from '@taiga-ui/cdk';
-import {TuiRectAccessor} from '@taiga-ui/core/abstract';
+import {
+    tuiPositionAccessorFor,
+    TuiRectAccessor,
+    tuiRectAccessorFor,
+} from '@taiga-ui/core/abstract';
 import {tuiDropdownAnimation} from '@taiga-ui/core/animations';
-import {TuiDropdownAnimation} from '@taiga-ui/core/enums';
-import {TuiPositionService} from '@taiga-ui/core/services';
+import {TuiPositionService, TuiVisualViewportService} from '@taiga-ui/core/services';
 import {TUI_ANIMATION_OPTIONS} from '@taiga-ui/core/tokens';
 import {TuiPoint} from '@taiga-ui/core/types';
 import {Observable} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {map, takeUntil} from 'rxjs/operators';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiDropdownDirective} from './dropdown.directive';
 import {TuiDropdownHoverDirective} from './dropdown-hover.directive';
 import {TUI_DROPDOWN_OPTIONS, TuiDropdownOptions} from './dropdown-options.directive';
 
 /**
- *  This component is used to show template in a portal using default style of white rounded box with a shadow
+ * @description:
+ * This component is used to show template in a portal
+ * using default style of white rounded box with a shadow
  */
-// @bad TODO: OnPush
 @Component({
     selector: 'tui-dropdown',
     templateUrl: './dropdown.template.html',
     styleUrls: ['./dropdown.style.less'],
-    changeDetection: ChangeDetectionStrategy.Default,
-    providers: [TuiDestroyService, TuiPositionService],
+    providers: [
+        TuiDestroyService,
+        TuiPositionService,
+        tuiPositionAccessorFor('dropdown'),
+        tuiRectAccessorFor('dropdown', TuiDropdownDirective),
+    ],
     animations: [tuiDropdownAnimation],
+    host: {'[@tuiDropdownAnimation]': 'animation'},
+    // @bad TODO: OnPush
+    // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+    changeDetection: ChangeDetectionStrategy.Default,
 })
-export class TuiDropdownComponent {
-    @HostBinding('@tuiDropdownAnimation')
-    readonly dropdownAnimation = {
-        value: TuiDropdownAnimation.FadeInTop,
-        ...this.animationOptions,
-    };
-
+export class TuiDropdownComponent implements OnDestroy {
     constructor(
+        @Inject(TuiVisualViewportService) visualViewportService: TuiVisualViewportService,
         @Inject(TuiPositionService) position$: Observable<TuiPoint>,
         @Self() @Inject(TuiDestroyService) destroy$: Observable<void>,
         @Inject(TuiDropdownDirective) readonly directive: TuiDropdownDirective,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(TUI_ANIMATION_OPTIONS) readonly animation: AnimationOptions,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
         @Inject(AbstractTuiPortalHostComponent)
         private readonly host: AbstractTuiPortalHostComponent,
         @Inject(TuiRectAccessor) private readonly accessor: TuiRectAccessor,
-        @Inject(WINDOW) private readonly windowRef: Window,
-        @Inject(TUI_ANIMATION_OPTIONS)
-        private readonly animationOptions: AnimationOptions,
+        @Inject(WINDOW) private readonly win: Window,
         @Inject(TUI_DROPDOWN_OPTIONS) private readonly options: TuiDropdownOptions,
         @Optional()
         @Inject(TuiDropdownHoverDirective)
         private readonly hoverDirective: TuiDropdownHoverDirective | null,
     ) {
-        position$.pipe(takeUntil(destroy$)).subscribe(([top, left]) => {
-            this.update(top, left);
-        });
+        position$
+            .pipe(
+                map(point =>
+                    this.directive.position === 'fixed'
+                        ? visualViewportService.correct(point)
+                        : point,
+                ),
+                takeUntil(destroy$),
+            )
+            .subscribe(([top, left]) => {
+                this.update(top, left);
+            });
+
+        this.updateWidth(this.accessor.getClientRect().width);
+    }
+
+    ngOnDestroy(): void {
+        this.onHoveredChange(false);
     }
 
     onHoveredChange(hovered: boolean): void {
@@ -85,10 +104,10 @@ export class TuiDropdownComponent {
     }
 
     private update(top: number, left: number): void {
-        const {style} = this.elementRef.nativeElement;
-        const {right} = this.elementRef.nativeElement.getBoundingClientRect();
-        const {limitWidth, maxHeight, offset} = this.options;
-        const {innerHeight} = this.windowRef;
+        const {style} = this.el.nativeElement;
+        const {right} = this.el.nativeElement.getBoundingClientRect();
+        const {maxHeight, offset} = this.options;
+        const {innerHeight} = this.win;
         const {clientRect} = this.host;
         const {position} = this.directive;
         const rect = this.accessor.getClientRect();
@@ -111,22 +130,31 @@ export class TuiDropdownComponent {
         style.width = '';
         style.minWidth = '';
 
-        switch (limitWidth) {
+        this.updateWidth(rect.width);
+    }
+
+    private updateWidth(width: number): void {
+        const {style} = this.el.nativeElement;
+
+        switch (this.options.limitWidth) {
             case 'min':
-                style.minWidth = tuiPx(rect.width);
+                style.minWidth = tuiPx(width);
                 break;
             case 'fixed':
-                style.width = tuiPx(rect.width);
+                style.width = tuiPx(width);
+                break;
+            case 'auto':
+                break;
         }
     }
 
     private moveFocusOutside(previous: boolean): void {
-        const host = document.createElement('div');
-        const {ownerDocument} = host;
-        const root = ownerDocument ? ownerDocument.body : host;
-        let focusable = tuiGetClosestFocusable({initial: host, root, previous});
+        const {nativeElement} = this.directive.el;
+        const {ownerDocument} = nativeElement;
+        const root = ownerDocument ? ownerDocument.body : nativeElement;
+        let focusable = tuiGetClosestFocusable({initial: nativeElement, root, previous});
 
-        while (focusable !== null && host.contains(focusable)) {
+        while (focusable !== null && nativeElement.contains(focusable)) {
             focusable = tuiGetClosestFocusable({initial: focusable, root, previous});
         }
 

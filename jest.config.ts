@@ -6,7 +6,7 @@ process.env.TZ = `Europe/Moscow`;
 process.env.FORCE_COLOR = `true`;
 process.env.TS_JEST_DISABLE_VER_CHECKER = `true`;
 
-const {compilerOptions} = require(resolve(`./tsconfig.json`));
+const {compilerOptions} = require(resolve(__dirname, `tsconfig.json`));
 const maxParallel = require(`os`).cpus().length / 2;
 
 module.exports = {
@@ -21,12 +21,19 @@ module.exports = {
     preset: `jest-preset-angular`,
 
     /**
+     * The test environment that will be used for testing.
+     * The default environment in Jest is a Node.js environment.
+     * If you are building a web app, you can use a browser-like environment through jsdom instead.
+     */
+    testEnvironment: `jsdom`,
+
+    /**
      * A set of global variables that need
      * to be available in all test environments.
      */
     globals: {
         'ts-jest': {
-            tsconfig: resolve(`./tsconfig.spec.json`),
+            tsconfig: resolve(__dirname, `tsconfig.spec.json`),
             isolatedModules: true,
         },
     },
@@ -71,11 +78,19 @@ module.exports = {
      * coverage information will be collected for it even if no tests exist for this file and
      * it's never required in the test suite.
      */
-    collectCoverageFrom: [
-        `<rootDir>/projects/**/*.ts`,
-        `!<rootDir>/projects/**/*.spec.ts`,
-        `!<rootDir>/projects/**/schematics/*.ts`,
-        `!<rootDir>/projects/**/load-assets.ts`, // @note: cannot resolve import.meta.url
+    collectCoverageFrom: [`<rootDir>/projects/**/*.ts`],
+
+    /**
+     * An array of regexp pattern strings that are matched against
+     * all file paths before executing the test. If the file path matches
+     * any of the patterns, coverage information will be skipped.
+     */
+    coveragePathIgnorePatterns: [
+        `node_modules`,
+        `schematics`,
+        `load-assets.ts`,
+        `.spec.ts`,
+        `.cy.ts`,
     ],
 
     /**
@@ -138,4 +153,4 @@ module.exports = {
      * Run tests with specified reporters
      */
     reporters: [`default`],
-} as Config;
+} as unknown as Config;

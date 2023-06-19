@@ -13,7 +13,7 @@ interface WrappedContent {
 
 type ContentInterceptor = (src: string) => string;
 
-export function processIcons(files: string[], interceptor?: ContentInterceptor): void {
+export function tuiProcessIcons(files: string[], interceptor?: ContentInterceptor): void {
     for (const file of files) {
         const baseContent = String(fs.readFileSync(file));
         const src = interceptor ? interceptor(baseContent) : baseContent;
@@ -28,6 +28,7 @@ export function processIcons(files: string[], interceptor?: ContentInterceptor):
         const wrapped = wrapIcon(src, name);
 
         const final =
+            // eslint-disable-next-line @taiga-ui/no-typeof
             typeof wrapped === `string`
                 ? `${wrapped.replace(
                       START,
@@ -87,3 +88,9 @@ function wrapIcon(source: string, name: string): WrappedContent | string {
         </g>`.trim(),
     };
 }
+
+/**
+ * @deprecated:
+ * use @{link tuiProcessIcons}
+ */
+export const processIcons = tuiProcessIcons;

@@ -25,8 +25,6 @@ import {TuiOptionRole, TuiSizeL, TuiSizeXS} from '@taiga-ui/core/types';
 import {shouldCall} from '@tinkoff/ng-event-plugins';
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiDataListComponent} from '../data-list.component';
 
 function shouldFocus({currentTarget}: TuiEventWith<MouseEvent, HTMLElement>): boolean {
@@ -72,7 +70,7 @@ export class TuiOptionComponent<T = unknown> implements OnDestroy {
         > | null,
         @Inject(forwardRef(() => TuiDataListComponent))
         private readonly dataList: TuiDataListComponent<T>,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
         @Optional()
         @Inject(TUI_DATA_LIST_HOST)
         private readonly host: TuiDataListHost<T> | null,
@@ -103,6 +101,6 @@ export class TuiOptionComponent<T = unknown> implements OnDestroy {
 
     // Preventing focus loss upon focused option removal
     ngOnDestroy(): void {
-        this.dataList.handleFocusLossIfNecessary(this.elementRef.nativeElement);
+        this.dataList.handleFocusLossIfNecessary(this.el.nativeElement);
     }
 }

@@ -1,10 +1,4 @@
 import {HTML_EDITOR_BASIC_EXAMPLE} from '@demo-integrations/support/editor/html';
-import {
-    DEFAULT_TIMEOUT_BEFORE_ACTION,
-    EDITOR_PAGE_URL,
-    PROSE_MIRROR_EDITOR_SELECTOR,
-    WAIT_BEFORE_SCREENSHOT,
-} from '@demo-integrations/support/properties/shared.entities';
 
 export function tuiVisitEditorApiPage({
     content,
@@ -17,10 +11,10 @@ export function tuiVisitEditorApiPage({
     enableNightMode: boolean;
     skipDecodingUrl: boolean;
 }> = {}): void {
-    cy.viewport(1650, 900).tuiVisit(
-        `${EDITOR_PAGE_URL}/API?ngModel=${
-            content ?? HTML_EDITOR_BASIC_EXAMPLE
-        }&style.maxHeight.px=${maxHeight ?? 300}`,
+    cy.viewport(1850, 1600).tuiVisit(
+        `editor/API?ngModel=${content ?? HTML_EDITOR_BASIC_EXAMPLE}&style.maxHeight.px=${
+            maxHeight ?? 600
+        }`,
         {
             skipExpectUrl: true,
             enableNightMode: enableNightMode ?? false,
@@ -28,7 +22,7 @@ export function tuiVisitEditorApiPage({
         },
     );
 
-    cy.wait(DEFAULT_TIMEOUT_BEFORE_ACTION);
+    cy.tuiWaitBeforeAction();
 }
 
 export function tuiGetDemoContent(): Cypress.Chainable<JQuery> {
@@ -44,42 +38,47 @@ export function tuiGetNgModelValue(): Cypress.Chainable<JQuery> {
 }
 
 export function tuiOpenAnchorDropdown({containHref}: {containHref: string}): void {
-    tuiGetContentEditable().find(`a[href="${containHref}"]`).type(`{leftArrow}`);
+    tuiGetContentEditable().find(`a[href="${containHref}"]`).type(`{rightArrow}`);
 }
 
 export function tuiTrashValueByEditLink(): void {
-    cy.get(`button[icon=tuiIconUnlinkLarge]`)
-        .click({force: true})
-        .wait(WAIT_BEFORE_SCREENSHOT);
+    cy.get(`tui-edit-link button[icon=tuiIconUnlinkLarge]`)
+        .tuiWaitBeforeScreenshot()
+        .realHover()
+        .realClick();
 }
 
 export function tuiFocusToStartInEditor(): void {
+    cy.get(`.ProseMirror[contenteditable]`).type(`{moveToStart}`);
+
     tuiGetContentEditable()
+        .focus()
         .then($el => {
             // native set cursor cater
 
-            const el = $el[0];
-            const document = el.ownerDocument;
-            const range = document?.createRange();
-            const sel = window.getSelection();
+            const el = $el.get(0);
+            const range = window.document.createRange();
 
-            range.setStart(el, 1);
-            range.collapse(true);
-            sel?.removeAllRanges();
-            sel?.addRange(range);
+            range?.setStart(el, 0);
+            range?.setEnd(el, 0);
+
+            const selection = window.getSelection();
+
+            selection?.removeAllRanges();
+            selection?.addRange(range);
         })
-        .wait(WAIT_BEFORE_SCREENSHOT);
+        .tuiWaitBeforeScreenshot();
 }
 
 export function tuiClearHint(): void {
-    cy.get(`tui-toolbar`).click();
+    cy.get(`body`).click({force: true});
 }
 
 export function tuiInsertLink(): void {
     tuiGetDemoContent()
         .find(`tui-toolbar button[icon=tuiIconLinkLarge]`)
-        .click()
-        .wait(WAIT_BEFORE_SCREENSHOT);
+        .click({force: true})
+        .tuiWaitBeforeScreenshot();
 
     cy.get(`body`).then($body => {
         if ($body.find(`tui-edit-link`).length === 0) {
@@ -93,7 +92,7 @@ export function tuiGetEditLinkInput(): Cypress.Chainable<JQuery> {
 }
 
 export function tuiGetScreenshotArea(): Cypress.Chainable<unknown> {
-    return tuiGetDemoContent().find(`tui-editor`).wait(WAIT_BEFORE_SCREENSHOT);
+    return tuiGetDemoContent().find(`tui-editor`).tuiWaitBeforeScreenshot();
 }
 
 export function tuiOpenFontTool(): Cypress.Chainable<JQuery> {
@@ -101,15 +100,19 @@ export function tuiOpenFontTool(): Cypress.Chainable<JQuery> {
 
     cy.get(`body`).then($body => {
         if ($body.find(`tui-data-list[role="listbox"]`).length === 0) {
-            cy.get(`@iconFontLargeTool`).click();
+            cy.get(`@iconFontLargeTool`).click({force: true});
         }
     });
 
     return cy.get(`tui-data-list[role="listbox"]`);
 }
 
+export function tuiGetTipTapContentSelector(): string {
+    return `.ProseMirror[contenteditable]`;
+}
+
 export function tuiGetContentEditable(): Cypress.Chainable<JQuery> {
-    return tuiGetDemoContent().find(PROSE_MIRROR_EDITOR_SELECTOR);
+    return tuiGetDemoContent().find(tuiGetTipTapContentSelector());
 }
 
 export function tuiSelectTag(selector: Cypress.Chainable<JQuery>): void {

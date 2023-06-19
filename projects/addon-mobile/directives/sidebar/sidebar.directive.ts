@@ -12,8 +12,6 @@ import {TuiDropdownPortalService} from '@taiga-ui/cdk';
 import {TuiHorizontalDirection} from '@taiga-ui/core';
 import {PolymorpheusComponent, PolymorpheusTemplate} from '@tinkoff/ng-polymorpheus';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiSidebarComponent} from './sidebar.component';
 
 @Directive({
@@ -50,9 +48,9 @@ export class TuiSidebarDirective<T = Record<string, unknown>>
         @Inject(Injector) private readonly injector: Injector,
         @Inject(TuiDropdownPortalService)
         private readonly portalService: TuiDropdownPortalService,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
     ) {
-        super(content, changeDetectorRef);
+        super(content, cdr);
     }
 
     ngOnDestroy(): void {

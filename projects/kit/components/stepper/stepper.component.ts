@@ -1,5 +1,6 @@
 import {
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     ContentChildren,
     ElementRef,
@@ -7,6 +8,7 @@ import {
     forwardRef,
     HostBinding,
     HostListener,
+    Inject,
     Input,
     Output,
     QueryList,
@@ -14,35 +16,27 @@ import {
 import {
     EMPTY_QUERY,
     tuiDefaultProp,
+    TuiDestroyService,
     tuiGetOriginalArrayFromQueryList,
     tuiIsElement,
-    tuiItemsQueryListObservable,
     tuiMoveFocus,
     tuiPure,
+    tuiQueryListChanges,
+    TuiResizeService,
+    TuiScrollService,
 } from '@taiga-ui/cdk';
-import {TuiOrientation} from '@taiga-ui/core';
+import {TUI_ANIMATIONS_DURATION, TuiOrientation} from '@taiga-ui/core';
 import {Observable} from 'rxjs';
 import {delay} from 'rxjs/operators';
 
-// TODO: find the best way for prevent cycle
-// eslint-disable-next-line import/no-cycle
 import {TuiStepComponent} from './step/step.component';
-
-const ONLY_HORIZONTAL_SCROLL: ScrollIntoViewOptions = {
-    block: 'nearest',
-    inline: 'center',
-};
-
-const ONLY_VERTICAL_SCROLL: ScrollIntoViewOptions = {
-    block: 'center',
-    inline: 'nearest',
-};
 
 @Component({
     selector: 'tui-stepper, nav[tuiStepper]',
     templateUrl: './stepper.template.html',
     styleUrls: ['./stepper.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [TuiResizeService, TuiDestroyService],
 })
 export class TuiStepperComponent {
     @ContentChildren(forwardRef(() => TuiStepComponent), {read: ElementRef})
@@ -64,11 +58,21 @@ export class TuiStepperComponent {
 
     activeItemIndex = 0;
 
+    constructor(
+        @Inject(ChangeDetectorRef) private readonly cdr: ChangeDetectorRef,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
+        @Inject(TuiScrollService) private readonly scrollService: TuiScrollService,
+        @Inject(TuiResizeService) resize$: Observable<void>,
+        @Inject(TUI_ANIMATIONS_DURATION) private readonly duration: number,
+    ) {
+        resize$.subscribe(() => this.scrollIntoView(this.activeItemIndex));
+    }
+
     @tuiPure
     get changes$(): Observable<unknown> {
-        // Delay is required to trigger change detection after steps are rendered
+        // Delay is required to trigger change detection after steps are rendered,
         // so they can update their "active" status
-        return tuiItemsQueryListObservable(this.steps).pipe(delay(0));
+        return tuiQueryListChanges(this.steps).pipe(delay(0));
     }
 
     @HostListener('keydown.arrowRight', ['$event', '1'])
@@ -110,6 +114,7 @@ export class TuiStepperComponent {
 
         this.activeItemIndex = index;
         this.activeItemIndexChange.emit(index);
+        this.cdr.markForCheck();
         this.scrollIntoView(index);
     }
 
@@ -131,11 +136,31 @@ export class TuiStepperComponent {
         tuiMoveFocus(index, stepElements, step);
     }
 
-    private scrollIntoView(targetStepIndex: number): void {
-        this.getNativeElements(this.steps)[targetStepIndex]?.scrollIntoView(
-            this.orientation === 'vertical'
-                ? ONLY_VERTICAL_SCROLL
-                : ONLY_HORIZONTAL_SCROLL,
-        );
+    private scrollIntoView(index: number): void {
+        const step = this.getNativeElements(this.steps)[index];
+
+        if (!step) {
+            return;
+        }
+
+        const {nativeElement} = this.el;
+        const {clientHeight, clientWidth, offsetTop, offsetLeft} = nativeElement;
+        const {
+            offsetHeight,
+            offsetWidth,
+            offsetTop: stepOffsetTop,
+            offsetLeft: stepOffsetLeft,
+        } = step;
+        const top = stepOffsetTop - offsetTop - clientHeight / 2 + offsetHeight / 2;
+        const left = stepOffsetLeft - offsetLeft - clientWidth / 2 + offsetWidth / 2;
+
+        this.scrollService
+            .scroll$(
+                nativeElement,
+                Math.max(0, top),
+                Math.max(0, left),
+                this.duration / 3,
+            )
+            .subscribe();
     }
 }

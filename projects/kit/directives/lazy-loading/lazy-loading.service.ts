@@ -3,14 +3,14 @@ import {SafeResourceUrl} from '@angular/platform-browser';
 import {IntersectionObserverService} from '@ng-web-apis/intersection-observer';
 import {TuiDestroyService, tuiWatch} from '@taiga-ui/cdk';
 import {Observable, of, Subject} from 'rxjs';
-import {catchError, filter, mapTo, switchMap, take, takeUntil} from 'rxjs/operators';
+import {catchError, filter, map, switchMap, take, takeUntil} from 'rxjs/operators';
 
 @Injectable()
 export class TuiLazyLoadingService extends Observable<SafeResourceUrl | string> {
     private readonly src$ = new Subject<SafeResourceUrl | string>();
 
     constructor(
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Self() @Inject(TuiDestroyService) destroy$: Observable<void>,
         @Inject(IntersectionObserverService)
         intersections$: Observable<IntersectionObserverEntry[]>,
@@ -21,9 +21,9 @@ export class TuiLazyLoadingService extends Observable<SafeResourceUrl | string> 
                     switchMap(src =>
                         intersections$.pipe(
                             filter(([{isIntersecting}]) => isIntersecting),
-                            mapTo(src),
+                            map(() => src),
                             catchError(() => of(src)),
-                            tuiWatch(changeDetectorRef),
+                            tuiWatch(cdr),
                             take(1),
                         ),
                     ),

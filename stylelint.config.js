@@ -2,7 +2,9 @@ module.exports = {
     extends: ['@tinkoff/stylelint-config/angular-less'],
     ignoreFiles: ['**/demo/**', '**/dist/**', '**/coverage/**', '**/node_modules/**'],
     rules: {
-        'selector-class-pattern': '^(_.*)|(t-.*)|(tui-.*)|(ng-.*)|(hljs.*)$',
+        'function-url-quotes': null,
+        'selector-class-pattern':
+            '^(_.*)|(t-.*)|(ProseMirror.*)|(tui-.*)|(ng-.*)|(hljs.*)$',
         'unit-allowed-list': [
             'px',
             'rem',

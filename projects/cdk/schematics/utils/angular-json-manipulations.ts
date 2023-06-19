@@ -4,6 +4,7 @@ import {NodePackageInstallTask} from '@angular-devkit/schematics/tasks';
 import {getWorkspace, updateWorkspace} from '@schematics/angular/utility/workspace';
 import {addPackageJsonDependency} from 'ng-morph';
 
+import {tuiIsString} from '../../utils/miscellaneous/is-string';
 import {TAIGA_VERSION} from '../ng-add/constants/versions';
 import {TuiSchema} from '../ng-add/schema';
 import {Asset} from '../ng-update/interfaces/asset';
@@ -13,18 +14,20 @@ import {getProjects} from './get-projects';
 export async function isInvalidAngularJson(tree: Tree): Promise<boolean> {
     return (
         getWorkspace(tree)
+            // eslint-disable-next-line no-restricted-syntax
             .then(() => false)
             /**
              * Possible error – "Invalid format version detected - Expected:[ 1 ] Found: [ 2 ]"
              * @see https://github.com/angular/angular-cli/blob/main/packages/angular_devkit/core/src/workspace/json/reader.ts#L67-L69
              */
+            // eslint-disable-next-line no-restricted-syntax
             .catch(() => true)
     );
 }
 
 function hasTaigaIcons(assets: Asset[]): boolean {
     return !!assets?.find(asset =>
-        typeof asset === `string`
+        tuiIsString(asset)
             ? asset.includes(`taiga-ui`)
             : asset?.input?.includes(`taiga-ui`),
     );

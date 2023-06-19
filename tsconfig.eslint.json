@@ -3,7 +3,7 @@
     "compilerOptions": {
         "rootDir": ".",
         "baseUrl": ".",
-        "strict": false,
+        "strict": true,
         "incremental": true
     },
     "include": ["projects/**/*.ts", "scripts", "setup-jest.ts", "jest.config.ts", "*.spec.ts", "*.cy.ts"],

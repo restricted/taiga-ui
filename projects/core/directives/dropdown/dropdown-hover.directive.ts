@@ -2,7 +2,12 @@ import {Directive, Inject, Input} from '@angular/core';
 import {tuiDefaultProp, TuiHoveredService} from '@taiga-ui/cdk';
 import {tuiAsDriver, TuiDriver} from '@taiga-ui/core/abstract';
 import {merge, Observable, of, Subject} from 'rxjs';
-import {delay, switchMap} from 'rxjs/operators';
+import {delay, share, switchMap, tap} from 'rxjs/operators';
+
+import {
+    TUI_DROPDOWN_HOVER_OPTIONS,
+    TuiDropdownHoverOptions,
+} from './dropdown-hover-options.directive';
 
 @Directive({
     selector: '[tuiDropdownHover]:not(ng-container)',
@@ -14,18 +19,28 @@ export class TuiDropdownHoverDirective extends TuiDriver {
         switchMap(visible =>
             of(visible).pipe(delay(visible ? this.showDelay : this.hideDelay)),
         ),
+        tap(visible => {
+            this.hovered = visible;
+        }),
+        share(),
     );
 
     @Input('tuiDropdownShowDelay')
     @tuiDefaultProp()
-    showDelay = 200;
+    showDelay = this.options.showDelay;
 
     @Input('tuiDropdownHideDelay')
     @tuiDefaultProp()
-    hideDelay = 500;
+    hideDelay = this.options.hideDelay;
+
+    hovered = false;
+
+    readonly type = 'dropdown';
 
     constructor(
         @Inject(TuiHoveredService) private readonly hovered$: Observable<boolean>,
+        @Inject(TUI_DROPDOWN_HOVER_OPTIONS)
+        private readonly options: TuiDropdownHoverOptions,
     ) {
         super(subscriber => this.stream$.subscribe(subscriber));
     }

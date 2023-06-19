@@ -8,7 +8,7 @@ import {
     TUI_EDITOR_TOOLBAR_TEXTS,
     TuiEditorOptions,
 } from '@taiga-ui/addon-editor/tokens';
-import {tuiPx} from '@taiga-ui/cdk';
+import {tuiAssert, tuiPx} from '@taiga-ui/cdk';
 import {TuiLanguageEditor} from '@taiga-ui/i18n';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
@@ -36,11 +36,32 @@ export class TuiFontSizeComponent {
         >,
     ) {}
 
+    /**
+     * @deprecated:
+     * use {@link setFontOption}
+     */
     onClick({headingLevel, px}: Partial<TuiEditorFontOption>): void {
+        this.setFontOption({headingLevel, px});
+    }
+
+    setFontOption({headingLevel, px}: Partial<TuiEditorFontOption>): void {
+        this.clearPreviousTextStyles();
+
         if (headingLevel) {
+            ngDevMode &&
+                tuiAssert.assert(
+                    !px,
+                    'Do not use `px` together with `headingLevel`  because `px` value does not affect anything',
+                );
+
             this.editor.setHeading(headingLevel);
         } else {
             this.editor.setParagraph({fontSize: tuiPx(px || 0)});
         }
+    }
+
+    private clearPreviousTextStyles(): void {
+        this.editor.removeEmptyTextStyle();
+        this.editor.toggleMark('textStyle');
     }
 }

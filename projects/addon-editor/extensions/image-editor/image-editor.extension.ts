@@ -1,22 +1,21 @@
 import {Injector} from '@angular/core';
-import {TuiNodeViewRenderer} from '@taiga-ui/addon-editor/extensions/tiptap-node-view';
+import {TuiNodeView} from '@taiga-ui/addon-editor/extensions/tiptap-node-view';
+import {tuiIsPresent} from '@taiga-ui/cdk';
 import {
     Attribute,
     mergeAttributes,
     Node,
     NodeViewRenderer,
+    NodeViewRendererProps,
     RawCommands,
 } from '@tiptap/core';
+import {Image} from '@tiptap/extension-image';
+import {Plugin} from '@tiptap/pm/state';
 import {DOMOutputSpec, NodeSpec} from 'prosemirror-model';
+import {EditorView} from 'prosemirror-view';
 
 import {TuiImageEditorComponent} from './image-editor.component';
-
-export interface TuiEditableImage {
-    src: string;
-    width?: number;
-    alt?: string;
-    title?: string;
-}
+import type {TuiEditableImage} from './image-editor.options';
 
 declare module '@tiptap/core' {
     interface Commands<ReturnType> {
@@ -47,19 +46,37 @@ const DEFAULT_IMAGE_ATTRS = {
     },
 };
 
-export const createImageEditorExtension = (injector: Injector): Node => {
-    return Node.create({
+/**
+ * @deprecated: use {@link tuiCreateImageEditorExtension}
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export function createImageEditorExtension<T, K>(
+    injector: Injector,
+    {draggable}: Partial<{draggable: boolean}> = {},
+): Node<T, K> {
+    const enableDraggable = tuiIsPresent(draggable) ? draggable : true;
+
+    return Image.extend({
         name: `imageEditor`,
-        group: `block`,
+        group: `inline`,
+        inline: true,
         atom: true,
-        draggable: true,
+        priority: 0,
+        selectable: true,
+        draggable: enableDraggable,
 
         parseHTML(): NodeSpec['parseDOM'] {
             return IMAGE_EDITOR_PARSE_META;
         },
 
         addAttributes(): Record<keyof TuiEditableImage, Attribute> {
-            return DEFAULT_IMAGE_ATTRS;
+            return {
+                ...DEFAULT_IMAGE_ATTRS,
+                draggable: {
+                    default: enableDraggable ? `` : null,
+                    keepOnSplit: false,
+                },
+            };
         },
 
         renderHTML({HTMLAttributes}: Record<string, any>): DOMOutputSpec {
@@ -70,7 +87,8 @@ export const createImageEditorExtension = (injector: Injector): Node => {
         },
 
         addNodeView(): NodeViewRenderer {
-            return TuiNodeViewRenderer(TuiImageEditorComponent, {injector});
+            return (props: NodeViewRendererProps) =>
+                new TuiNodeView(TuiImageEditorComponent, props, {injector, ...props});
         },
 
         addCommands(): Partial<RawCommands> {
@@ -84,5 +102,59 @@ export const createImageEditorExtension = (injector: Injector): Node => {
                         }),
             };
         },
+
+        addProseMirrorPlugins() {
+            return [
+                new Plugin({
+                    props: {
+                        handleDOMEvents: {
+                            paste: pasteImage,
+                            drop: pasteImage,
+                        },
+                    },
+                }),
+            ];
+        },
     });
-};
+}
+
+function pasteImage(view: EditorView, event: ClipboardEvent | DragEvent): void {
+    const dataTransfer =
+        event instanceof DragEvent ? event.dataTransfer : event.clipboardData;
+    const images = Array.from(dataTransfer?.files ?? []).filter(file =>
+        /image/i.test(file.type),
+    );
+
+    if (images.length) {
+        event.preventDefault();
+    }
+
+    for (const image of images) {
+        const reader = new FileReader();
+
+        reader.onload = readerEvent => {
+            const node = view.state.schema.nodes.imageEditor.create({
+                src: readerEvent.target?.result,
+            });
+            const transaction = view.state.tr.replaceSelectionWith(node);
+
+            /**
+             * @note:
+             * workaround for `Applying a mismatched transaction`
+             */
+            setTimeout(() => view.dispatch(transaction));
+        };
+
+        reader.readAsDataURL(image);
+    }
+}
+
+export function tuiCreateImageEditorExtension<T, K>({
+    injector,
+    draggable,
+}: {
+    injector: Injector;
+    draggable?: boolean;
+}): Node {
+    return createImageEditorExtension<T, K>(injector, {draggable});
+}

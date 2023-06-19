@@ -4,13 +4,13 @@ import {encapsulation} from '@demo/emulate/encapsulation';
 import {TuiDay, TuiDayRange, TuiMonth} from '@taiga-ui/cdk';
 import {TuiMarkerHandler} from '@taiga-ui/core';
 
-const TWO_DOTS: [string, string] = [`var(--tui-primary)`, `var(--tui-info-fill)`];
-const ONE_DOT: [string] = [`var(--tui-success-fill)`];
+const TWO_DOTS: [string, string] = ['var(--tui-primary)', 'var(--tui-info-fill)'];
+const ONE_DOT: [string] = ['var(--tui-success-fill)'];
 
 @Component({
-    selector: `tui-calendar-example-3`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-calendar-example-3',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
@@ -26,7 +26,7 @@ export class TuiCalendarExample3 {
     hoveredItem: TuiDay | null = null;
 
     readonly markerHandler: TuiMarkerHandler = (day: TuiDay) =>
-        // Attention: do not create new arrays in handler, use constants intead
+        // Attention: do not create new arrays in handler, use constants instead
         day.day % 2 === 0 ? TWO_DOTS : ONE_DOT;
 
     onDayClick(day: TuiDay): void {

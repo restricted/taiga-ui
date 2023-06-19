@@ -24,6 +24,7 @@ import {
     TuiMapper,
     TuiMonth,
     tuiNullableSame,
+    tuiObjectFromEntries,
     tuiPure,
     tuiWatch,
 } from '@taiga-ui/cdk';
@@ -93,7 +94,7 @@ export class TuiCalendarRangeComponent implements TuiWithOptionalMinMax<TuiDay> 
         @Optional()
         @Inject(TUI_CALENDAR_DATE_STREAM)
         valueChanges: Observable<TuiDayRange | null> | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Self() @Inject(TuiDestroyService) destroy$: TuiDestroyService,
         @Inject(TUI_OTHER_DATE_TEXT) readonly otherDateText$: Observable<string>,
     ) {
@@ -101,11 +102,9 @@ export class TuiCalendarRangeComponent implements TuiWithOptionalMinMax<TuiDay> 
             return;
         }
 
-        valueChanges
-            .pipe(tuiWatch(changeDetectorRef), takeUntil(destroy$))
-            .subscribe(value => {
-                this.value = value;
-            });
+        valueChanges.pipe(tuiWatch(cdr), takeUntil(destroy$)).subscribe(value => {
+            this.value = value;
+        });
     }
 
     @HostListener('document:keydown.capture', ['$event'])
@@ -216,7 +215,7 @@ export class TuiCalendarRangeComponent implements TuiWithOptionalMinMax<TuiDay> 
                 return disabledItemHandler(item);
             }
 
-            const negativeMinLength = Object.fromEntries(
+            const negativeMinLength = tuiObjectFromEntries(
                 Object.entries(minLength).map(([key, value]) => [key, -value]),
             );
             const disabledBefore = value.from.append(negativeMinLength).append({day: 1});

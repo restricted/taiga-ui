@@ -15,12 +15,12 @@ import {ReplacementConst} from '../interfaces/replacement-const';
 
 export function replaceConstants(
     options: TuiSchema,
-    consts: readonly ReplacementConst[],
+    constants: readonly ReplacementConst[],
 ): void {
     !options[`skip-logs`] &&
         infoLog(`${SMALL_TAB_SYMBOL}${REPLACE_SYMBOL} replacing constants...`);
 
-    consts.forEach(constToReplace => replaceConst(constToReplace));
+    constants.forEach(constToReplace => replaceConst(constToReplace));
 
     !options[`skip-logs`] &&
         successLog(`${SMALL_TAB_SYMBOL}${SUCCESS_SYMBOL} constants replaced \n`);
@@ -30,6 +30,10 @@ export function replaceConst({from, to}: ReplacementConst): void {
     const references = getNamedImportReferences(from.name, from.moduleSpecifier);
 
     references.forEach(ref => {
+        if (ref.wasForgotten()) {
+            return;
+        }
+
         const parent = ref.getParent();
 
         if (Node.isImportSpecifier(parent)) {

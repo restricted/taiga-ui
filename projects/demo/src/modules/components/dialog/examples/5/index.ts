@@ -5,25 +5,23 @@ import {TuiDialogContext, TuiDialogService, TuiDialogSize} from '@taiga-ui/core'
 import {PolymorpheusContent} from '@tinkoff/ng-polymorpheus';
 
 @Component({
-    selector: `tui-dialog-example-5`,
-    templateUrl: `./index.html`,
-    styleUrls: [`./index.less`],
+    selector: 'tui-dialog-example-5',
+    templateUrl: './index.html',
+    styleUrls: ['./index.less'],
     changeDetection,
     encapsulation,
 })
 export class TuiDialogExampleComponent5 {
-    constructor(
-        @Inject(TuiDialogService) private readonly dialogService: TuiDialogService,
-    ) {}
+    constructor(@Inject(TuiDialogService) private readonly dialogs: TuiDialogService) {}
 
     onClick(
         content: PolymorpheusContent<TuiDialogContext>,
         header: PolymorpheusContent,
         size: TuiDialogSize,
     ): void {
-        this.dialogService
+        this.dialogs
             .open(content, {
-                label: `What a cool library set`,
+                label: 'What a cool library set',
                 header,
                 size,
             })

@@ -60,14 +60,13 @@ export class TuiFilterComponent<T> extends AbstractTuiMultipleControl<T> {
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     @Input()
-    @tuiDefaultProp()
     content: PolymorpheusContent = ({$implicit}: TuiContextWithImplicit<unknown>) =>
         TUI_DEFAULT_STRINGIFY($implicit);
 
@@ -76,16 +75,14 @@ export class TuiFilterComponent<T> extends AbstractTuiMultipleControl<T> {
     badgeHandler: TuiHandler<T, number> = item => Number(item);
 
     get focused(): boolean {
-        return tuiIsNativeFocusedIn(this.elementRef.nativeElement);
+        return tuiIsNativeFocusedIn(this.el.nativeElement);
     }
 
     onCheckbox(value: boolean, item: T): void {
         this.toggledItem.emit(item);
-        this.updateValue(
-            value
-                ? [...this.value, item]
-                : this.value.filter(arrItem => !this.identityMatcher(arrItem, item)),
-        );
+        this.value = value
+            ? [...this.value, item]
+            : this.value.filter(arrItem => !this.identityMatcher(arrItem, item));
     }
 
     isCheckboxEnabled(item: T): boolean {

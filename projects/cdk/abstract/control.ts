@@ -2,9 +2,11 @@ import {
     ChangeDetectorRef,
     Directive,
     HostBinding,
+    Inject,
     Input,
     OnDestroy,
     OnInit,
+    Optional,
     Provider,
     Type,
 } from '@angular/core';
@@ -13,10 +15,20 @@ import {tuiAssert} from '@taiga-ui/cdk/classes';
 import {EMPTY_FUNCTION} from '@taiga-ui/cdk/constants';
 import {tuiDefaultProp} from '@taiga-ui/cdk/decorators';
 import {TuiControlValueTransformer} from '@taiga-ui/cdk/interfaces';
+import {tuiIsPresent} from '@taiga-ui/cdk/utils';
 import {merge, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {
+    delay,
+    distinctUntilChanged,
+    filter,
+    map,
+    startWith,
+    switchMap,
+    takeUntil,
+} from 'rxjs/operators';
 
 import {AbstractTuiInteractive} from './interactive';
+import {AbstractTuiValueTransformer} from './value-transformer';
 
 /**
  * Basic ControlValueAccessor class to build form components upon
@@ -27,6 +39,7 @@ export abstract class AbstractTuiControl<T>
     implements OnDestroy, OnInit, ControlValueAccessor
 {
     private previousInternalValue?: T | null;
+    private readonly refresh$ = new Subject();
 
     private onTouched = EMPTY_FUNCTION;
 
@@ -45,20 +58,25 @@ export abstract class AbstractTuiControl<T>
     @tuiDefaultProp()
     pseudoInvalid: boolean | null = null;
 
-    protected constructor(
+    constructor(
+        @Optional()
         private readonly ngControl: NgControl | null,
-        protected readonly changeDetectorRef: ChangeDetectorRef,
+        protected readonly cdr: ChangeDetectorRef,
+        @Optional()
+        @Inject(AbstractTuiValueTransformer)
         protected readonly valueTransformer?: TuiControlValueTransformer<T> | null,
     ) {
         super();
 
-        if (this.ngControl === null) {
+        if (ngDevMode && this.ngControl === null) {
             tuiAssert.assert(
                 false,
                 `NgControl not injected in ${this.constructor.name}!\n`,
                 `Use [(ngModel)] or [formControl] or formControlName for correct work.`,
             );
-        } else {
+        }
+
+        if (this.ngControl) {
             this.ngControl.valueAccessor = this;
         }
     }
@@ -77,6 +95,10 @@ export abstract class AbstractTuiControl<T>
 
     get value(): T {
         return this.previousInternalValue ?? this.fallbackValue;
+    }
+
+    set value(value: T) {
+        this.updateValue(value);
     }
 
     get safeCurrentValue(): T {
@@ -134,13 +156,19 @@ export abstract class AbstractTuiControl<T>
     }
 
     ngOnInit(): void {
-        if (!this.ngControl?.valueChanges || !this.ngControl?.statusChanges) {
-            return;
-        }
-
-        merge(this.ngControl.valueChanges, this.ngControl.statusChanges)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(() => this.refreshLocalValue(this.safeCurrentValue));
+        this.refresh$
+            .pipe(
+                delay(0),
+                startWith(null),
+                map(() => this.ngControl?.control),
+                filter(tuiIsPresent),
+                distinctUntilChanged(),
+                switchMap(control => merge(control.valueChanges, control.statusChanges)),
+                takeUntil(this.destroy$),
+            )
+            .subscribe(() => {
+                this.refreshLocalValue(this.safeCurrentValue);
+            });
     }
 
     ngOnDestroy(): void {
@@ -149,13 +177,15 @@ export abstract class AbstractTuiControl<T>
     }
 
     checkControlUpdate(): void {
-        this.changeDetectorRef.markForCheck();
+        this.cdr.markForCheck();
     }
 
     registerOnChange(onChange: (value: T | unknown) => void): void {
         this.onChange = (componentValue: T) => {
             onChange(this.toControlValue(componentValue));
         };
+
+        this.refresh$.next();
     }
 
     registerOnTouched(onTouched: () => void): void {
@@ -183,6 +213,9 @@ export abstract class AbstractTuiControl<T>
         super.updateFocused(focused);
     }
 
+    /**
+     * @deprecated use `value` setter
+     */
     protected updateValue(value: T): void {
         if (this.disabled || this.valueIdenticalComparator(this.value, value)) {
             return;

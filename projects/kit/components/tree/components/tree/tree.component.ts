@@ -19,8 +19,8 @@ import {TuiTreeItemComponent} from '../tree-item/tree-item.component';
 
 @Component({
     selector: 'tui-tree[value]',
-    templateUrl: 'tree.template.html',
-    styleUrls: ['tree.style.less'],
+    templateUrl: './tree.template.html',
+    styleUrls: ['./tree.style.less'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         {
@@ -60,9 +60,13 @@ export class TuiTreeComponent<T> implements DoCheck {
     content: PolymorpheusContent<TuiTreeContext<T>> = ({$implicit}) => String($implicit);
 
     ngDoCheck(): void {
+        this.checkChanges();
+    }
+
+    checkChanges(): void {
         this.check$.next();
-        this.item?.ngDoCheck();
-        this.child?.ngDoCheck();
+        this.item?.checkChanges();
+        this.child?.checkChanges();
     }
 
     private get handler(): TuiHandler<T, readonly T[]> {

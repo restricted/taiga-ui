@@ -2,47 +2,42 @@ import {Component} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {changeDetection} from '@demo/emulate/change-detection';
 import {encapsulation} from '@demo/emulate/encapsulation';
+import {tuiIsFalsy} from '@taiga-ui/cdk';
 import {TUI_VALIDATION_ERRORS} from '@taiga-ui/kit';
-import {interval} from 'rxjs';
+import {interval, of} from 'rxjs';
 import {map, scan, startWith} from 'rxjs/operators';
 
-export function maxLengthValidator(context: {requiredLength: string}): string {
-    return `Maximum length — ${context.requiredLength}`;
-}
-
-export function minLengthValidator(context: {requiredLength: string}): string {
-    return `Minimum length — ${context.requiredLength}`;
-}
-
 @Component({
-    selector: `tui-field-error-pipe-example-2`,
-    templateUrl: `./index.html`,
+    selector: 'tui-field-error-pipe-example-2',
+    templateUrl: './index.html',
     changeDetection,
     encapsulation,
     providers: [
         {
             provide: TUI_VALIDATION_ERRORS,
             useValue: {
-                required: `Enter this!`,
-                email: `Enter a valid email`,
-                maxlength: maxLengthValidator,
-                minlength: minLengthValidator,
+                required: 'Enter this!',
+                email: 'Enter a valid email',
+                maxlength: ({requiredLength}: {requiredLength: string}) =>
+                    `Maximum length — ${requiredLength}`,
+                minlength: ({requiredLength}: {requiredLength: string}) =>
+                    of(`Minimum length — ${requiredLength}`),
                 min: interval(2000).pipe(
-                    scan(acc => !acc, false),
-                    map(val => (val ? `Fix please` : `Min number 3`)),
-                    startWith(`Min number 3`),
+                    scan(tuiIsFalsy, false),
+                    map(val => (val ? 'Fix please' : 'Min number 3')),
+                    startWith('Min number 3'),
                 ),
             },
         },
     ],
 })
 export class TuiFieldErrorPipeExample2 {
-    readonly testValue1 = new FormControl(``, [
+    readonly testValue1 = new FormControl('', [
         Validators.minLength(4),
         Validators.maxLength(4),
     ]);
 
-    readonly testValue2 = new FormControl(``, [Validators.required, Validators.email]);
+    readonly testValue2 = new FormControl('', [Validators.required, Validators.email]);
 
     readonly testValue3 = new FormControl(2, [Validators.min(3)]);
 

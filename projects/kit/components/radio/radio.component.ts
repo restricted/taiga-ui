@@ -66,23 +66,19 @@ export class TuiRadioComponent<T>
     @tuiDefaultProp()
     pseudoDisabled = false;
 
-    readonly animation = {value: '', ...this.animationOptions} as const;
-
     constructor(
         @Optional()
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
-        @Inject(TUI_ANIMATION_OPTIONS)
-        private readonly animationOptions: AnimationOptions,
-        @Inject(TUI_RADIO_OPTIONS)
-        private readonly options: TuiRadioOptions,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
+        @Inject(TUI_ANIMATION_OPTIONS) readonly animation: AnimationOptions,
+        @Inject(TUI_RADIO_OPTIONS) private readonly options: TuiRadioOptions,
         @Optional()
         @Inject(TuiRadioGroupComponent)
         private readonly radioGroup: TuiRadioGroupComponent | null,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get appearance(): string {
@@ -124,7 +120,7 @@ export class TuiRadioComponent<T>
 
     onChecked(checked: boolean): void {
         if (checked) {
-            this.updateValue(this.item !== undefined ? this.item : this.fallbackValue);
+            this.value = this.item !== undefined ? this.item : this.fallbackValue;
         }
     }
 

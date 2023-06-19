@@ -20,8 +20,13 @@ export function tuiGetElementObscures(element: Element): readonly Element[] | nu
     }
 
     const {innerWidth, innerHeight} = ownerDocument.defaultView;
-    const documentRef = tuiGetDocumentOrShadowRoot(element);
+    const doc = tuiGetDocumentOrShadowRoot(element);
     const rect = element.getBoundingClientRect();
+
+    if (rect.width === 0 && rect.height === 0) {
+        return null;
+    }
+
     const left = tuiClamp(Math.round(rect.left) + 2, 0, innerWidth);
     const top = tuiClamp(Math.round(rect.top) + 2, 0, innerHeight);
     const right = tuiClamp(Math.round(rect.right) - 2, 0, innerWidth);
@@ -37,10 +42,10 @@ export function tuiGetElementObscures(element: Element): readonly Element[] | nu
         innerHeight,
     );
     const elements = [
-        documentRef.elementFromPoint(horizontalMiddle, top),
-        documentRef.elementFromPoint(horizontalMiddle, bottom),
-        documentRef.elementFromPoint(left, verticalMiddle),
-        documentRef.elementFromPoint(right, verticalMiddle),
+        doc.elementFromPoint(horizontalMiddle, top),
+        doc.elementFromPoint(horizontalMiddle, bottom),
+        doc.elementFromPoint(left, verticalMiddle),
+        doc.elementFromPoint(right, verticalMiddle),
     ];
     const nonNull = elements.filter(tuiIsPresent);
 

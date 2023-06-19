@@ -39,7 +39,6 @@ export class ExampleTuiTagComponent {
     };
 
     readonly example3: TuiDocExample = {
-        TypeScript: import('./examples/3/index.ts?raw'),
         HTML: import('./examples/3/index.html?raw'),
         LESS: import('./examples/3/index.less?raw'),
     };
@@ -53,6 +52,11 @@ export class ExampleTuiTagComponent {
     readonly example5: TuiDocExample = {
         TypeScript: import('./examples/5/index.ts?raw'),
         HTML: import('./examples/5/index.html?raw'),
+    };
+
+    readonly example6: TuiDocExample = {
+        TypeScript: import('./examples/6/index.ts?raw'),
+        HTML: import('./examples/6/index.html?raw'),
     };
 
     removable = false;
@@ -93,9 +97,7 @@ export class ExampleTuiTagComponent {
     leftContentSelected = '';
 
     get leftContent(): PolymorpheusContent {
-        return this.errorTemplate && this.leftContentSelected !== null
-            ? this.errorTemplate
-            : '';
+        return this.leftContentSelected && this.errorTemplate;
     }
 
     editTag(value: string): void {

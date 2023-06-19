@@ -7,23 +7,23 @@ import {PolymorpheusComponent} from '@tinkoff/ng-polymorpheus';
 import {DialogExampleComponent} from './dialog-example/dialog-example.component';
 
 @Component({
-    selector: `tui-dialog-example-2`,
-    templateUrl: `./index.html`,
+    selector: 'tui-dialog-example-2',
+    templateUrl: './index.html',
     changeDetection,
     encapsulation,
 })
 export class TuiDialogExampleComponent2 {
-    private readonly dialog = this.dialogService.open<number>(
+    private readonly dialog = this.dialogs.open<number>(
         new PolymorpheusComponent(DialogExampleComponent, this.injector),
         {
             data: 237,
             dismissible: true,
-            label: `Heading`,
+            label: 'Heading',
         },
     );
 
     constructor(
-        @Inject(TuiDialogService) private readonly dialogService: TuiDialogService,
+        @Inject(TuiDialogService) private readonly dialogs: TuiDialogService,
         @Inject(Injector) private readonly injector: Injector,
     ) {}
 
@@ -33,7 +33,7 @@ export class TuiDialogExampleComponent2 {
                 console.info(`Dialog emitted data = ${data}`);
             },
             complete: () => {
-                console.info(`Dialog closed`);
+                console.info('Dialog closed');
             },
         });
     }

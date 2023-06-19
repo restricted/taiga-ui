@@ -21,7 +21,11 @@ import {
     TuiNativeFocusableElement,
 } from '@taiga-ui/cdk';
 import {TuiBrightness, TuiModeDirective, TuiSizeL} from '@taiga-ui/core';
-import {TuiRadioComponent} from '@taiga-ui/kit/components/radio';
+import {
+    TUI_RADIO_OPTIONS,
+    TuiRadioComponent,
+    TuiRadioOptions,
+} from '@taiga-ui/kit/components/radio';
 
 @Component({
     selector: 'tui-radio-labeled',
@@ -46,7 +50,7 @@ export class TuiRadioLabeledComponent<T>
     @Input()
     @HostBinding('attr.data-size')
     @tuiDefaultProp()
-    size: TuiSizeL = 'm';
+    size: TuiSizeL = this.options.size;
 
     @Input()
     @tuiDefaultProp()
@@ -61,12 +65,14 @@ export class TuiRadioLabeledComponent<T>
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Optional()
         @Inject(TuiModeDirective)
         private readonly modeDirective: TuiModeDirective | null,
+        @Inject(TUI_RADIO_OPTIONS)
+        private readonly options: TuiRadioOptions,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): TuiNativeFocusableElement | null {
@@ -91,7 +97,8 @@ export class TuiRadioLabeledComponent<T>
         this.updateFocused(focused);
     }
 
+    /** @deprecated use 'value' setter */
     onModelChange(value: T): void {
-        this.updateValue(value);
+        this.value = value;
     }
 }

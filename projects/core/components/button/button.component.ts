@@ -51,12 +51,10 @@ export class TuiButtonComponent
     disabled = false;
 
     @Input()
-    @tuiDefaultProp()
-    icon: PolymorpheusContent = '';
+    icon: PolymorpheusContent;
 
     @Input()
-    @tuiDefaultProp()
-    iconRight: PolymorpheusContent = '';
+    iconRight: PolymorpheusContent;
 
     @Input()
     @HostBinding('attr.data-shape')
@@ -83,7 +81,7 @@ export class TuiButtonComponent
         @Optional()
         @Inject(TuiModeDirective)
         private readonly mode: TuiModeDirective | null,
-        @Inject(ElementRef) private readonly elementRef: ElementRef<HTMLElement>,
+        @Inject(ElementRef) private readonly el: ElementRef<HTMLElement>,
         @Inject(TuiFocusVisibleService) focusVisible$: TuiFocusVisibleService,
         @Inject(TUI_BUTTON_OPTIONS) private readonly options: TuiButtonOptions,
     ) {
@@ -94,11 +92,11 @@ export class TuiButtonComponent
     }
 
     get nativeFocusableElement(): HTMLElement | null {
-        return this.nativeDisabled ? null : this.elementRef.nativeElement;
+        return this.nativeDisabled ? null : this.el.nativeElement;
     }
 
     get focused(): boolean {
-        return !this.showLoader && tuiIsNativeFocused(this.elementRef.nativeElement);
+        return !this.showLoader && tuiIsNativeFocused(this.el.nativeElement);
     }
 
     get loaderSize(): TuiSizeS {

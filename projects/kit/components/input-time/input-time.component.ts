@@ -10,9 +10,13 @@ import {
     ViewChild,
 } from '@angular/core';
 import {NgControl} from '@angular/forms';
+import {MaskitoOptions} from '@maskito/core';
+import {maskitoTimeOptionsGenerator} from '@maskito/kit';
 import {
     AbstractTuiNullableControl,
     ALWAYS_FALSE_HANDLER,
+    TUI_IS_IOS,
+    TUI_IS_MOBILE,
     TUI_STRICT_MATCHER,
     tuiAsControl,
     tuiAsFocusableItemAccessor,
@@ -28,19 +32,18 @@ import {
     TuiTimeMode,
 } from '@taiga-ui/cdk';
 import {
+    TUI_TEXTFIELD_SIZE,
     tuiAsDataListHost,
     tuiAsOptionContent,
     TuiDataListHost,
     TuiPrimitiveTextfieldComponent,
-    TuiTextMaskOptions,
+    TuiSizeL,
+    TuiSizeS,
+    TuiTextfieldSizeDirective,
 } from '@taiga-ui/core';
 import {TUI_SELECT_OPTION} from '@taiga-ui/kit/components/select-option';
 import {FIXED_DROPDOWN_CONTROLLER_PROVIDER} from '@taiga-ui/kit/providers';
 import {TUI_TIME_TEXTS} from '@taiga-ui/kit/tokens';
-import {
-    tuiCreateAutoCorrectedTimePipe,
-    tuiCreateTimeMask,
-} from '@taiga-ui/kit/utils/mask';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
@@ -98,13 +101,17 @@ export class TuiInputTimeComponent
         @Self()
         @Inject(NgControl)
         control: NgControl | null,
-        @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
+        @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
         @Inject(TUI_TIME_TEXTS)
         private readonly timeTexts$: Observable<Record<TuiTimeMode, string>>,
         @Inject(TUI_INPUT_TIME_OPTIONS)
         private readonly options: TuiInputTimeOptions,
+        @Inject(TUI_IS_MOBILE) private readonly isMobile: boolean,
+        @Inject(TUI_TEXTFIELD_SIZE)
+        private readonly textfieldSize: TuiTextfieldSizeDirective,
+        @Inject(TUI_IS_IOS) private readonly isIos: boolean,
     ) {
-        super(control, changeDetectorRef);
+        super(control, cdr);
     }
 
     get nativeFocusableElement(): HTMLInputElement | null {
@@ -115,11 +122,30 @@ export class TuiInputTimeComponent
         return tuiIsNativeFocused(this.nativeFocusableElement);
     }
 
+    get canOpen(): boolean {
+        return this.interactive && !!this.filtered.length;
+    }
+
     get filtered(): readonly TuiTime[] {
         return this.filter(this.items, this.mode, this.computedSearch);
     }
 
-    get textMaskOptions(): TuiTextMaskOptions {
+    get showNativePicker(): boolean {
+        return (
+            this.nativePicker &&
+            (!this.isIos || (this.mode === 'HH:MM' && !this.items.length))
+        );
+    }
+
+    get nativeDatalist(): boolean {
+        return this.nativePicker && !this.isIos;
+    }
+
+    get size(): TuiSizeL | TuiSizeS {
+        return this.textfieldSize.size;
+    }
+
+    get maskOptions(): MaskitoOptions {
         return this.calculateMask(this.mode);
     }
 
@@ -136,7 +162,7 @@ export class TuiInputTimeComponent
             return false;
         }
 
-        if (this.open || this.computedFocused) {
+        if ((this.open && this.canOpen) || this.computedFocused) {
             return true;
         }
 
@@ -179,20 +205,20 @@ export class TuiInputTimeComponent
         const match = this.getMatch(value);
 
         if (match !== undefined) {
-            this.updateValue(match);
+            this.value = match;
 
             return;
         }
 
         if (value.length !== this.mode.length) {
-            this.updateValue(null);
+            this.value = null;
 
             return;
         }
 
         const time = TuiTime.fromString(value);
 
-        this.updateValue(this.strict ? this.findNearestTimeFromItems(time) : time);
+        this.value = this.strict ? this.findNearestTimeFromItems(time) : time;
     }
 
     onFocused(focused: boolean): void {
@@ -207,9 +233,7 @@ export class TuiInputTimeComponent
             return;
         }
 
-        const parsedTime = TuiTime.fromString(this.nativeValue);
-
-        this.updateValue(parsedTime);
+        this.value = TuiTime.fromString(this.nativeValue);
 
         setTimeout(() => {
             if (this.nativeValue.endsWith('.') || this.nativeValue.endsWith(':')) {
@@ -236,7 +260,7 @@ export class TuiInputTimeComponent
 
     handleOption(item: TuiTime): void {
         this.focusInput();
-        this.updateValue(item);
+        this.value = item;
     }
 
     onOpen(open: boolean): void {
@@ -248,13 +272,23 @@ export class TuiInputTimeComponent
         this.nativeValue = value ? this.computedValue : '';
     }
 
+    private get nativePicker(): boolean {
+        return !!this.options.nativePicker && this.isMobile;
+    }
+
     @tuiPure
-    private calculateMask(mode: TuiTimeMode): TuiTextMaskOptions {
-        return {
-            mask: tuiCreateTimeMask(mode, this.options.maxValues),
-            pipe: tuiCreateAutoCorrectedTimePipe(mode, this.options.maxValues),
-            guide: false,
-        };
+    private calculateMask(mode: TuiTimeMode): MaskitoOptions {
+        const {HH, MM, SS, MS} = this.options.maxValues;
+
+        return maskitoTimeOptionsGenerator({
+            mode,
+            timeSegmentMaxValues: {
+                hours: HH,
+                minutes: MM,
+                seconds: SS,
+                milliseconds: MS,
+            },
+        });
     }
 
     @tuiPure
@@ -319,11 +353,11 @@ export class TuiInputTimeComponent
             return;
         }
 
-        const increasedTime: TuiTime = this.value.shift(shift);
+        const increasedTime = this.value.shift(shift);
 
         // Manual update so we can set caret position properly
         this.nativeValue = increasedTime.toString(this.mode);
-        this.updateValue(increasedTime);
+        this.value = increasedTime;
     }
 
     private focusInput(preventScroll: boolean = false): void {

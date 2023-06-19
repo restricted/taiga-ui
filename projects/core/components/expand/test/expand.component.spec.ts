@@ -1,5 +1,6 @@
 import {Component, ElementRef, ViewChild} from '@angular/core';
 import {ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
+import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {TUI_EXPAND_LOADED, TuiExpandComponent, TuiExpandModule} from '@taiga-ui/core';
 import {configureTestSuite, TuiPageObject} from '@taiga-ui/testing';
 
@@ -40,7 +41,7 @@ describe(`expand`, () => {
 
     configureTestSuite(() => {
         TestBed.configureTestingModule({
-            imports: [TuiExpandModule],
+            imports: [TuiExpandModule, NoopAnimationsModule],
             declarations: [TestComponent],
         });
     });
@@ -142,7 +143,7 @@ describe(`expand`, () => {
 
     /**
      * @note:
-     * JDOM doesn't support native transitionend
+     * JSDOM doesn't support native transitionend
      */
     function transitionend(): void {
         const event = new Event(`transitionend.self`);

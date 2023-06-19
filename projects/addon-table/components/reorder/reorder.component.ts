@@ -1,4 +1,5 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     EventEmitter,
     HostListener,
@@ -14,6 +15,7 @@ import {Observable} from 'rxjs';
     selector: 'tui-reorder',
     templateUrl: './reorder.template.html',
     styleUrls: ['./reorder.style.less'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TuiReorderComponent<T> {
     private dragging = false;
@@ -70,7 +72,7 @@ export class TuiReorderComponent<T> {
     }
 
     getIcon(item: T): string {
-        return this.isEnabled(item) ? 'tuiIconEyeOpen' : 'tuiIconEyeClosed';
+        return this.isEnabled(item) ? 'tuiIconEye' : 'tuiIconEyeOff';
     }
 
     toggle(toggled: T): void {
